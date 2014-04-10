@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="at.fhhgb.mc.notify"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+   	<uses-permission android:name="android.permission.INTERNET" />
+   	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
+   	<uses-permission android:name="android.permission.WAKE_LOCK" />
+  	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+   	<permission
+        android:name="com.push.pushapplication.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+   	<uses-permission android:name="com.push.pushapplication.permission.C2D_MESSAGE" />
+   
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="19" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" 
+        android:name="at.fhhgb.mc.notify.push.PushApplication">
+        <activity
+            android:name="at.fhhgb.mc.notify.MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <receiver
+   			android:name="org.jboss.aerogear.android.unifiedpush.AeroGearGCMMessageReceiver"
+    		android:permission="com.google.android.c2dm.permission.SEND" >
+    		<intent-filter>
+        		<action android:name="com.google.android.c2dm.intent.RECEIVE" />
+        		<category android:name="at.fhhgb.mc.push.PushApplication" />
+    		</intent-filter>
+    		<meta-data android:name="DEFAULT_MESSAGE_HANDLER_KEY" android:value="at.fhhgb.mc.notify.push.PushHandler"/>
+		</receiver>
+    </application>
+
+</manifest>
