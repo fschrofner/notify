@@ -10,11 +10,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import at.fhhgb.mc.notify.push.*;
 
-public class MainActivity extends Activity implements MessageHandler{
+public class MainActivity extends Activity implements MessageHandler, OnClickListener{
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +46,9 @@ public class MainActivity extends Activity implements MessageHandler{
 	            Log.e("MainActivity", exception.getMessage(), exception);
 	        }
 	    });
+	    
+	    Button pushButton = (Button)findViewById(R.id.push_button);
+	    pushButton.setOnClickListener(this);
 	}
 
 	@Override
@@ -79,6 +86,12 @@ public class MainActivity extends Activity implements MessageHandler{
 	@Override
 	public void onError() {
 	    // handle GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR
+	}
+
+	@Override
+	public void onClick(View v) {
+		EditText text = (EditText)findViewById(R.id.alias_text);
+		PushSender.sendPushToAlias(text.getText().toString());
 	}
 
 }
