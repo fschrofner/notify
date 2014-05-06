@@ -39,6 +39,9 @@
             </intent-filter>
         </receiver>
         
+        <service android:name="at.fhhgb.mc.notify.notification.NotificationService" >
+        </service>
+        
         <receiver
    			android:name="org.jboss.aerogear.android.unifiedpush.AeroGearGCMMessageReceiver"
     		android:permission="com.google.android.c2dm.permission.SEND" >

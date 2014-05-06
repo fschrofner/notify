@@ -2,6 +2,8 @@ package at.fhhgb.mc.notify.notification;
 
 import java.util.ArrayList;
 
+import org.joda.time.DateTime;
+
 import android.app.NotificationManager;
 import android.content.Context;
 import android.support.v4.app.NotificationCompat;
@@ -35,6 +37,29 @@ public class Notification {
 	//so that multiple notification don't get concatenated
 	static int mNotificationID = 0;
 	
+	public Notification(){
+		initialiseDate();
+	}
+	
+	public Notification(String _title, String _message){
+		initialiseDate();
+		mTitle = _title;
+		mMessage = _message;
+	}
+	
+	private void initialiseDate(){
+		mStartYear = -1;
+		mStartMonth = -1;
+		mStartDay = -1;
+		mStartHours = -1;
+		mStartMinutes = -1;
+		mEndYear = -1;
+		mEndMonth = -1;
+		mEndDay = -1;
+		mEndHours = -1;
+		mEndMinutes = -1;
+	}
+	
 	/**
 	 * Shows the notification.
 	 */
@@ -54,6 +79,21 @@ public class Notification {
         mNotificationID++;
         Log.i(TAG, "notification built");
         
+	}
+	
+	public ArrayList<DateTime> getDates(){
+		ArrayList<DateTime> dates = new ArrayList<DateTime>(2);
+		if(mStartYear != -1){
+			dates.add(new DateTime(mStartYear, mStartMonth, mStartDay, mStartHours, mStartMinutes));
+		} else {
+			dates.add(null);
+		}
+		if(mEndYear != -1){
+			dates.add(new DateTime(mEndYear, mEndMonth, mEndDay, mEndHours, mEndMinutes));
+		} else {
+			dates.add(null);
+		}
+		return dates;
 	}
 	
 	public String getTitle() {
