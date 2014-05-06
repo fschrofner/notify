@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.push.*;
 
 public class MainActivity extends Activity implements MessageHandler, OnClickListener{
@@ -49,6 +50,14 @@ public class MainActivity extends Activity implements MessageHandler, OnClickLis
 	    
 	    Button pushButton = (Button)findViewById(R.id.push_button);
 	    pushButton.setOnClickListener(this);
+	    Notification noti = new Notification();
+	    noti.setTitle("TEST TITLE");
+	    noti.setMessage("this is a test to test the test notification test.. \n let's make it a bit longer \n I wanna see what happens test test \n test");
+	    noti.showNotification(this);
+	    noti = new Notification();
+	    noti.setTitle("test two!");
+	    noti.setMessage("test number 2");
+	    noti.showNotification(this);
 	}
 
 	@Override
