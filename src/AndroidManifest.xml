@@ -23,6 +23,11 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" 
         android:name="at.fhhgb.mc.notify.push.PushApplication">
+        
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version"/>
+        
         <activity
             android:name="at.fhhgb.mc.notify.MainActivity"
             android:label="@string/app_name" >
@@ -32,6 +37,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".sync.CreateFolder"></activity>
+        <activity android:name=".sync.CreateFile"></activity>
+        <activity android:name=".sync.CreateFileAppFolder"></activity>
+        <activity android:name=".sync.ListFiles"></activity>
         
         <receiver
    			android:name="org.jboss.aerogear.android.unifiedpush.AeroGearGCMMessageReceiver"
