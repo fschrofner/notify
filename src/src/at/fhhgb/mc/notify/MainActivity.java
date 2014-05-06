@@ -8,6 +8,7 @@ import org.jboss.aerogear.android.unifiedpush.Registrations;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -17,6 +18,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import at.fhhgb.mc.notify.notification.Notification;
+import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.push.*;
 
 public class MainActivity extends Activity implements MessageHandler, OnClickListener{
@@ -50,14 +52,8 @@ public class MainActivity extends Activity implements MessageHandler, OnClickLis
 	    
 	    Button pushButton = (Button)findViewById(R.id.push_button);
 	    pushButton.setOnClickListener(this);
-	    Notification noti = new Notification();
-	    noti.setTitle("TEST TITLE");
-	    noti.setMessage("this is a test to test the test notification test.. \n let's make it a bit longer \n I wanna see what happens test test \n test");
-	    noti.showNotification(this);
-	    noti = new Notification();
-	    noti.setTitle("test two!");
-	    noti.setMessage("test number 2");
-	    noti.showNotification(this);
+	    Intent intent = new Intent(this, NotificationService.class);
+	    startService(intent);
 	}
 
 	@Override

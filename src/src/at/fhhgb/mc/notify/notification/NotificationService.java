@@ -2,6 +2,9 @@ package at.fhhgb.mc.notify.notification;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+
+import org.joda.time.DateTime;
 
 import android.app.IntentService;
 import android.app.Service;
@@ -25,6 +28,7 @@ public class NotificationService extends Service {
 	public void onCreate() {
 		reload();
 		super.onCreate();
+		Log.i(TAG, "service started");
 	}
 	
 	@Override
@@ -32,11 +36,17 @@ public class NotificationService extends Service {
 		
 		//sets the current time every time an intent is sent
 		mCurrentYear = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
+		
+		//please note: the months start with 0 (= January)
 		mCurrentMonth = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.MONTH)));
 		mCurrentDay = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.DAY_OF_MONTH)));
 		mCurrentHours = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)));
 		mCurrentMinutes = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.MINUTE)));
 		
+		Log.i(TAG, "date set to: " + mCurrentYear + "/" + mCurrentMonth + 1 + "/" + mCurrentDay + " " + mCurrentHours + ":" + mCurrentMinutes);
+		
+		compare();
+		Log.i(TAG, "current time set and comparison started");
 		return super.onStartCommand(intent, flags, startId);
 	}
 
@@ -44,62 +54,49 @@ public class NotificationService extends Service {
 	 * Reloads the notification list of the service.
 	 */
 	public void reload(){
-		
+		mNotifications = new ArrayList<Notification>();
+		Notification noti = new Notification("Test Nr. 1", "This is the first notification");
+		noti.setStartYear(2014);
+		noti.setStartMonth(4);
+		noti.setStartDay(6);
+		noti.setStartHours(22);
+		noti.setStartMinutes(50);
+		mNotifications.add(noti);
 	}
 	
 	/**
 	 * Compares all the notifications inside the notification list and displays all matching notifications.
 	 */
 	public void compare(){
-		for(int i=0;i<mNotifications.size();i++){
-			if(compareYear(mNotifications.get(i))){
-				if(compareMonth(mNotifications.get(i))){
-					
-				} else {
-					Log.i(TAG, "month not matching for: " + mNotifications.get(i).getTitle());
-				}
+		Log.i(TAG, "comparison called");
+		DateTime currentDate = new DateTime(mCurrentYear, mCurrentMonth, mCurrentDay, mCurrentHours, mCurrentMinutes);
+		for(int i=0;i<mNotifications.size();i++){ 
+			if(compareDates(currentDate,mNotifications.get(i))){
+				mNotifications.get(i).showNotification(getApplicationContext());
+				Log.i(TAG, "matching notification: " + mNotifications.get(i).getTitle());
 			} else {
-				Log.i(TAG, "year not matching for: " + mNotifications.get(i).getTitle());
+				Log.i(TAG, "notification does not match");
 			}
 		}
 	}
 	
+
 	/**
-	 * Checks if the current year would fit to the year range set in the notification.
-	 * @param _notification the notification you want to check
-	 * @return true = it matches, false = it does not
+	 * Checks if the given date is inside the given date range.
+	 * @param _date the date you want to check
+	 * @param _dateRange the date range to which it should be compared
+	 * @return true = date inside range, false = date outside the range
 	 */
-	private boolean compareYear(Notification _notification){
-		if(_notification.getStartYear() == -1 && _notification.getEndYear() == -1){
+	private boolean compareDates(DateTime _date, Notification _notification){
+		ArrayList<DateTime>dateRange = _notification.getDates();
+		
+		if(_notification.getStartYear() == -1 || (dateRange.get(0).isBefore(_date) && _notification.getEndYear() == -1)){
 			return true;
-		} else if(_notification.getStartYear() >= mCurrentYear && 
-				(_notification.getEndYear() == -1 || _notification.getEndYear() <= mCurrentYear)){
+		} else if(_date.isAfter(dateRange.get(0)) && _date.isBefore(dateRange.get(1))){
 			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	
-	/**
-	 * Checks if the current month matches the month specified inside the notification.
-	 * @param _notification the notification you want to check
-	 * @return true = it matches, false = it does not
-	 */
-	private boolean compareMonth(Notification _notification){	
-		//checks if the notification should start in the current year and month
-		//and if the end year either is either higher than the current year or the end month is not reached yet
-		if(_notification.getStartYear() == mCurrentYear && _notification.getStartMonth() >= mCurrentMonth &&
-				((_notification.getEndYear() > mCurrentYear) || 
-						(_notification.getEndYear() == mCurrentYear && _notification.getEndMonth() <= mCurrentMonth))){
+		} else if(_date.isEqual(dateRange.get(0)) && _date.isBefore(dateRange.get(1))){
 			return true;
-		//checks if the current year is inbetween the start and endyear
-		} else if(_notification.getStartYear() < mCurrentYear && _notification.getEndYear() > mCurrentYear){
-			return true;
-		//checks if the startyear is earlier than the current year and if the end year is equal to the current year
-		//and the end month mathes the current month
-		} else if(_notification.getStartYear() < mCurrentYear && _notification.getEndYear() == mCurrentYear 
-				&& _notification.getEndMonth() >= mCurrentMonth){
+		} else if(_date.isAfter(dateRange.get(0)) && _date.isEqual(dateRange.get(1))){
 			return true;
 		} else {
 			return false;
