@@ -12,13 +12,12 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context _context, Intent _intent) {
-		
-		Log.i(TAG, "time tick!");
-		
+		Log.i(TAG, "broadcast received");
 		//check the broadcast, eventhough it should be the only one
-		if (_intent.getAction().equals(Intent.ACTION_TIME_TICK)) {
-			Log.i(TAG, "time tick!");
+		if (_intent.getAction().equals(Notification.ACTION_ALARM)) {
+			Log.i(TAG, "alarm triggered!");
 			Intent intent = new Intent(_context,NotificationService.class);
+			intent.setAction(Notification.ACTION_ALARM);
 			_context.startService(intent);
 		}
 

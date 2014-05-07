@@ -33,10 +33,7 @@
             </intent-filter>
         </activity>
         
-        <receiver android:name="at.fhhgb.mc.notify.notification.NotificationBroadcastReceiver" >
-            <intent-filter>
-                <action android:name="android.intent.action.TIME_TICK" />
-            </intent-filter>
+        <receiver android:name="at.fhhgb.mc.notify.notification.NotificationBroadcastReceiver">
         </receiver>
         
         <service android:name="at.fhhgb.mc.notify.notification.NotificationService" >
