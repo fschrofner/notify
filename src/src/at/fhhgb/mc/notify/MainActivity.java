@@ -53,6 +53,7 @@ public class MainActivity extends Activity implements MessageHandler, OnClickLis
 	    Button pushButton = (Button)findViewById(R.id.push_button);
 	    pushButton.setOnClickListener(this);
 	    Intent intent = new Intent(this, NotificationService.class);
+	    intent.setAction("bla");
 	    startService(intent);
 	}
 

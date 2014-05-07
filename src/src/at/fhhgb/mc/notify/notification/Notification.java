@@ -4,8 +4,12 @@ import java.util.ArrayList;
 
 import org.joda.time.DateTime;
 
+import android.app.AlarmManager;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import at.fhhgb.mc.notify.R;
@@ -18,6 +22,7 @@ import at.fhhgb.mc.notify.R;
 
 public class Notification {
 	final static String TAG = "Notification";
+	final static String ACTION_ALARM = "at.fhhgb.mc.notify.notification.NOTIFICATION_ALARM";
 	
 	private String mTitle;
 	private int mStartYear;
@@ -32,6 +37,7 @@ public class Notification {
 	private int mEndMinutes;
 	private String mMessage;
 	private ArrayList<String> mFiles;
+	private long mUniqueID;
 	
 	//static notification id makes sure that each id is unique
 	//so that multiple notification don't get concatenated
@@ -94,6 +100,40 @@ public class Notification {
 			dates.add(null);
 		}
 		return dates;
+	}
+	
+	public void registerAlarm(Context _context){
+		AlarmManager alarmManager = (AlarmManager)_context.getSystemService(Context.ALARM_SERVICE);
+		Intent intent = new Intent(_context, NotificationBroadcastReceiver.class);
+		intent.setAction(ACTION_ALARM);
+		ArrayList<DateTime> dates = getDates();
+		
+		for(int i = 0; i < dates.size(); i++){
+			if(dates.get(i) != null){
+				//the data gets set here so that the intents become different and will not overwrite each other
+				intent.setData(Uri.parse(dates.get(i).toString()));
+				PendingIntent pendingIntent= PendingIntent.getBroadcast(_context, 0, intent, 0);
+				alarmManager.set(AlarmManager.RTC_WAKEUP, dates.get(i).getMillis(), pendingIntent);
+				Log.i(TAG, "set notification alarm at: " + dates.get(i).toString());
+			}
+		}
+
+	}
+	
+	/**
+	 * Generates a unique id to use with a notification.
+	 * The first value is a random number between 0 and 99, then the current time in ms is concatenated.
+	 * @return a unique id for your notification
+	 */
+	public static long generateUniqueID(){
+		byte first = (byte)(Math.random() * 99);
+		long id = Long.parseLong(Byte.toString(first) + System.currentTimeMillis());
+		Log.i(TAG, "generated unique id: " + id);
+		return id;
+	}
+	
+	public String getUniqueIDString(){
+		return Long.toString(mUniqueID);
 	}
 	
 	public String getTitle() {
@@ -173,5 +213,11 @@ public class Notification {
 	}
 	public void setFiles(ArrayList<String> files) {
 		this.mFiles = files;
+	}
+	public long getUniqueID() {
+		return mUniqueID;
+	}
+	public void setUniqueID(long mUniqueID) {
+		this.mUniqueID = mUniqueID;
 	}
 }

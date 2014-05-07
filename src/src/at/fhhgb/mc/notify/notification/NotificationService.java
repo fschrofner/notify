@@ -9,12 +9,27 @@ import org.joda.time.DateTime;
 import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.util.Log;
 
-public class NotificationService extends Service {
+public class NotificationService extends IntentService {
+
+	public NotificationService(String name) {
+		super(name);
+		Log.i(TAG, "service started");
+		// TODO Auto-generated constructor stub
+	}
+	
+	public NotificationService() {
+		super("name");
+		Log.i(TAG, "service started");
+		// TODO Auto-generated constructor stub
+	}
 
 	static final String TAG = "NotificationService";
+	static final String TRIGGERED_NOTIFICATIONS = "triggered_notifications";
 	
 	private int mCurrentYear;
 	private int mCurrentMonth;
@@ -23,45 +38,36 @@ public class NotificationService extends Service {
 	private int mCurrentMinutes;
 	
 	private ArrayList<Notification> mNotifications;
-	
-	@Override
-	public void onCreate() {
-		reload();
-		super.onCreate();
-		Log.i(TAG, "service started");
-	}
-	
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		
-		//sets the current time every time an intent is sent
-		mCurrentYear = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
-		
-		//please note: the months start with 0 (= January)
-		mCurrentMonth = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.MONTH)));
-		mCurrentDay = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.DAY_OF_MONTH)));
-		mCurrentHours = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)));
-		mCurrentMinutes = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.MINUTE)));
-		
-		Log.i(TAG, "date set to: " + mCurrentYear + "/" + mCurrentMonth + 1 + "/" + mCurrentDay + " " + mCurrentHours + ":" + mCurrentMinutes);
-		
-		compare();
-		Log.i(TAG, "current time set and comparison started");
-		return super.onStartCommand(intent, flags, startId);
-	}
 
 	/**
 	 * Reloads the notification list of the service.
 	 */
 	public void reload(){
+		//TODO these are just some test notifications, the real notifications need to be loaded from xml files here
 		mNotifications = new ArrayList<Notification>();
 		Notification noti = new Notification("Test Nr. 1", "This is the first notification");
 		noti.setStartYear(2014);
-		noti.setStartMonth(4);
-		noti.setStartDay(6);
-		noti.setStartHours(22);
-		noti.setStartMinutes(50);
+		noti.setStartMonth(5);
+		noti.setStartDay(8);
+		noti.setStartHours(8);
+		noti.setStartMinutes(0);
+		noti.setUniqueID(12);
 		mNotifications.add(noti);
+		noti = new Notification("Test Nr. 2", "This is the second notification");
+		noti.setStartYear(2014);
+		noti.setStartMonth(5);
+		noti.setStartDay(8);
+		noti.setStartHours(9);
+		noti.setStartMinutes(20);
+		noti.setUniqueID(13);
+		mNotifications.add(noti);
+	}
+	
+	public void registerNotificationAlarms(){
+		reload();
+		for(int i = 0; i < mNotifications.size(); i++){
+			mNotifications.get(i).registerAlarm(getApplicationContext());
+		}
 	}
 	
 	/**
@@ -70,12 +76,17 @@ public class NotificationService extends Service {
 	public void compare(){
 		Log.i(TAG, "comparison called");
 		DateTime currentDate = new DateTime(mCurrentYear, mCurrentMonth, mCurrentDay, mCurrentHours, mCurrentMinutes);
+		SharedPreferences triggeredNotifications = getSharedPreferences(TRIGGERED_NOTIFICATIONS, 0);
+		
 		for(int i=0;i<mNotifications.size();i++){ 
-			if(compareDates(currentDate,mNotifications.get(i))){
-				mNotifications.get(i).showNotification(getApplicationContext());
+			//checks if the notification should be triggered at the current time and if it hasn't been triggered before
+			if(compareDates(currentDate,mNotifications.get(i)) && 
+					!triggeredNotifications.contains(mNotifications.get(i).getUniqueIDString())){
 				Log.i(TAG, "matching notification: " + mNotifications.get(i).getTitle());
+				mNotifications.get(i).showNotification(getApplicationContext());
+				triggeredNotifications.edit().putBoolean(mNotifications.get(i).getUniqueIDString(), true).commit();
 			} else {
-				Log.i(TAG, "notification does not match");
+				Log.i(TAG, "notification does not match or has already been showed");
 			}
 		}
 	}
@@ -107,6 +118,34 @@ public class NotificationService extends Service {
 	public IBinder onBind(Intent arg0) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	protected void onHandleIntent(Intent _intent) {
+		
+		
+		if(_intent.getAction() != null && _intent.getAction().equals(Notification.ACTION_ALARM)){
+			//sets the current time every time an intent is sent
+			mCurrentYear = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)));
+			//please note: the months start with 0 (= January)
+			mCurrentMonth = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.MONTH)));
+			++mCurrentMonth;
+			mCurrentDay = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.DAY_OF_MONTH)));
+			mCurrentHours = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)));
+			mCurrentMinutes = Integer.parseInt(String.valueOf(Calendar.getInstance().get(Calendar.MINUTE)));
+			
+			Log.i(TAG, "date set to: " + mCurrentYear + "/" + mCurrentMonth + "/" + mCurrentDay + " " + mCurrentHours + ":" + mCurrentMinutes);
+			
+			Log.i(TAG, "current time set and comparison started");
+			reload();
+			compare();
+		}
+		
+		else if(_intent.getAction() != null && _intent.getAction().equals("bla")){
+			registerNotificationAlarms();
+			Log.i(TAG, "notifications registered");
+		}
+
 	}
 	
 
