@@ -50,7 +50,7 @@ public class XmlCreator {
 		mDocument = mBuilder.newDocument();
 		
 		//create the root element
-		Element rootElement = mDocument.createElement("notification");
+		Element rootElement = mDocument.createElement(Notification.KEY_ROOT);
 		mDocument.appendChild(rootElement);
 		
 		try {
