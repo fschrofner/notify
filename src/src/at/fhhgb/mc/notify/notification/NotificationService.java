@@ -1,5 +1,6 @@
 package at.fhhgb.mc.notify.notification;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,6 +15,7 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.util.Log;
 import at.fhhgb.mc.notify.xml.XmlCreator;
+import at.fhhgb.mc.notify.xml.XmlParser;
 
 public class NotificationService extends IntentService {
 
@@ -46,25 +48,39 @@ public class NotificationService extends IntentService {
 	public void reload(){
 		//TODO these are just some test notifications, the real notifications need to be loaded from xml files here
 		mNotifications = new ArrayList<Notification>();
-		Notification noti = new Notification("Test Nr. 1", "This is the first notification");
-		noti.setStartYear(2014);
-		noti.setStartMonth(5);
-		noti.setStartDay(8);
-		noti.setStartHours(8);
-		noti.setStartMinutes(0);
-		noti.setUniqueID(12);
-		mNotifications.add(noti);
-		noti = new Notification("Test Nr. 2", "This is the second notification");
-		noti.setStartYear(2014);
-		noti.setStartMonth(5);
-		noti.setStartDay(8);
-		noti.setStartHours(9);
-		noti.setStartMinutes(20);
-		noti.setUniqueID(13);
-		mNotifications.add(noti);
+		XmlParser parser = new XmlParser(getApplicationContext());
+		Notification noti;
+		try {
+			noti = parser.readXml("12");
+			mNotifications.add(noti);
+			noti = parser.readXml("13");
+			mNotifications.add(noti);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//		Notification noti = new Notification("Test Nr. 1", "This is the first notification");
+//		noti.setStartYear(2014);
+//		noti.setStartMonth(5);
+//		noti.setStartDay(8);
+//		noti.setStartHours(8);
+//		noti.setStartMinutes(0);
+//		noti.setUniqueID(12);
+//		mNotifications.add(noti);
+//		XmlCreator creator = new XmlCreator();
+//		creator.create(noti, getApplicationContext());
 		
-		XmlCreator creator = new XmlCreator();
-		creator.create(noti, getApplicationContext());
+//		noti = new Notification("Test Nr. 2", "This is the second notification");
+//		noti.setStartYear(2014);
+//		noti.setStartMonth(5);
+//		noti.setStartDay(8);
+//		noti.setStartHours(9);
+//		noti.setStartMinutes(20);
+//		noti.setUniqueID(13);
+//		mNotifications.add(noti);
+		
+//		creator = new XmlCreator();
+//		creator.create(noti, getApplicationContext());
 	}
 	
 	public void registerNotificationAlarms(){

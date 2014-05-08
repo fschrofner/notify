@@ -25,6 +25,7 @@ public class Notification {
 	public final static String ACTION_ALARM = "at.fhhgb.mc.notify.notification.NOTIFICATION_ALARM";
 	
 	//strings used for xml creation and parsing
+	public final static String KEY_ROOT = "notification";
 	public final static String KEY_TITLE = "title";
 	public final static String KEY_DATE = "date";
 	public final static String KEY_TIME = "time";
@@ -152,6 +153,28 @@ public class Notification {
 		return id;
 	}
 	
+	public void setStartDate(int _year,int _month, int _day){
+		mStartYear = _year;
+		mStartMonth = _month;
+		mStartDay = _day;
+	}
+	
+	public void setEndDate(int _year,int _month, int _day){
+		mEndYear = _year;
+		mEndMonth = _month;
+		mEndDay = _day;
+	}
+	
+	public void setStartTime(int _hours,int _minutes){
+		mStartHours = _hours;
+		mStartMinutes = _minutes;
+	}
+	
+	public void setEndTime(int _hours,int _minutes){
+		mEndHours = _hours;
+		mEndMinutes = _minutes;
+	}
+	
 	public String getUniqueIDString(){
 		return Long.toString(mUniqueID);
 	}
@@ -159,8 +182,13 @@ public class Notification {
 	public String getTitle() {
 		return mTitle;
 	}
-	public void setTitle(String title) {
-		this.mTitle = title;
+	public void setTitle(String title) throws Exception {
+		if(title != null){
+			this.mTitle = title;
+		}
+		else{
+			throw(new Exception("title can not be null"));
+		}
 	}
 	public int getStartYear() {
 		return mStartYear;
