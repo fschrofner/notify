@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.util.Log;
+import at.fhhgb.mc.notify.xml.XmlCreator;
 
 public class NotificationService extends IntentService {
 
@@ -61,6 +62,9 @@ public class NotificationService extends IntentService {
 		noti.setStartMinutes(20);
 		noti.setUniqueID(13);
 		mNotifications.add(noti);
+		
+		XmlCreator creator = new XmlCreator();
+		creator.create(noti, getApplicationContext());
 	}
 	
 	public void registerNotificationAlarms(){

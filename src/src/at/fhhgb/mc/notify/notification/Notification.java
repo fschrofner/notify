@@ -22,7 +22,27 @@ import at.fhhgb.mc.notify.R;
 
 public class Notification {
 	final static String TAG = "Notification";
-	final static String ACTION_ALARM = "at.fhhgb.mc.notify.notification.NOTIFICATION_ALARM";
+	public final static String ACTION_ALARM = "at.fhhgb.mc.notify.notification.NOTIFICATION_ALARM";
+	
+	//strings used for xml creation and parsing
+	public final static String KEY_TITLE = "title";
+	public final static String KEY_DATE = "date";
+	public final static String KEY_TIME = "time";
+	public final static String KEY_MESSAGE = "message";
+	public final static String KEY_FILE = "file";
+	public final static String ATTRIBUTE_CONTENT = "content";
+	public final static String ATTRIBUTE_PATH = "path";
+	public final static String ATTRIBUTE_START_YEAR = "start_year";
+	public final static String ATTRIBUTE_START_MONTH = "start_month";
+	public final static String ATTRIBUTE_START_DAY = "start_day";
+	public final static String ATTRIBUTE_START_HOURS = "start_hours";
+	public final static String ATTRIBUTE_START_MINUTES = "start_minutes";
+	public final static String ATTRIBUTE_END_YEAR = "end_year";
+	public final static String ATTRIBUTE_END_MONTH = "end_month";
+	public final static String ATTRIBUTE_END_DAY = "end_day";
+	public final static String ATTRIBUTE_END_HOURS = "end_hours";
+	public final static String ATTRIBUTE_END_MINUTES = "end_minutes";
+	
 	
 	private String mTitle;
 	private int mStartYear;
