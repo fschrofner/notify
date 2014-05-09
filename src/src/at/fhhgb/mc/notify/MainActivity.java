@@ -1,5 +1,7 @@
 package at.fhhgb.mc.notify;
 
+import java.io.IOException;
+
 import org.jboss.aerogear.android.Callback;
 import org.jboss.aerogear.android.unifiedpush.MessageHandler;
 import org.jboss.aerogear.android.unifiedpush.PushRegistrar;
@@ -17,8 +19,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import at.fhhgb.mc.notify.push.*;
+import at.fhhgb.mc.notify.sync.DriveNotify;
 
 public class MainActivity extends Activity implements MessageHandler, OnClickListener{
+	
+	private String TAG = "MainActivity";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +54,17 @@ public class MainActivity extends Activity implements MessageHandler, OnClickLis
 	    
 	    Button pushButton = (Button)findViewById(R.id.push_button);
 	    pushButton.setOnClickListener(this);
+	    
+	    DriveNotify dn = new DriveNotify();
+	    try {
+	    	Log.i("TAG", "Before Start");
+			dn.test();
+			Log.i("TAG", "After Start");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Log.i("TAG", "Exception");
+		}
 	}
 
 	@Override
