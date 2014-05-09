@@ -50,11 +50,12 @@ public class NotificationService extends IntentService {
 		mNotifications = new ArrayList<Notification>();
 		XmlParser parser = new XmlParser(getApplicationContext());
 		Notification noti;
+		Notification noti2;
 		try {
 			noti = parser.readXml("12");
 			mNotifications.add(noti);
-			noti = parser.readXml("13");
-			mNotifications.add(noti);
+			noti2 = parser.readXml("13");
+			mNotifications.add(noti2);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -100,8 +101,9 @@ public class NotificationService extends IntentService {
 		
 		for(int i=0;i<mNotifications.size();i++){ 
 			//checks if the notification should be triggered at the current time and if it hasn't been triggered before
-			if(compareDates(currentDate,mNotifications.get(i)) && 
-					!triggeredNotifications.contains(mNotifications.get(i).getUniqueIDString())){
+			Log.i(TAG, "CHECKING UNIQUE ID: " + mNotifications.get(i).getUniqueIDString());
+			if(compareDates(currentDate,mNotifications.get(i)) 
+					&& !triggeredNotifications.contains(mNotifications.get(i).getUniqueIDString())){
 				Log.i(TAG, "matching notification: " + mNotifications.get(i).getTitle());
 				mNotifications.get(i).showNotification(getApplicationContext());
 				triggeredNotifications.edit().putBoolean(mNotifications.get(i).getUniqueIDString(), true).commit();
@@ -121,13 +123,12 @@ public class NotificationService extends IntentService {
 	private boolean compareDates(DateTime _date, Notification _notification){
 		ArrayList<DateTime>dateRange = _notification.getDates();
 		
-		if(_notification.getStartYear() == -1 || (dateRange.get(0).isBefore(_date) && _notification.getEndYear() == -1)){
+		if((_notification.getStartYear() == -1 && _notification.getEndYear() == -1) || (dateRange.get(0).isBefore(_date) && _notification.getEndYear() == -1)){
+			Log.i(TAG, "no start year, or start year was before and no end year specified");
 			return true;
-		} else if(_date.isAfter(dateRange.get(0)) && _date.isBefore(dateRange.get(1))){
-			return true;
-		} else if(_date.isEqual(dateRange.get(0)) && _date.isBefore(dateRange.get(1))){
-			return true;
-		} else if(_date.isAfter(dateRange.get(0)) && _date.isEqual(dateRange.get(1))){
+		} else if((_date.isAfter(dateRange.get(0)) || _date.isEqual(dateRange.get(0))) && 
+				(_date.isBefore(dateRange.get(1)) || _date.isEqual(dateRange.get(1)))){
+			Log.i(TAG, "start date and end date specified, current time is inbetween or equal");
 			return true;
 		} else {
 			return false;
