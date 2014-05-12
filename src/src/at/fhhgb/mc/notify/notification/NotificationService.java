@@ -31,8 +31,8 @@ public class NotificationService extends IntentService {
 		// TODO Auto-generated constructor stub
 	}
 
-	static final String TAG = "NotificationService";
-	static final String TRIGGERED_NOTIFICATIONS = "triggered_notifications";
+	private static final String TAG = "NotificationService";
+	private static final String TRIGGERED_NOTIFICATIONS = "triggered_notifications";
 	
 	private int mCurrentYear;
 	private int mCurrentMonth;
@@ -60,6 +60,7 @@ public class NotificationService extends IntentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 //		Notification noti = new Notification("Test Nr. 1", "This is the first notification");
 //		noti.setStartYear(2014);
 //		noti.setStartMonth(5);
@@ -70,7 +71,7 @@ public class NotificationService extends IntentService {
 //		mNotifications.add(noti);
 //		XmlCreator creator = new XmlCreator();
 //		creator.create(noti, getApplicationContext());
-		
+//		
 //		noti = new Notification("Test Nr. 2", "This is the second notification");
 //		noti.setStartYear(2014);
 //		noti.setStartMonth(5);
@@ -79,7 +80,7 @@ public class NotificationService extends IntentService {
 //		noti.setStartMinutes(20);
 //		noti.setUniqueID(13);
 //		mNotifications.add(noti);
-		
+//		
 //		creator = new XmlCreator();
 //		creator.create(noti, getApplicationContext());
 	}
@@ -99,10 +100,10 @@ public class NotificationService extends IntentService {
 		DateTime currentDate = new DateTime(mCurrentYear, mCurrentMonth, mCurrentDay, mCurrentHours, mCurrentMinutes);
 		SharedPreferences triggeredNotifications = getSharedPreferences(TRIGGERED_NOTIFICATIONS, 0);
 		
-		for(int i=0;i<mNotifications.size();i++){ 
+		for(int i = 0; i < mNotifications.size(); i++){ 
 			//checks if the notification should be triggered at the current time and if it hasn't been triggered before
 			Log.i(TAG, "CHECKING UNIQUE ID: " + mNotifications.get(i).getUniqueIDString());
-			if(compareDates(currentDate,mNotifications.get(i)) 
+			if(compareDates(currentDate, mNotifications.get(i)) 
 					&& !triggeredNotifications.contains(mNotifications.get(i).getUniqueIDString())){
 				Log.i(TAG, "matching notification: " + mNotifications.get(i).getTitle());
 				mNotifications.get(i).showNotification(getApplicationContext());

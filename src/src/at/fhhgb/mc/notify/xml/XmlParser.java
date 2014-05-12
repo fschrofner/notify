@@ -14,22 +14,23 @@ import android.util.Xml;
 import at.fhhgb.mc.notify.notification.Notification;
 
 public class XmlParser {
-	final static String TAG = "XmlParser";
 	
-	Context mContext;
-	Notification mNotification;
+	private final static String TAG = "XmlParser";
+	
+	private Context mContext;
+	private Notification mNotification;
 	
 	public XmlParser(Context _context) {
 		mContext = _context;
-		mNotification = new Notification();
 	}
 	
 	public Notification readXml(String _uniqueID) throws IOException{
+		mNotification = new Notification();
 		InputStream input = null;
 		try {
 			XmlPullParser parser = Xml.newPullParser();
 			parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-			input = mContext.openFileInput(_uniqueID+".xml");
+			input = mContext.openFileInput(_uniqueID + ".xml");
 			parser.setInput(input, null);
 			parser.nextTag();
 			read(parser);
@@ -46,10 +47,12 @@ public class XmlParser {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-				input.close();					//closes the inputstream in the end
+			input.close();					//closes the inputstream in the end
 		}
+		
 		mNotification.setUniqueID(Long.valueOf(_uniqueID));
 		Log.i(TAG, "unique ID set as: " + mNotification.getUniqueIDString());
+		
 		return mNotification;
 	}
 	

@@ -22,6 +22,8 @@ import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.push.*;
 
 public class MainActivity extends Activity implements MessageHandler, OnClickListener{
+	
+	static final String TAG = "MainActivity";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,7 @@ public class MainActivity extends Activity implements MessageHandler, OnClickLis
 	    Intent intent = new Intent(this, NotificationService.class);
 	    intent.setAction("bla");
 	    startService(intent);
+	    Log.i(TAG, "End of onCreate");
 	}
 
 	@Override

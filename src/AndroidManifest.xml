@@ -36,7 +36,7 @@
         <receiver android:name="at.fhhgb.mc.notify.notification.NotificationBroadcastReceiver">
         </receiver>
         
-        <service android:name="at.fhhgb.mc.notify.notification.NotificationService" >
+        <service android:name="at.fhhgb.mc.notify.notification.NotificationService">
         </service>
         
         <receiver
