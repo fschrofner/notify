@@ -19,7 +19,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import at.fhhgb.mc.notify.push.*;
-import at.fhhgb.mc.notify.sync.DriveNotify;
+import at.fhhgb.mc.notify.sync.drive.DriveHandler;
 
 public class MainActivity extends Activity implements MessageHandler, OnClickListener{
 	
@@ -55,16 +55,12 @@ public class MainActivity extends Activity implements MessageHandler, OnClickLis
 	    Button pushButton = (Button)findViewById(R.id.push_button);
 	    pushButton.setOnClickListener(this);
 	    
-	    DriveNotify dn = new DriveNotify();
-	    try {
-	    	Log.i("TAG", "Before Start");
-			dn.test();
-			Log.i("TAG", "After Start");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			Log.i("TAG", "Exception");
-		}
+	    
+
+	    Log.i("TAG", "Before Start");
+	    DriveHandler.authenticate(this);
+		Log.i("TAG", "After Start");
+
 	}
 
 	@Override
