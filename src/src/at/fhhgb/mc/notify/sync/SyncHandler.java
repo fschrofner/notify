@@ -6,18 +6,29 @@ import java.util.Arrays;
 import java.util.List;
 
 import android.content.Context;
+import android.util.Log;
 import at.fhhgb.mc.notify.sync.drive.DriveHandler;
 
 public class SyncHandler {
+	final static String TAG = "SyncHandler";
 	final static public String NOTIFICATION_FOLDER = "notifications";
 	final static public String FILE_FOLDER = "notification_files";
 	final static public String GOOGLE_DRIVE = "google_drive";
 	
-	static private ArrayList<String> getFilesToUpdate(Context _context){
+	/**
+	 * Compares the local files with the files on the selected host
+	 * and returns a list of strings, which contains the file names of the
+	 * files that are missing locally.
+	 * @param _context a context which is needed for operation
+	 * @return a list of strings, containing the filenames of the missing files.
+	 */
+	static private ArrayList<String> getMissingFiles(Context _context){
 		ArrayList<String> hostFiles = DriveHandler.getFileList();
 		ArrayList<String> missingFiles = new ArrayList<String>();
 		File folder = new File(_context.getFilesDir()+"/"+NOTIFICATION_FOLDER); 
-		String[] fileList = folder.list();
+		//TODO crash when folder not existent 
+		//String[] fileList = folder.list();
+		String[] fileList = {"abc"};
 		List<String> localFiles = Arrays.asList(fileList);
 		for(int i=0;i<hostFiles.size();i++){
 			if(!localFiles.contains(hostFiles.get(i))){
@@ -27,5 +38,28 @@ public class SyncHandler {
 			}
 		}
 		return missingFiles;
+	}
+	
+	/**
+	 * Initiates an update 
+	 */
+	static public void updateFiles(Context _context){
+		//TODO  needs to wait for filelistthread to be finished first
+		// (create a setter for the driveFileList, which then calls the update files)
+		ArrayList<String> fileNames = getMissingFiles(_context);
+		Log.i(TAG, "updating " + fileNames.size() + " files..");
+		if(fileNames.size() == 0){
+			return;
+		}
+		DriveHandler.downloadFiles(fileNames, _context);
+		//TODO download files
+	}
+	
+	static private ArrayList<String> removeRevisions(ArrayList<String> _files){
+		ArrayList<String> result = new ArrayList<String>();
+		for(int i=0;i<_files.size();i++){
+			result.add(_files.get(i).substring(_files.get(i).lastIndexOf("_")));
+		}
+		return result;
 	}
 }
