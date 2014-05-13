@@ -24,13 +24,14 @@ public class XmlParser {
 		mContext = _context;
 	}
 	
-	public Notification readXml(String _uniqueID) throws IOException{
+	public Notification readXml(String _fileName) throws IOException{
 		mNotification = new Notification();
 		InputStream input = null;
 		try {
 			XmlPullParser parser = Xml.newPullParser();
 			parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-			input = mContext.openFileInput(_uniqueID + ".xml");
+//			input = mContext.openFileInput(_uniqueID + ".xml");
+			input = mContext.openFileInput(_fileName);
 			parser.setInput(input, null);
 			parser.nextTag();
 			read(parser);
@@ -50,7 +51,18 @@ public class XmlParser {
 			input.close();					//closes the inputstream in the end
 		}
 		
-		mNotification.setUniqueID(Long.valueOf(_uniqueID));
+		StringBuffer sb = new StringBuffer();
+		sb.append(_fileName);
+		String uniqueIDString;
+		
+		if (sb.indexOf("_") == -1) {
+			Log.w(TAG, "filename " + _fileName + " invalid");
+			uniqueIDString = "-1";
+		} else {
+			uniqueIDString = sb.substring(0, sb.indexOf("_"));
+		}
+		
+		mNotification.setUniqueID(Long.valueOf(uniqueIDString));
 		Log.i(TAG, "unique ID set as: " + mNotification.getUniqueIDString());
 		
 		return mNotification;
