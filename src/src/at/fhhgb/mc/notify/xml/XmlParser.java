@@ -54,7 +54,9 @@ public class XmlParser {
 		StringBuffer sb = new StringBuffer();
 		sb.append(_fileName);
 		String uniqueIDString;
+		String version;
 		
+		// reads the unique ID
 		if (sb.indexOf("_") == -1) {
 			Log.w(TAG, "filename " + _fileName + " invalid");
 			uniqueIDString = "-1";
@@ -64,6 +66,19 @@ public class XmlParser {
 		
 		mNotification.setUniqueID(Long.valueOf(uniqueIDString));
 		Log.i(TAG, "unique ID set as: " + mNotification.getUniqueIDString());
+		
+		sb.replace(0, sb.length(), _fileName);
+		
+		// reads the version
+		if (sb.indexOf("_") == -1) {
+			Log.w(TAG, "filename " + _fileName + " invalid");
+			version = "-1";
+		} else {
+			version = sb.substring(sb.indexOf("_") + 1, sb.length() - 4);
+		}
+		
+		mNotification.setVersion(Integer.parseInt(version));
+		Log.i(TAG, "Version set as: " + mNotification.getVersion());
 		
 		return mNotification;
 	}

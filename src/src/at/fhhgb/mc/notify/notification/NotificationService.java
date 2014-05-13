@@ -1,14 +1,17 @@
 package at.fhhgb.mc.notify.notification;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Set;
 
 import org.joda.time.DateTime;
 
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import at.fhhgb.mc.notify.xml.XmlCreator;
@@ -133,6 +136,18 @@ public class NotificationService extends IntentService {
 		}
 	}
 	
+	private void deleteNoti(long _uniqueID, int _version, int _notificationID) {
+		File file = new File(getFilesDir() + "/" +  String.valueOf(_uniqueID) + "_" + String.valueOf(_version) + ".xml");
+		file.delete();
+		
+		SharedPreferences triggeredNotifications = getSharedPreferences(TRIGGERED_NOTIFICATIONS, 0);
+		triggeredNotifications.edit().remove(String.valueOf(_uniqueID)).commit();
+		
+		Notification.cancel(this, _notificationID);
+		
+		Log.i(TAG, "notification " + _uniqueID + "_" + _version + " dismissed");
+	}
+	
 	@Override
 	public IBinder onBind(Intent arg0) {
 		// TODO Auto-generated method stub
@@ -164,8 +179,15 @@ public class NotificationService extends IntentService {
 			registerNotificationAlarms();
 			Log.i(TAG, "notifications registered");
 		}
+		
+		else if(_intent.getAction() != null && _intent.getAction().equals(Notification.ACTION_DISMISS)) {
+			long uniqueID = _intent.getLongExtra(Notification.EXTRA_UNIQUE_ID, 0);
+			int version = _intent.getIntExtra(Notification.EXTRA_VERSION, 0);
+			int notificationID = _intent.getIntExtra(Notification.EXTRA_NOTIFICATION_ID, 0);
+			
+			deleteNoti(uniqueID, version, notificationID);
+		}
 
 	}
 	
-
 }

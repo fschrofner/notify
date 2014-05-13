@@ -9,9 +9,12 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import at.fhhgb.mc.notify.MainActivity;
 import at.fhhgb.mc.notify.R;
 
 /**
@@ -21,8 +24,13 @@ import at.fhhgb.mc.notify.R;
  */
 
 public class Notification {
-	final static String TAG = "Notification";
+	private final static String TAG = "Notification";
+	
 	public final static String ACTION_ALARM = "at.fhhgb.mc.notify.notification.NOTIFICATION_ALARM";
+	public final static String ACTION_DISMISS = "at.fhhgb.mc.notify.notification.NOTIFICATION_DISMISS";
+	public final static String EXTRA_UNIQUE_ID = "at.fhhgb.mc.notify.notification.NOTIFICATION_UNIQUE_ID";
+	public final static String EXTRA_NOTIFICATION_ID = "at.fhhgb.mc.notify.notification.NOTIFICATION_ID";
+	public final static String EXTRA_VERSION = "at.fhhgb.mc.notify.notification.NOTIFICATION_VERSION";
 	
 	//strings used for xml creation and parsing
 	public final static String KEY_ROOT = "notification";
@@ -59,6 +67,7 @@ public class Notification {
 	private String mMessage;
 	private ArrayList<String> mFiles;
 	private long mUniqueID;
+	private int mVersion;
 	
 	//static notification id makes sure that each id is unique
 	//so that multiple notification don't get concatenated
@@ -91,6 +100,15 @@ public class Notification {
 	 * Shows the notification.
 	 */
 	public void showNotification(Context _context){
+		Intent i = new Intent(_context, MainActivity.class);
+		PendingIntent pi = PendingIntent.getActivity(_context, 0, i, 0);
+		
+		Intent action = new Intent(_context, NotificationService.class);
+		action.setAction(Notification.ACTION_DISMISS);
+		action.putExtra(EXTRA_UNIQUE_ID, getUniqueID());
+		action.putExtra(EXTRA_VERSION, getVersion());
+		action.putExtra(EXTRA_NOTIFICATION_ID, mNotificationID);
+		PendingIntent pAction = PendingIntent.getService(_context, mNotificationID, action, PendingIntent.FLAG_UPDATE_CURRENT);
 		
         NotificationManager notificationManager = (NotificationManager)_context.getSystemService(Context.NOTIFICATION_SERVICE);
         
@@ -100,12 +118,23 @@ public class Notification {
                         .setContentTitle(this.getTitle())
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(this.getMessage()))
-                        .setContentText(this.getMessage());
+                        .setContentText(this.getMessage())
+                        .setTicker(this.getMessage())
+                        .setVibrate(new long[]{200, 200, 200, 200})
+                        .setLights(Color.WHITE, 1000, 10000)
+                        .setContentIntent(pi)
+                        .addAction(R.drawable.ic_launcher, "dismiss", pAction)
+                        .setAutoCancel(true);
         notificationManager.notify(mNotificationID, mBuilder.build());
         
         mNotificationID++;
         Log.i(TAG, "notification built");
         
+	}
+	
+	static public void cancel(Context _context, int _notificationID) {
+		NotificationManager notificationManager = (NotificationManager)_context.getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(_notificationID);
 	}
 	
 	public ArrayList<DateTime> getDates(){
@@ -267,5 +296,11 @@ public class Notification {
 	}
 	public void setUniqueID(long mUniqueID) {
 		this.mUniqueID = mUniqueID;
+	}
+	public int getVersion() {
+		return mVersion;
+	}
+	public void setVersion(int mVersion) {
+		this.mVersion = mVersion;
 	}
 }
