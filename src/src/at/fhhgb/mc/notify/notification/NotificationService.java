@@ -3,14 +3,11 @@ package at.fhhgb.mc.notify.notification;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 import org.joda.time.DateTime;
 
 import android.app.IntentService;
-import android.app.Service;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.util.Log;
@@ -48,14 +45,14 @@ public class NotificationService extends IntentService {
 	public void reload(){
 		//TODO these are just some test notifications, the real notifications need to be loaded from xml files here
 		mNotifications = new ArrayList<Notification>();
+		String[] xmlList = getFilesDir().list();
 		XmlParser parser = new XmlParser(getApplicationContext());
 		Notification noti;
-		Notification noti2;
 		try {
-			noti = parser.readXml("12");
-			mNotifications.add(noti);
-			noti2 = parser.readXml("13");
-			mNotifications.add(noti2);
+			for (String file : xmlList) {
+				noti = parser.readXml(file);
+				mNotifications.add(noti);
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -68,7 +65,7 @@ public class NotificationService extends IntentService {
 //		noti.setStartHours(8);
 //		noti.setStartMinutes(0);
 //		noti.setUniqueID(12);
-//		mNotifications.add(noti);
+////		mNotifications.add(noti);
 //		XmlCreator creator = new XmlCreator();
 //		creator.create(noti, getApplicationContext());
 //		
@@ -79,7 +76,7 @@ public class NotificationService extends IntentService {
 //		noti.setStartHours(9);
 //		noti.setStartMinutes(20);
 //		noti.setUniqueID(13);
-//		mNotifications.add(noti);
+////		mNotifications.add(noti);
 //		
 //		creator = new XmlCreator();
 //		creator.create(noti, getApplicationContext());
