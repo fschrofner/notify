@@ -8,6 +8,7 @@ import org.jboss.aerogear.android.unifiedpush.Registrations;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -16,9 +17,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import at.fhhgb.mc.notify.notification.Notification;
+import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.push.*;
 
 public class MainActivity extends Activity implements MessageHandler, OnClickListener{
+	
+	static final String TAG = "MainActivity";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +54,10 @@ public class MainActivity extends Activity implements MessageHandler, OnClickLis
 	    
 	    Button pushButton = (Button)findViewById(R.id.push_button);
 	    pushButton.setOnClickListener(this);
+	    Intent intent = new Intent(this, NotificationService.class);
+	    intent.setAction("bla");
+	    startService(intent);
+	    Log.i(TAG, "End of onCreate");
 	}
 
 	@Override
