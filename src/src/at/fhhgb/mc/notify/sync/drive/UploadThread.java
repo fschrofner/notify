@@ -40,6 +40,7 @@ public class UploadThread implements Runnable {
 			FileContent mediaContent = new FileContent("text/plain", file);
 			File resultFile;
 			resultFile = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.files().insert(body, mediaContent).execute();
+			//TODO organise files in sub-folders
 			Log.i(TAG, "File ID: " + resultFile.getId());
 		} catch (UserRecoverableAuthIOException e) {
 	          mActivity.startActivityForResult(e.getIntent(), at.fhhgb.mc.notify.sync.drive.AuthenticationActivity.REQUEST_AUTHENTICATION);
