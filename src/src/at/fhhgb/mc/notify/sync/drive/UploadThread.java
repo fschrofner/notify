@@ -16,7 +16,7 @@ import com.google.api.services.drive.model.File;
 
 public class UploadThread implements Runnable {
 
-	final String TAG = "CommunicationThread";
+	final static String TAG = "UploadThread";
 	Context mContext;
 	Activity mActivity;
 	

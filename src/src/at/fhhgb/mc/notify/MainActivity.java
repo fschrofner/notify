@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import at.fhhgb.mc.notify.push.*;
+import at.fhhgb.mc.notify.sync.SyncHandler;
 import at.fhhgb.mc.notify.sync.drive.DriveHandler;
 
 public class MainActivity extends Activity implements MessageHandler, OnClickListener{
@@ -59,6 +60,7 @@ public class MainActivity extends Activity implements MessageHandler, OnClickLis
 
 	    Log.i("TAG", "Before Start");
 	    DriveHandler.authenticate(this);
+	    //SyncHandler.updateFiles(this);
 		Log.i("TAG", "After Start");
 
 	}

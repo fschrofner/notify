@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import at.fhhgb.mc.notify.sync.SyncHandler;
 
 public class AuthenticationActivity extends Activity {
 	final static String TAG = "AuthenticationActivity";
@@ -34,9 +35,10 @@ public class AuthenticationActivity extends Activity {
 		          at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(), 
 		        		  new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
 		          //TODO upload should NOT take place here, just for testing purposes
-		          UploadThread commThread = new UploadThread(getApplicationContext(), this);
-		  		  Thread thread = new Thread(commThread);
-		  		  thread.start();
+//		          UploadThread commThread = new UploadThread(getApplicationContext(), this);
+//		  		  Thread thread = new Thread(commThread);
+//		  		  thread.start();
+		          SyncHandler.updateFiles(this);
 		        }
 		      }
 			break;
