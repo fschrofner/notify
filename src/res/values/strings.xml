@@ -4,5 +4,27 @@
     <string name="app_name">Notify</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string-array name="drawer_array">
+        <item >Actual Notifications</item>
+        <item >Future Notifications</item>
+        <item >Settings</item>
+    </string-array>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="actual_notifications">Actual Notifications</string>
+    <string name="future_notifications">Future Notifications</string>
+    <string name="settings">Settings</string>
+    
+    <string-array name="entries_list_preference">
+        <item >test1</item>
+        <item >test2</item>
+        <item >test3</item>
+    </string-array>
+    
+    <string-array name="entryvalues_list_preference">
+        <item >Test1</item>
+        <item >Test2</item>
+        <item >Test3</item>
+    </string-array>
 
 </resources>
