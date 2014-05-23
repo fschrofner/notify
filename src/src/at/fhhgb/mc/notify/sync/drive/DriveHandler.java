@@ -29,43 +29,11 @@ public class DriveHandler {
 		_context.startActivity(intent);
 	}
 	
-	static public ArrayList<String> getFileList(){
-		ArrayList<File> files = getDriveFileList();
-		ArrayList<String> result = new ArrayList<String>();
-		
-		for(int i=0;i<files.size();i++){
-			result.add(files.get(i).getOriginalFilename());
-		}
-		return result;
-	}
 	
-	static private ArrayList<File> getDriveFileList(){
-//			do {
-//				FileList files = request.execute();
-//			    result.addAll(files.getItems());
-//			    request.setPageToken(files.getNextPageToken());
-//			} while (request.getPageToken() != null && 
-//					request.getPageToken().length() > 0);
-			FileListThread fileThread = new FileListThread();
-			Thread thread = new Thread(fileThread);
-			thread.start();
-		return driveFileList;
-	}
-	
-	static public void downloadFiles(ArrayList<String> _files, Context _context){
-		Log.i(TAG, "download files called");
-		ArrayList<File> driveFiles = getDriveFileList();
-		ArrayList<File> downloadFiles = new ArrayList<File>();
-		for(int i=0;i<driveFiles.size();i++){
-			if(_files.contains(driveFiles.get(i).getOriginalFilename())){
-				downloadFiles.add(driveFiles.get(i));
-				Log.i(TAG, "added " + driveFiles.get(i).getOriginalFilename() + " to download queue");
-			}
-		}
-		DownloadThread downThread = new DownloadThread(downloadFiles, _context);
+	static public void updateFiles(Context _context){
+		DownloadThread downThread = new DownloadThread(_context);
 		Thread thread = new Thread(downThread);
-		thread.start();
-		
+		thread.start();	
 	}
 	
 }
