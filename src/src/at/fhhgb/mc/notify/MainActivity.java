@@ -87,9 +87,6 @@ public class MainActivity extends Activity implements MessageHandler, OnClickLis
 	@Override
 	public void onMessage(Context context, Bundle message) {   // 3
 	    // display the message contained in the payload
-	    TextView text = (TextView) findViewById(R.id.label);
-	    text.setText(message.getString("alert"));
-	    text.invalidate();
 	}
 
 	@Override

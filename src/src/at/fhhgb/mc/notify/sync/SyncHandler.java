@@ -13,7 +13,10 @@ public class SyncHandler {
 	final static String TAG = "SyncHandler";
 	final static public String NOTIFICATION_FOLDER = "notifications";
 	final static public String FILE_FOLDER = "notification_files";
+	final static public String HOST_FOLDER = "Notify";
+	final static public String HOST_DESCRIPTION = "A folder used for notify syncing";
 	final static public String GOOGLE_DRIVE = "google_drive";
+	final static public String GOOGLE_DRIVE_FOLDER = "google_drive_folder_id";
 	
 	/**
 	 * Compares the local files with the files on the selected host
@@ -22,17 +25,16 @@ public class SyncHandler {
 	 * @param _context a context which is needed for operation
 	 * @return a list of strings, containing the filenames of the missing files.
 	 */
-	static private ArrayList<String> getMissingFiles(Context _context){
-		ArrayList<String> hostFiles = DriveHandler.getFileList();
+	static private ArrayList<String> getMissingFiles(ArrayList<String> _hostFiles,Context _context){
 		ArrayList<String> missingFiles = new ArrayList<String>();
 		File folder = new File(_context.getFilesDir()+"/"+NOTIFICATION_FOLDER); 
 		//TODO crash when folder not existent 
 		//String[] fileList = folder.list();
 		String[] fileList = {"abc"};
 		List<String> localFiles = Arrays.asList(fileList);
-		for(int i=0;i<hostFiles.size();i++){
-			if(!localFiles.contains(hostFiles.get(i))){
-				missingFiles.add(hostFiles.get(i));
+		for(int i=0;i<_hostFiles.size();i++){
+			if(!localFiles.contains(_hostFiles.get(i))){
+				missingFiles.add(_hostFiles.get(i));
 				//TODO if there's a new revision of a file (if the filename contains a "_"
 				//and has a newer revision number) an update needs to take place
 			}
@@ -44,15 +46,8 @@ public class SyncHandler {
 	 * Initiates an update 
 	 */
 	static public void updateFiles(Context _context){
-		//TODO  needs to wait for filelistthread to be finished first
-		// (create a setter for the driveFileList, which then calls the update files)
-		ArrayList<String> fileNames = getMissingFiles(_context);
-		Log.i(TAG, "updating " + fileNames.size() + " files..");
-		if(fileNames.size() == 0){
-			return;
-		}
-		DriveHandler.downloadFiles(fileNames, _context);
-		//TODO download files
+		//TODO  differentiate the different hosts
+		DriveHandler.updateFiles(_context);
 	}
 	
 	static private ArrayList<String> removeRevisions(ArrayList<String> _files){

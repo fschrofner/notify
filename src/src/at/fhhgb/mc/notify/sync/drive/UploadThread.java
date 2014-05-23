@@ -2,16 +2,19 @@ package at.fhhgb.mc.notify.sync.drive;
 
 import java.io.IOException;
 
+import android.R;
 import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.util.Log;
+import at.fhhgb.mc.notify.sync.SyncHandler;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.FileContent;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.Drive.Parents;
 import com.google.api.services.drive.model.File;
 
 public class UploadThread implements Runnable {
@@ -48,5 +51,13 @@ public class UploadThread implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private void createApplicationFolder(){
+		File folder =  new File();
+		folder.setTitle(SyncHandler.HOST_FOLDER);
+		//TODO replace description with translatable string
+		folder.setDescription(SyncHandler.HOST_DESCRIPTION);
+		folder.setMimeType("application/vnd.google-apps.folder");
 	}
 }
