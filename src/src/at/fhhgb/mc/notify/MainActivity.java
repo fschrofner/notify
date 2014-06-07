@@ -1,5 +1,7 @@
 package at.fhhgb.mc.notify;
 
+import java.util.ArrayList;
+
 import org.jboss.aerogear.android.Callback;
 import org.jboss.aerogear.android.unifiedpush.MessageHandler;
 import org.jboss.aerogear.android.unifiedpush.PushRegistrar;
@@ -27,10 +29,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.push.*;
-import at.fhhgb.mc.notify.ui.ActualNotificationFragment;
-import at.fhhgb.mc.notify.ui.FutureNotificationFragment;
+import at.fhhgb.mc.notify.ui.NotificationFragment;
 import at.fhhgb.mc.notify.ui.SettingsFragment;
 
 public class MainActivity extends Activity implements MessageHandler,
@@ -215,20 +217,31 @@ public class MainActivity extends Activity implements MessageHandler,
 		Log.i(TAG, "onItemClick: " + _position);
 
 		Fragment fragment = null;
+		Bundle args = null;
 
 		switch (_position) {
 		case 0:
-			fragment = new ActualNotificationFragment();
+			fragment = new NotificationFragment();
+			args = new Bundle();
+			args.putBoolean(NotificationFragment.ARG_NOTI_STATUS, true);
+			fragment.setArguments(args);
+			Log.i(TAG, "case 0");
 			break;
 		case 1:
-			fragment = new FutureNotificationFragment();
+			fragment = new NotificationFragment();
+			args = new Bundle();
+			args.putBoolean(NotificationFragment.ARG_NOTI_STATUS, false);
+			fragment.setArguments(args);
 			break;
 		case 2:
 			fragment = new SettingsFragment();
 			break;
 		default:
 			Log.e(TAG, "Failure in Navigation Drawer");
-			fragment = new ActualNotificationFragment();
+			fragment = new NotificationFragment();
+			args = new Bundle();
+			args.putBoolean(NotificationFragment.ARG_NOTI_STATUS, true);
+			fragment.setArguments(args);
 		}
 
 		FragmentManager fragmentManager = getFragmentManager();
