@@ -28,6 +28,7 @@ public class Notification {
 	
 	public final static String ACTION_ALARM = "at.fhhgb.mc.notify.notification.NOTIFICATION_ALARM";
 	public final static String ACTION_DISMISS = "at.fhhgb.mc.notify.notification.NOTIFICATION_DISMISS";
+	public final static String ACTION_COMPARE = "at.fhhgb.mc.notify.notification.NOTIFICATION_COMPARE";
 	public final static String EXTRA_UNIQUE_ID = "at.fhhgb.mc.notify.notification.NOTIFICATION_UNIQUE_ID";
 	public final static String EXTRA_NOTIFICATION_ID = "at.fhhgb.mc.notify.notification.NOTIFICATION_ID";
 	public final static String EXTRA_VERSION = "at.fhhgb.mc.notify.notification.NOTIFICATION_VERSION";
