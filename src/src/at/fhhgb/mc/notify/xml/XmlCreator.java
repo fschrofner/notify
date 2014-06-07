@@ -86,9 +86,9 @@ public class XmlCreator {
 			attributes.add(Notification.ATTRIBUTE_START_MINUTES);
 			values.add(String.valueOf(_notification.getStartMinutes()));
 			attributes.add(Notification.ATTRIBUTE_END_HOURS);
-			values.add(String.valueOf(_notification.getEndMonth()));
+			values.add(String.valueOf(_notification.getEndHours()));
 			attributes.add(Notification.ATTRIBUTE_END_MINUTES);
-			values.add(String.valueOf(_notification.getEndDay()));
+			values.add(String.valueOf(_notification.getEndMinutes()));
 			
 			createElement(rootElement,Notification.KEY_TIME,attributes,values);
 			

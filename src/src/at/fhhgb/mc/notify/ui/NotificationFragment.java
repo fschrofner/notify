@@ -7,33 +7,26 @@ import java.util.Calendar;
 import org.joda.time.DateTime;
 
 import android.app.Fragment;
-import android.content.Intent;
-import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import at.fhhgb.mc.notify.R;
 import at.fhhgb.mc.notify.notification.Notification;
-import at.fhhgb.mc.notify.notification.NotificationBroadcastReceiver;
-import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.xml.XmlParser;
 
 public class NotificationFragment extends Fragment {
 
 	private static final String TAG = "NotificationFragment";
 	public static final String ARG_NOTI_STATUS = "at.fhhgb.mc.notify.ui.NotificationFragment.ARG_NOTI_STATUS";
-	private ArrayList<Notification> mNotiList;
 	private boolean mNotiStatus;
 	private ArrayList<Notification> mNotifications;
-	public static ArrayList<Notification> mTriggeredNotifications;
-	public static ArrayList<Notification> mFutureNotifications;
+	private static ArrayList<Notification> mTriggeredNotifications;
+	private static ArrayList<Notification> mFutureNotifications;
+	private View mView;
 
 	@Override
 	public View onCreateView(LayoutInflater _inflater, ViewGroup container,
@@ -41,12 +34,22 @@ public class NotificationFragment extends Fragment {
 
 		mNotiStatus = getArguments().getBoolean(ARG_NOTI_STATUS);
 
-		View view = _inflater.inflate(R.layout.fragment_notification, null);
+		mView = _inflater.inflate(R.layout.fragment_notification, null);
 
-		update(view);
-
-		return view;
+		return mView;
 	}
+	
+	
+
+	@Override
+	public void onStart() {
+		
+		update(mView);
+		
+		super.onStart();
+	}
+
+
 
 	private void update(View _v) {
 		compareNotifications();

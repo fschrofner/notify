@@ -32,6 +32,8 @@ import android.widget.Toast;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.push.*;
+import at.fhhgb.mc.notify.ui.EditNotificationActivity;
+import at.fhhgb.mc.notify.ui.NotificationEditActivity;
 import at.fhhgb.mc.notify.ui.NotificationFragment;
 import at.fhhgb.mc.notify.ui.SettingsFragment;
 
@@ -148,7 +150,7 @@ public class MainActivity extends Activity implements MessageHandler,
 		// If the nav drawer is open, hide action items related to the content
 		// view
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-		menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
+		menu.findItem(R.id.action_add).setVisible(!drawerOpen);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -158,6 +160,9 @@ public class MainActivity extends Activity implements MessageHandler,
 		// true, then it has handled the app icon touch event
 		if (mDrawerToggle.onOptionsItemSelected(item)) {
 			return true;
+		} else if (item.getItemId() == R.id.action_add) {
+			Intent i = new Intent(this, NotificationEditActivity.class);
+			startActivity(i);
 		}
 		// Handle your other action bar items...
 
