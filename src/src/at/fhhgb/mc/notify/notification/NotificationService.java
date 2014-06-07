@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.util.Log;
+import at.fhhgb.mc.notify.xml.XmlCreator;
 import at.fhhgb.mc.notify.xml.XmlParser;
 
 public class NotificationService extends IntentService {
@@ -59,14 +60,14 @@ public class NotificationService extends IntentService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//		
+		
 //		Notification noti = new Notification("Test Nr. 1", "This is the first notification");
 //		noti.setStartYear(2014);
 //		noti.setStartMonth(5);
 //		noti.setStartDay(8);
 //		noti.setStartHours(8);
 //		noti.setStartMinutes(0);
-//		noti.setUniqueID(12);
+//		noti.setUniqueID(11);
 ////		mNotifications.add(noti);
 //		XmlCreator creator = new XmlCreator();
 //		creator.create(noti, getApplicationContext());
@@ -77,7 +78,7 @@ public class NotificationService extends IntentService {
 //		noti.setStartDay(8);
 //		noti.setStartHours(9);
 //		noti.setStartMinutes(20);
-//		noti.setUniqueID(13);
+//		noti.setUniqueID(12);
 ////		mNotifications.add(noti);
 //		creator = new XmlCreator();
 //		creator.create(noti, getApplicationContext());
@@ -88,7 +89,7 @@ public class NotificationService extends IntentService {
 //		noti.setStartDay(-1);
 //		noti.setStartHours(-1);
 //		noti.setStartMinutes(-1);
-//		noti.setUniqueID(14);
+//		noti.setUniqueID(13);
 ////		mNotifications.add(noti);
 //		creator = new XmlCreator();
 //		creator.create(noti, getApplicationContext());
@@ -99,7 +100,7 @@ public class NotificationService extends IntentService {
 //		noti.setStartDay(8);
 //		noti.setStartHours(9);
 //		noti.setStartMinutes(20);
-//		noti.setUniqueID(15);
+//		noti.setUniqueID(14);
 ////		mNotifications.add(noti);
 //		creator = new XmlCreator();
 //		creator.create(noti, getApplicationContext());
@@ -125,6 +126,7 @@ public class NotificationService extends IntentService {
 		reload();
 		for(int i = 0; i < mNotifications.size(); i++){
 			mNotifications.get(i).registerAlarm(getApplicationContext());
+			Log.i(TAG, "register: " + mNotifications.get(i).getTitle());
 		}
 	}
 	
@@ -139,6 +141,9 @@ public class NotificationService extends IntentService {
 		compareNotifications();
 		
 		for (int i = 0; i < mTriggeredNotifications.size(); i++) {
+			
+			Log.i(TAG, "show: " + mTriggeredNotifications.get(i).getTitle());
+			
 			if (!triggeredNotifications.contains(mNotifications.get(i).getUniqueIDString())) {
 				Log.i(TAG, "notification showed: " + mTriggeredNotifications.get(i));
 				mNotifications.get(i).showNotification(getApplicationContext());
