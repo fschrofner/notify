@@ -81,7 +81,15 @@
                 android:id="@+id/editStartDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/edit_start_date" />
+                android:enabled="false"
+                android:text="@string/ignored" />
+
+            <CheckBox
+                android:id="@+id/checkStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="@string/check" />
 
         </LinearLayout>
         
@@ -99,7 +107,8 @@
                 android:id="@+id/editStartTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/edit_start_time" />
+                android:enabled="false"
+                android:text="@string/ignored" />
 
         </LinearLayout>
         
@@ -117,7 +126,15 @@
                 android:id="@+id/editEndDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/edit_end_date" />
+                android:enabled="false"
+                android:text="@string/ignored" />
+
+            <CheckBox
+                android:id="@+id/checkStop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="@string/check" />
 
         </LinearLayout>
         
@@ -135,7 +152,8 @@
                 android:id="@+id/editEndTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/edit_end_time" />
+                android:enabled="false"
+                android:text="@string/ignored" />
 
         </LinearLayout>
 

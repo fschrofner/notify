@@ -69,7 +69,7 @@ public class NotificationFragment extends Fragment {
 
 		ListView v = (ListView) _v.findViewById(R.id.cardListView);
 		ListAdapter listAdapter = new ArrayListAdapter(getActivity(),
-				R.layout.fragment_list_item, R.id.item_text_view, titleList);
+				R.layout.fragment_list_item, R.id.item_title, titleList);
 
 		v.setAdapter(listAdapter);
 	}

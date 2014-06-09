@@ -5,35 +5,31 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.DatePickerDialog;
-import android.app.Fragment;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.os.Build;
 import at.fhhgb.mc.notify.R;
-import at.fhhgb.mc.notify.R.id;
-import at.fhhgb.mc.notify.R.layout;
-import at.fhhgb.mc.notify.R.menu;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.xml.XmlCreator;
 
 public class NotificationEditActivity extends Activity implements
-		OnClickListener, OnDateSetListener, OnTimeSetListener {
+		OnClickListener, OnDateSetListener, OnTimeSetListener,
+		OnCheckedChangeListener {
 
 	private static final String TAG = "NotificationEditActivity";
 	private Calendar mCalendar = Calendar.getInstance();
@@ -55,6 +51,17 @@ public class NotificationEditActivity extends Activity implements
 	private int mEndHours = -1;
 	private int mEndMinutes = -1;
 
+	private int mStartYearTemp = -1;
+	private int mStartMonthTemp = -1;
+	private int mStartDayTemp = -1;
+	private int mEndYearTemp = -1;
+	private int mEndMonthTemp = -1;
+	private int mEndDayTemp = -1;
+	private int mStartHoursTemp = -1;
+	private int mStartMinutesTemp = -1;
+	private int mEndHoursTemp = -1;
+	private int mEndMinutesTemp = -1;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -73,6 +80,11 @@ public class NotificationEditActivity extends Activity implements
 		mStartTime.setOnClickListener(this);
 		mEndTime = (TextView) findViewById(R.id.editEndTime);
 		mEndTime.setOnClickListener(this);
+
+		CheckBox checkStart = (CheckBox) findViewById(R.id.checkStart);
+		checkStart.setOnCheckedChangeListener(this);
+		CheckBox checkStop = (CheckBox) findViewById(R.id.checkStop);
+		checkStop.setOnCheckedChangeListener(this);
 	}
 
 	@Override
@@ -130,7 +142,7 @@ public class NotificationEditActivity extends Activity implements
 			n.setEndDate(mEndYear, mEndMonth, mEndDay);
 			n.setStartTime(mStartHours, mStartMinutes);
 			n.setEndTime(mEndHours, mEndMinutes);
-			n.setUniqueID(99);
+			n.setNewUniqueID(this);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -215,8 +227,8 @@ public class NotificationEditActivity extends Activity implements
 		mCalendar.set(Calendar.YEAR, _year);
 		mCalendar.set(Calendar.MONTH, _monthOfYear);
 		mCalendar.set(Calendar.DAY_OF_MONTH, _dayOfMonth);
-		String myFormat = "MM/dd/yy";
-		SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+		String format = "MM/dd/yy";
+		SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
 
 		if (isStart) {
 			mStartDate.setText(sdf.format(mCalendar.getTime()));
@@ -235,8 +247,8 @@ public class NotificationEditActivity extends Activity implements
 	public void onTimeSet(TimePicker _view, int _hourOfDay, int _minute) {
 		mCalendar.set(Calendar.HOUR_OF_DAY, _hourOfDay);
 		mCalendar.set(Calendar.MINUTE, _minute);
-		String myFormat = "kk:mm";
-		SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+		String format = "kk:mm";
+		SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
 
 		if (isStart) {
 			mStartTime.setText(sdf.format(mCalendar.getTime()));
@@ -255,6 +267,133 @@ public class NotificationEditActivity extends Activity implements
 	 */
 	private void getCurrentTimeDate() {
 		mCalendar = Calendar.getInstance();
+	}
+
+	@Override
+	public void onCheckedChanged(CompoundButton _view, boolean _isChecked) {
+		// TODO Auto-generated method stub
+
+		// boolean checked = ((CheckBox) _view).isChecked();
+
+		if (_view.getId() == R.id.checkStart) {
+			if (!_isChecked) {
+				mStartDate.setEnabled(false);
+				mStartTime.setEnabled(false);
+				mStartDate.setText(R.string.ignored);
+				mStartTime.setText(R.string.ignored);
+
+				if (mStartYear != -1) {
+					mStartYearTemp = mStartYear;
+					mStartMonthTemp = mStartMonth;
+					mStartDayTemp = mStartDay;
+				} else if (mStartHours != -1) {
+					mStartHoursTemp = mStartHours;
+					mStartMinutesTemp = mStartMinutes;
+				}
+
+				mStartYear = -1;
+				mStartMonth = -1;
+				mStartDay = -1;
+
+				mStartHours = -1;
+				mStartMinutes = -1;
+			} else {
+				mStartDate.setEnabled(true);
+				mStartTime.setEnabled(true);
+
+				if (mStartYearTemp != -1) {
+					mStartYear = mStartYearTemp;
+					mStartMonth = mStartMonthTemp;
+					mStartDay = mStartDayTemp;
+
+					mCalendar.set(Calendar.YEAR, mStartYear);
+					mCalendar.set(Calendar.MONTH, mStartMonth - 1);
+					mCalendar.set(Calendar.DAY_OF_MONTH, mStartDay);
+
+					String format = "MM/dd/yy";
+					SimpleDateFormat sdf = new SimpleDateFormat(format,
+							Locale.US);
+					mStartDate.setText(sdf.format(mCalendar.getTime()));
+				} else {
+					mStartDate.setText(R.string.edit_start_date);
+				}
+
+				if (mStartHoursTemp != -1) {
+					mStartHours = mStartHoursTemp;
+					mStartMinutes = mStartMinutesTemp;
+
+					mCalendar.set(Calendar.HOUR_OF_DAY, mStartHours);
+					mCalendar.set(Calendar.MINUTE, mStartMinutes);
+
+					String format = "kk:mm";
+					SimpleDateFormat sdf = new SimpleDateFormat(format,
+							Locale.US);
+					mStartTime.setText(sdf.format(mCalendar.getTime()));
+				} else {
+					mStartTime.setText(R.string.edit_start_time);
+				}
+
+			}
+		} else if (_view.getId() == R.id.checkStop) {
+			if (!_isChecked) {
+				mEndDate.setEnabled(false);
+				mEndTime.setEnabled(false);
+				mEndDate.setText(R.string.ignored);
+				mEndTime.setText(R.string.ignored);
+
+				if (mEndYear != -1) {
+					mEndYearTemp = mEndYear;
+					mEndMonthTemp = mEndMonth;
+					mEndDayTemp = mEndDay;
+				} else if (mEndHours != -1) {
+					mEndHoursTemp = mEndHours;
+					mEndMinutesTemp = mEndMinutes;
+				}
+
+				mEndYear = -1;
+				mEndMonth = -1;
+				mEndDay = -1;
+
+				mEndHours = -1;
+				mEndMinutes = -1;
+			} else {
+				mEndDate.setEnabled(true);
+				mEndTime.setEnabled(true);
+
+				if (mEndYearTemp != -1) {
+					mEndYear = mEndYearTemp;
+					mEndMonth = mEndMonthTemp;
+					mEndDay = mEndDayTemp;
+
+					mCalendar.set(Calendar.YEAR, mEndYear);
+					mCalendar.set(Calendar.MONTH, mEndMonth - 1);
+					mCalendar.set(Calendar.DAY_OF_MONTH, mEndDay);
+
+					String format = "MM/dd/yy";
+					SimpleDateFormat sdf = new SimpleDateFormat(format,
+							Locale.US);
+					mEndDate.setText(sdf.format(mCalendar.getTime()));
+				} else {
+					mEndDate.setText(R.string.edit_end_date);
+				}
+
+				if (mEndHoursTemp != -1) {
+					mEndHours = mEndHoursTemp;
+					mEndMinutes = mEndMinutesTemp;
+
+					mCalendar.set(Calendar.HOUR_OF_DAY, mEndHours);
+					mCalendar.set(Calendar.MINUTE, mEndMinutes);
+
+					String format = "kk:mm";
+					SimpleDateFormat sdf = new SimpleDateFormat(format,
+							Locale.US);
+					mEndTime.setText(sdf.format(mCalendar.getTime()));
+				} else {
+					mEndTime.setText(R.string.edit_end_time);
+				}
+			}
+		}
+
 	}
 
 }
