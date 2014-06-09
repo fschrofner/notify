@@ -40,6 +40,9 @@ public class NotificationEditActivity extends Activity implements
 	private TextView mEndTime;
 	private boolean isStart = true;
 
+	private long mUniqueID = -1;
+	private String mTitle;
+	private String mMessage;
 	private int mStartYear = -1;
 	private int mStartMonth = -1;
 	private int mStartDay = -1;
@@ -67,10 +70,23 @@ public class NotificationEditActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_notification_edit);
 
-		// if (savedInstanceState == null) {
-		// getFragmentManager().beginTransaction()
-		// .add(R.id.container, new PlaceholderFragment()).commit();
-		// }
+		Bundle b = getIntent().getBundleExtra(Notification.KEY_ROOT);
+
+		if (b != null) {
+			mUniqueID = b.getLong(Notification.KEY_UNIQUE_ID);
+			mTitle = b.getString(Notification.KEY_TITLE);
+			mMessage = b.getString(Notification.KEY_MESSAGE);
+			mStartYear = b.getInt(Notification.KEY_START_YEAR);
+			mStartMonth = b.getInt(Notification.KEY_START_MONTH);
+			mStartDay = b.getInt(Notification.KEY_START_DAY);
+			mStartHours = b.getInt(Notification.KEY_START_HOURS);
+			mStartMinutes = b.getInt(Notification.KEY_START_MINUTES);
+			mEndYear = b.getInt(Notification.KEY_END_YEAR);
+			mEndMonth = b.getInt(Notification.KEY_END_MONTH);
+			mEndDay = b.getInt(Notification.KEY_END_DAY);
+			mEndHours = b.getInt(Notification.KEY_END_HOURS);
+			mEndMinutes = b.getInt(Notification.KEY_END_MINUTES);
+		}
 
 		mStartDate = (TextView) findViewById(R.id.editStartDate);
 		mStartDate.setOnClickListener(this);
@@ -81,10 +97,55 @@ public class NotificationEditActivity extends Activity implements
 		mEndTime = (TextView) findViewById(R.id.editEndTime);
 		mEndTime.setOnClickListener(this);
 
+		if (mUniqueID >= 0) {
+			EditText title = (EditText) findViewById(R.id.editTitle);
+			title.setText(mTitle);
+			EditText message = (EditText) findViewById(R.id.editMessage);
+			message.setText(mMessage);
+		}
+
 		CheckBox checkStart = (CheckBox) findViewById(R.id.checkStart);
 		checkStart.setOnCheckedChangeListener(this);
 		CheckBox checkStop = (CheckBox) findViewById(R.id.checkStop);
 		checkStop.setOnCheckedChangeListener(this);
+
+		if (mStartYear >= 0) {
+			checkStart.setChecked(true);
+			mStartDate.setEnabled(true);
+			mStartTime.setEnabled(true);
+
+			mCalendar.set(Calendar.YEAR, mStartYear);
+			mCalendar.set(Calendar.MONTH, mStartMonth - 1);
+			mCalendar.set(Calendar.DAY_OF_MONTH, mStartDay);
+			mCalendar.set(Calendar.HOUR_OF_DAY, mStartHours);
+			mCalendar.set(Calendar.MINUTE, mStartMinutes);
+
+			String format = "MM/dd/yy";
+			SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
+			mStartDate.setText(sdf.format(mCalendar.getTime()));
+			format = "kk:mm";
+			sdf = new SimpleDateFormat(format, Locale.US);
+			mStartTime.setText(sdf.format(mCalendar.getTime()));
+		}
+		
+		if (mEndYear >= 0) {
+			checkStop.setChecked(true);
+			mEndDate.setEnabled(true);
+			mEndTime.setEnabled(true);
+
+			mCalendar.set(Calendar.YEAR, mEndYear);
+			mCalendar.set(Calendar.MONTH, mEndMonth - 1);
+			mCalendar.set(Calendar.DAY_OF_MONTH, mEndDay);
+			mCalendar.set(Calendar.HOUR_OF_DAY, mEndHours);
+			mCalendar.set(Calendar.MINUTE, mEndMinutes);
+
+			String format = "MM/dd/yy";
+			SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
+			mEndDate.setText(sdf.format(mCalendar.getTime()));
+			format = "kk:mm";
+			sdf = new SimpleDateFormat(format, Locale.US);
+			mEndTime.setText(sdf.format(mCalendar.getTime()));
+		}
 	}
 
 	@Override
@@ -113,23 +174,6 @@ public class NotificationEditActivity extends Activity implements
 		return super.onOptionsItemSelected(item);
 	}
 
-	// /**
-	// * A placeholder fragment containing a simple view.
-	// */
-	// public static class PlaceholderFragment extends Fragment {
-	//
-	// public PlaceholderFragment() {
-	// }
-	//
-	// @Override
-	// public View onCreateView(LayoutInflater inflater, ViewGroup container,
-	// Bundle savedInstanceState) {
-	// View rootView = inflater.inflate(
-	// R.layout.fragment_notification_edit, container, false);
-	// return rootView;
-	// }
-	// }
-
 	private void save() {
 		Notification n = new Notification();
 		XmlCreator creator = new XmlCreator();
@@ -142,7 +186,11 @@ public class NotificationEditActivity extends Activity implements
 			n.setEndDate(mEndYear, mEndMonth, mEndDay);
 			n.setStartTime(mStartHours, mStartMinutes);
 			n.setEndTime(mEndHours, mEndMinutes);
-			n.setNewUniqueID(this);
+			if (mUniqueID < 0) {
+				n.setNewUniqueID(this);
+			} else {
+				n.setUniqueID(mUniqueID);
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -395,5 +443,4 @@ public class NotificationEditActivity extends Activity implements
 		}
 
 	}
-
 }
