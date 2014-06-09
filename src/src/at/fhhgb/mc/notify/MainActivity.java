@@ -125,10 +125,15 @@ public class MainActivity extends Activity implements MessageHandler,
 
 //		Button pushButton = (Button) findViewById(R.id.push_button);
 //		pushButton.setOnClickListener(this);
+//		Log.i(TAG, "End of onCreate");
+	}
+	
+	@Override
+	protected void onStart() {
 		Intent intent = new Intent(this, NotificationService.class);
 		intent.setAction("bla");
 		startService(intent);
-//		Log.i(TAG, "End of onCreate");
+		super.onStart();
 	}
 
 	@Override

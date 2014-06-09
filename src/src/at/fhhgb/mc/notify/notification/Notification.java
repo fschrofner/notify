@@ -9,9 +9,11 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import at.fhhgb.mc.notify.MainActivity;
@@ -40,6 +42,7 @@ public class Notification {
 	public final static String KEY_TIME = "time";
 	public final static String KEY_MESSAGE = "message";
 	public final static String KEY_FILE = "file";
+	public final static String KEY_UNIQUE_ID = "unique_id";
 	public final static String ATTRIBUTE_CONTENT = "content";
 	public final static String ATTRIBUTE_PATH = "path";
 	public final static String ATTRIBUTE_START_YEAR = "start_year";
@@ -53,6 +56,7 @@ public class Notification {
 	public final static String ATTRIBUTE_END_HOURS = "end_hours";
 	public final static String ATTRIBUTE_END_MINUTES = "end_minutes";
 	
+	private static long mTotalUniqueID;
 	
 	private String mTitle;
 	private int mStartYear;
@@ -297,6 +301,13 @@ public class Notification {
 	}
 	public void setUniqueID(long mUniqueID) {
 		this.mUniqueID = mUniqueID;
+	}
+	public void setNewUniqueID(Context _context) {
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(_context);
+		this.mUniqueID = pref.getLong(KEY_UNIQUE_ID, 0);
+		SharedPreferences.Editor editor = pref.edit();
+		editor.putLong(KEY_UNIQUE_ID, mUniqueID + 1);
+		editor.commit();
 	}
 	public int getVersion() {
 		return mVersion;

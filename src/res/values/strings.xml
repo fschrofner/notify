@@ -34,10 +34,12 @@
     
     <!-- Notification Edit -->
     
+    <string name="ignored">ignored</string>
     <string name="title">Title: </string>
     <string name="edit_title">Insert Title</string>
     <string name="message">Message: </string>
     <string name="edit_message">Insert Message</string>
+    <string name="check">Change Value</string>
     <string name="start_date">Start Date: </string>
     <string name="edit_start_date">Edit Start Date</string>
     <string name="title_start_date">Choose Start Date</string>
