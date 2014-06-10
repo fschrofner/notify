@@ -122,8 +122,8 @@ public class Notification {
 		action.setAction(Notification.ACTION_DISMISS);
 		action.putExtra(EXTRA_UNIQUE_ID, getUniqueID());
 		action.putExtra(EXTRA_VERSION, getVersion());
-		action.putExtra(EXTRA_NOTIFICATION_ID, mUniqueID);
-		PendingIntent pAction = PendingIntent.getService(_context, (int)mUniqueID, action, PendingIntent.FLAG_UPDATE_CURRENT);
+		action.putExtra(EXTRA_NOTIFICATION_ID, (int)getUniqueID());
+		PendingIntent pAction = PendingIntent.getService(_context, (int)getUniqueID(), action, PendingIntent.FLAG_UPDATE_CURRENT);
 		
         NotificationManager notificationManager = (NotificationManager)_context.getSystemService(Context.NOTIFICATION_SERVICE);
         
@@ -134,16 +134,19 @@ public class Notification {
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(this.getMessage()))
                         .setContentText(this.getMessage())
-                        .setTicker(this.getMessage())
+                        .setTicker(this.getTitle())
                         .setVibrate(new long[]{200, 200, 200, 200})
                         .setLights(Color.WHITE, 1000, 10000)
                         .setContentIntent(pi)
                         .addAction(R.drawable.ic_launcher, "dismiss", pAction)
                         .setAutoCancel(true);
-        notificationManager.notify((int)mUniqueID, mBuilder.build());
+        notificationManager.notify((int)getUniqueID(), mBuilder.build());
         
 //        mNotificationID++;
         Log.i(TAG, "notification built");
+        
+        Log.i(TAG, "uid: " + getUniqueID());
+        Log.i(TAG, "uid: " + (int)getUniqueID());
         
 	}
 	
