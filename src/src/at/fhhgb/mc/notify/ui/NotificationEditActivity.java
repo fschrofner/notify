@@ -334,7 +334,8 @@ public class NotificationEditActivity extends Activity implements
 					mStartYearTemp = mStartYear;
 					mStartMonthTemp = mStartMonth;
 					mStartDayTemp = mStartDay;
-				} else if (mStartHours != -1) {
+				}
+				if (mStartHours != -1) {
 					mStartHoursTemp = mStartHours;
 					mStartMinutesTemp = mStartMinutes;
 				}
@@ -393,7 +394,8 @@ public class NotificationEditActivity extends Activity implements
 					mEndYearTemp = mEndYear;
 					mEndMonthTemp = mEndMonth;
 					mEndDayTemp = mEndDay;
-				} else if (mEndHours != -1) {
+				}
+				if (mEndHours != -1) {
 					mEndHoursTemp = mEndHours;
 					mEndMinutesTemp = mEndMinutes;
 				}

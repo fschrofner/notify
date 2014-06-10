@@ -239,6 +239,8 @@ public class NotificationService extends IntentService {
 		
 		Notification.cancel(this, _notificationID);
 		
+		Log.i(TAG, "noti id: " + _notificationID);
+		
 		Log.i(TAG, "notification " + _uniqueID + "_" + _version + " dismissed");
 	}
 	
@@ -265,6 +267,8 @@ public class NotificationService extends IntentService {
 			long uniqueID = _intent.getLongExtra(Notification.EXTRA_UNIQUE_ID, 0);
 			int version = _intent.getIntExtra(Notification.EXTRA_VERSION, 0);
 			int notificationID = _intent.getIntExtra(Notification.EXTRA_NOTIFICATION_ID, 0);
+			
+			Log.i(TAG, "get extra id: " + uniqueID + " extra version: " + version + " extra nid: " + notificationID);
 			
 			deleteNoti(uniqueID, version, notificationID);
 		}
