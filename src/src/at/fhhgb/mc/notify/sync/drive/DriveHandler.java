@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -34,6 +35,12 @@ public class DriveHandler {
 		DownloadThread downThread = new DownloadThread(_context);
 		Thread thread = new Thread(downThread);
 		thread.start();	
+	}
+	
+	static public void uploadFiles(Context _context, Activity _activity){
+		UploadThread upThread = new UploadThread(_context, _activity);
+		Thread thread = new Thread(upThread);
+		thread.start();
 	}
 	
 }
