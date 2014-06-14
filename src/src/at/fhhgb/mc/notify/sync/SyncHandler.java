@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import at.fhhgb.mc.notify.sync.drive.DriveHandler;
@@ -18,6 +19,7 @@ public class SyncHandler {
 	final static public String GOOGLE_DRIVE = "google_drive";
 	final static public String GOOGLE_DRIVE_FOLDER = "google_drive_folder_id";
 	final static public String ROOT_NOTIFICATION_FOLDER = "/storage/emulated/0/Notify/";
+	final static public String NOTIFICATION_FILE_EXTENSION = ".xml";
 	
 	/**
 	 * Initiates an update 
@@ -25,6 +27,11 @@ public class SyncHandler {
 	static public void updateFiles(Context _context){
 		//TODO  differentiate the different hosts
 		DriveHandler.updateFiles(_context);
+	}
+	
+	static public void uploadFiles(Context _context,Activity _activity){
+		//TODO differentiate different hosts
+		DriveHandler.uploadFiles(_context, _activity);
 	}
 	
 	static private ArrayList<String> removeRevisions(ArrayList<String> _files){

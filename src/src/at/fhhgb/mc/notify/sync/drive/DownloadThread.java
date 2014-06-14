@@ -42,11 +42,6 @@ public class DownloadThread implements Runnable {
 		//TODO check for authentication, check if folder exists
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
 		
-//		if(!preferences.contains(SyncHandler.GOOGLE_DRIVE_FOLDER) && !preferences.getString(SyncHandler.GOOGLE_DRIVE_FOLDER, "").equals("")){
-//			//TODO first check if the folder exists (created by other application)
-//			createFolder();
-//		}
-		
 		String folderId = preferences.getString(SyncHandler.GOOGLE_DRIVE_FOLDER, "");
 		
 		at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(),
@@ -78,6 +73,8 @@ public class DownloadThread implements Runnable {
 				if(folder != null){
 					Log.i(TAG, "confirmed online folder from preferences: " + folderId);
 					return folderId;
+				} else {
+					Log.i(TAG, "online folder not confirmed!");
 				}
 			} catch (IOException e) {
 				//if folder id is not matching an online folder
@@ -85,12 +82,37 @@ public class DownloadThread implements Runnable {
 			}
 		} 
 		//TODO search for folder and save in preferences
-		createFolder();
+		String onlineId = searchFolder();
+		if(onlineId == null){
+			createFolder();
+		} else {
+			preferences.edit().putString(SyncHandler.GOOGLE_DRIVE_FOLDER, onlineId).commit();
+			Log.i(TAG, "id saved in preferences");
+			return onlineId;
+		}
 		return preferences.getString(SyncHandler.GOOGLE_DRIVE_FOLDER, null);
 	}
 	
 	private String searchFolder(){
 		//TODO get filelist of online files and compare file names.
+		//TODO when migrating to app data folder this method should become a lot shorter
+		try {
+			ChildList children = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.children().list("root").execute();
+			ArrayList<ChildReference> childList = new ArrayList<ChildReference>();
+			childList.addAll(children.getItems());
+			for(int i=0;i<childList.size();i++){
+				File temp = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.files().get(childList.get(i).getId()).execute();
+				if(temp.getTitle().equals(SyncHandler.HOST_FOLDER) && temp.getMimeType().equals("application/vnd.google-apps.folder")){
+					Log.i(TAG, "existing folder found on host with id: " + temp.getId());
+					return temp.getId();
+				}
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Log.i(TAG, "no folder with matching name found on host!");
 		return null;
 	}
 	
@@ -99,7 +121,8 @@ public class DownloadThread implements Runnable {
 	 * If so, the id will be saved into the shared preferences. If not, the
 	 * folder will be created and the id will be saved.
 	 */
-	private void createFolder(){
+	private String createFolder(){
+		String folderId = null;
 			try {
 				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
 				File body = new File();
@@ -108,13 +131,13 @@ public class DownloadThread implements Runnable {
 				body.setMimeType("application/vnd.google-apps.folder");
 				File file;
 				file = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.files().insert(body).execute();
-				String folderId = file.getId();
+				folderId = file.getId();
 				preferences.edit().putString(SyncHandler.GOOGLE_DRIVE_FOLDER, folderId).commit();
 				Log.i(TAG, "created online folder with id: " + folderId);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		return folderId;
 	}
 	
 	private ArrayList<File> getFileList(String _folderId) throws IOException{	
@@ -132,7 +155,6 @@ public class DownloadThread implements Runnable {
 						Log.i(TAG, "got: " + fileList.get(i).getOriginalFilename());
 					}			
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 		}
@@ -142,23 +164,73 @@ public class DownloadThread implements Runnable {
 	private ArrayList<File> getMissingFiles(ArrayList<File> _hostFiles,Context _context){
 		ArrayList<File> missingFiles = new ArrayList<File>();
 		java.io.File rootFolder = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER); 
-		java.io.File folder = new java.io.File(rootFolder+"/"+SyncHandler.NOTIFICATION_FOLDER); 
-		//creates directories when the folder is not existent
-		folder.mkdirs();
-		String[] fileList = folder.list();
-		List<String> localFiles = Arrays.asList(fileList);
 		
+		//opens the notification folder
+		java.io.File notificationFolder = new java.io.File(rootFolder+"/"+SyncHandler.NOTIFICATION_FOLDER); 
+		notificationFolder.mkdirs();
+		
+		//gets the file list
+		String[] notificationFileList = notificationFolder.list();
+		
+		//opens the file folder
+		java.io.File fileFolder = new java.io.File(rootFolder+"/"+SyncHandler.FILE_FOLDER);
+		fileFolder.mkdirs();
+		
+		//gets filelist
+		String[] fileFileList = fileFolder.list();
+		
+		//joins the two filelists into one list
+		ArrayList<String> localFiles = new ArrayList<String>();
+		localFiles.addAll(Arrays.asList(notificationFileList));
+		localFiles.addAll(Arrays.asList(fileFileList));
+		
+		List<String> hostFileList = new ArrayList<String>();
+		
+		//adds files to missing file list, which are not present on the local file system
 		for(int i=0;i<_hostFiles.size();i++){
-			if(_hostFiles.get(i).getOriginalFilename() != null && !localFiles.contains(_hostFiles.get(i).getOriginalFilename())){
-				missingFiles.add(_hostFiles.get(i));
-				Log.i(TAG, "file " + _hostFiles.get(i).getOriginalFilename() + " added to missing files");
-				//TODO if there's a new revision of a file (if the filename contains a "_"
-				//and has a newer revision number) an update needs to take place
-			} else {
-				Log.i(TAG, "file " + _hostFiles.get(i).getOriginalFilename() + " already exists in filesystem (or is null)");
+			if(_hostFiles.get(i).getOriginalFilename() != null){
+				hostFileList.add(_hostFiles.get(i).getOriginalFilename());
+			
+				if(!localFiles.contains(hostFileList.get(hostFileList.size()-1))){
+					missingFiles.add(_hostFiles.get(i));
+					Log.i(TAG, "file " + hostFileList.get(hostFileList.size()-1) + " added to missing files");
+					//TODO if there's a new revision of a file (if the filename contains a "_"
+					//and has a newer revision number) an update needs to take place
+				} else {
+					Log.i(TAG, "file " + hostFileList.get(hostFileList.size()-1) + " already exists in filesystem (or is null)");
+				}
+			}
+		}
+		
+		//searches for files that are not present on the host, but on the local system and deletes them
+		for(int i=0;i<localFiles.size();i++){
+			if(!hostFileList.contains(localFiles.get(i))){
+				deleteFile(localFiles.get(i));
 			}
 		}
 		return missingFiles;
+	}
+	
+	private void deleteFile(String _fileName){
+		java.io.File oldFile;
+		if(getFileExtension(_fileName).equals(SyncHandler.NOTIFICATION_FILE_EXTENSION)){
+			oldFile = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER+"/"+SyncHandler.NOTIFICATION_FOLDER + "/" + _fileName);
+			//TODO get associated files for notification and check if notification is really outdated
+		} else {
+			oldFile = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER+"/"+SyncHandler.FILE_FOLDER + "/" + _fileName);
+		}
+		oldFile.delete();
+		Log.i(TAG, "file " + _fileName + " is outdated and was deleted");
+	}
+	
+	private String getFileExtension(String _fileName){
+		int lastIndex = _fileName.lastIndexOf(".");
+		if(lastIndex < 0){
+			lastIndex = _fileName.length();
+		}
+		String fileExtension = _fileName.substring(lastIndex,_fileName.length());
+		fileExtension = fileExtension.toLowerCase();
+		return fileExtension;
 	}
 	
 	private void downloadFiles(ArrayList<File> _files, Context _context){
@@ -166,7 +238,11 @@ public class DownloadThread implements Runnable {
 		OutputStream outputStream = null;
 		 try {
 			java.io.File rootFolder = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER); 
+			
+			//create directories
 			java.io.File folder = new java.io.File(rootFolder,SyncHandler.NOTIFICATION_FOLDER);
+			folder.mkdirs();
+			folder = new java.io.File(rootFolder,SyncHandler.FILE_FOLDER);
 			folder.mkdirs();
 			
 			for(int i=0;i<_files.size();i++){
@@ -181,8 +257,23 @@ public class DownloadThread implements Runnable {
 						HttpResponse resp = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.getRequestFactory().
 								 buildGetRequest(downloadUrl).execute();
 						inputStream = resp.getContent();
-						java.io.File outputFile = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + 
-								SyncHandler.NOTIFICATION_FOLDER, _files.get(i).getOriginalFilename());
+						java.io.File outputFile;
+						
+						String fileExtension = _files.get(i).getOriginalFilename();
+						fileExtension = getFileExtension(fileExtension);
+						
+						//is a notification
+						if(fileExtension.equals(SyncHandler.NOTIFICATION_FILE_EXTENSION)){
+							outputFile = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + 
+									SyncHandler.NOTIFICATION_FOLDER, _files.get(i).getOriginalFilename());
+							Log.i(TAG, "saved in notification folder, because extension is: " + fileExtension);
+						//is any other file
+						} else {
+							outputFile = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + 
+									SyncHandler.FILE_FOLDER, _files.get(i).getOriginalFilename());
+							Log.i(TAG, "saved in file folder, because extension is: " + fileExtension);
+						}
+						
 						outputFile.createNewFile();
 						outputStream = new FileOutputStream(outputFile);
 						int read = 0;
@@ -196,10 +287,8 @@ public class DownloadThread implements Runnable {
 				}			
 			}		
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//TODO organise files in sub-folders
 	}
 }
 

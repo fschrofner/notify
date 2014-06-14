@@ -34,11 +34,8 @@ public class AuthenticationActivity extends Activity {
 		          at.fhhgb.mc.notify.sync.drive.DriveHandler.credential.setSelectedAccountName(accountName);
 		          at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(), 
 		        		  new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
-		          //TODO upload should NOT take place here, just for testing purposes
-//		          UploadThread commThread = new UploadThread(getApplicationContext(), this);
-//		  		  Thread thread = new Thread(commThread);
-//		  		  thread.start();
-		          SyncHandler.updateFiles(this);
+		          //SyncHandler.updateFiles(this);
+		          SyncHandler.uploadFiles(this, this);
 		        }
 		      }
 			break;
