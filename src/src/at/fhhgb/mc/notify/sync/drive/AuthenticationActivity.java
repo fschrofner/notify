@@ -1,5 +1,7 @@
 package at.fhhgb.mc.notify.sync.drive;
 
+import java.util.ArrayList;
+
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
@@ -34,17 +36,21 @@ public class AuthenticationActivity extends Activity {
 		          at.fhhgb.mc.notify.sync.drive.DriveHandler.credential.setSelectedAccountName(accountName);
 		          at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(), 
 		        		  new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
+		          //TODO place the methods in the right class
 		          //SyncHandler.updateFiles(this);
-		          SyncHandler.uploadFiles(this, this);
+		          ArrayList<String> fileList = new ArrayList<String>();
+		          fileList.add("test.md");
+		          fileList.add("test.xml");
+		          SyncHandler.uploadFiles(this, this,fileList);
 		        }
 		      }
 			break;
 		case REQUEST_AUTHENTICATION:
 			Log.i(TAG, "authentication requested");
 			if (resultCode == Activity.RESULT_OK) {
-			         UploadThread commThread = new UploadThread(getApplicationContext(), this);
-			         Thread thread = new Thread(commThread);
-			  		 thread.start();
+//			         UploadThread commThread = new UploadThread(getApplicationContext(), this, FILENAME);
+//			         Thread thread = new Thread(commThread);
+//			  		 thread.start();
 			} else {
 			    	 startActivityForResult(at.fhhgb.mc.notify.sync.drive.DriveHandler.credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
 			}

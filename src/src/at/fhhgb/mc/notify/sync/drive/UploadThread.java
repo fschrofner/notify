@@ -29,11 +29,6 @@ public class UploadThread implements Runnable {
 	Activity mActivity;
 	ArrayList<String> mFileList;
 	
-	public UploadThread(Context _context, Activity _activity){
-		mContext = _context;
-		mActivity = _activity;
-	}
-	
 	public UploadThread(Context _context, Activity _activity, ArrayList<String> _fileList){
 		mContext = _context;
 		mActivity = _activity;
@@ -43,12 +38,18 @@ public class UploadThread implements Runnable {
 	@Override
 	public void run() {
 		// credential.setSelectedAccountName(accountName);
+		//TODO upload selected files only
+		Log.i(TAG, "started upload thread");	
+		for(int i=0; i<mFileList.size();i++){
+			uploadFile(mFileList.get(i));
+		}
+	}
+	
+	private void uploadFile(String _fileName){
 		try{
-			//TODO upload selected files only
-			Log.i(TAG, "started upload thread");
 			at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(),
 					new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
-			java.io.File file = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + SyncHandler.NOTIFICATION_FOLDER + "/test.xml");
+			java.io.File file = new java.io.File(SyncHandler.getFullPath(_fileName));
 			File body = new File();
 			body.setTitle(file.getName());
 			//body.setDescription("A test document");
@@ -57,13 +58,13 @@ public class UploadThread implements Runnable {
 			String parentId = preferences.getString(SyncHandler.GOOGLE_DRIVE_FOLDER, null);
 			if(parentId != null){
 				body.setParents(Arrays.asList(new ParentReference().setId(parentId)));
-			}		
+			}	
+			//TODO change mediatype
 			FileContent mediaContent = new FileContent("text/plain", file);
 			File resultFile;
-
+	
 			resultFile = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.files().insert(body, mediaContent).execute();
-			//TODO organise files in sub-folders
-			Log.i(TAG, "File ID: " + resultFile.getId());
+			Log.i(TAG, "upload complete, file id: " + resultFile.getId());
 		} catch (UserRecoverableAuthIOException e) {
 	          mActivity.startActivityForResult(e.getIntent(), at.fhhgb.mc.notify.sync.drive.AuthenticationActivity.REQUEST_AUTHENTICATION);
 	        } catch (IOException e) {
