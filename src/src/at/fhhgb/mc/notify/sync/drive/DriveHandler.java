@@ -37,8 +37,8 @@ public class DriveHandler {
 		thread.start();	
 	}
 	
-	static public void uploadFiles(Context _context, Activity _activity){
-		UploadThread upThread = new UploadThread(_context, _activity);
+	static public void uploadFiles(Context _context, Activity _activity, ArrayList<String> _fileList){
+		UploadThread upThread = new UploadThread(_context, _activity, _fileList);
 		Thread thread = new Thread(upThread);
 		thread.start();
 	}

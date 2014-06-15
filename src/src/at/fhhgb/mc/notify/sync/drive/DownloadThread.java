@@ -213,24 +213,12 @@ public class DownloadThread implements Runnable {
 	
 	private void deleteFile(String _fileName){
 		java.io.File oldFile;
-		if(getFileExtension(_fileName).equals(SyncHandler.NOTIFICATION_FILE_EXTENSION)){
-			oldFile = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER+"/"+SyncHandler.NOTIFICATION_FOLDER + "/" + _fileName);
+		oldFile = new java.io.File(SyncHandler.getFullPath(_fileName));
+		if(SyncHandler.getFileExtension(_fileName).equals(SyncHandler.NOTIFICATION_FILE_EXTENSION)){
 			//TODO get associated files for notification and check if notification is really outdated
-		} else {
-			oldFile = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER+"/"+SyncHandler.FILE_FOLDER + "/" + _fileName);
-		}
+		}	
 		oldFile.delete();
 		Log.i(TAG, "file " + _fileName + " is outdated and was deleted");
-	}
-	
-	private String getFileExtension(String _fileName){
-		int lastIndex = _fileName.lastIndexOf(".");
-		if(lastIndex < 0){
-			lastIndex = _fileName.length();
-		}
-		String fileExtension = _fileName.substring(lastIndex,_fileName.length());
-		fileExtension = fileExtension.toLowerCase();
-		return fileExtension;
 	}
 	
 	private void downloadFiles(ArrayList<File> _files, Context _context){
@@ -259,20 +247,9 @@ public class DownloadThread implements Runnable {
 						inputStream = resp.getContent();
 						java.io.File outputFile;
 						
-						String fileExtension = _files.get(i).getOriginalFilename();
-						fileExtension = getFileExtension(fileExtension);
+						String fullPath = SyncHandler.getFullPath(_files.get(i).getOriginalFilename());
 						
-						//is a notification
-						if(fileExtension.equals(SyncHandler.NOTIFICATION_FILE_EXTENSION)){
-							outputFile = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + 
-									SyncHandler.NOTIFICATION_FOLDER, _files.get(i).getOriginalFilename());
-							Log.i(TAG, "saved in notification folder, because extension is: " + fileExtension);
-						//is any other file
-						} else {
-							outputFile = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + 
-									SyncHandler.FILE_FOLDER, _files.get(i).getOriginalFilename());
-							Log.i(TAG, "saved in file folder, because extension is: " + fileExtension);
-						}
+						outputFile = new java.io.File(fullPath);
 						
 						outputFile.createNewFile();
 						outputStream = new FileOutputStream(outputFile);

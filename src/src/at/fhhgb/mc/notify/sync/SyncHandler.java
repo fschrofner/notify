@@ -29,9 +29,9 @@ public class SyncHandler {
 		DriveHandler.updateFiles(_context);
 	}
 	
-	static public void uploadFiles(Context _context,Activity _activity){
+	static public void uploadFiles(Context _context,Activity _activity, ArrayList<String> _fileList){
 		//TODO differentiate different hosts
-		DriveHandler.uploadFiles(_context, _activity);
+		DriveHandler.uploadFiles(_context, _activity, _fileList);
 	}
 	
 	static private ArrayList<String> removeRevisions(ArrayList<String> _files){
@@ -40,5 +40,28 @@ public class SyncHandler {
 			result.add(_files.get(i).substring(_files.get(i).lastIndexOf("_")));
 		}
 		return result;
+	}
+	
+	public static String getFullPath(String _fileName){
+		String fullPath;
+		String fileExtension = getFileExtension(_fileName);
+		if(fileExtension.equals(SyncHandler.NOTIFICATION_FILE_EXTENSION)){
+			fullPath = SyncHandler.ROOT_NOTIFICATION_FOLDER+"/"+SyncHandler.NOTIFICATION_FOLDER + "/" + _fileName;
+			Log.i(TAG, "file in notification folder, because extension is: " + fileExtension);
+		} else {
+			fullPath = SyncHandler.ROOT_NOTIFICATION_FOLDER+"/"+SyncHandler.FILE_FOLDER + "/" + _fileName;
+			Log.i(TAG, "file in file folder, because extension is: " + fileExtension);
+		}
+		return fullPath;
+	}
+	
+	public static String getFileExtension(String _fileName){
+		int lastIndex = _fileName.lastIndexOf(".");
+		if(lastIndex < 0){
+			lastIndex = _fileName.length();
+		}
+		String fileExtension = _fileName.substring(lastIndex,_fileName.length());
+		fileExtension = fileExtension.toLowerCase();
+		return fileExtension;
 	}
 }
