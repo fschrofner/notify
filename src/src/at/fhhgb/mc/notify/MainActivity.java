@@ -1,6 +1,7 @@
 package at.fhhgb.mc.notify;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.jboss.aerogear.android.Callback;
 import org.jboss.aerogear.android.unifiedpush.MessageHandler;
@@ -59,8 +60,11 @@ public class MainActivity extends Activity implements MessageHandler, OnClickLis
 	    
 
 	    Log.i("TAG", "Before Start");
-	    DriveHandler.authenticate(this);
-	    //SyncHandler.updateFiles(this);
+//	    SyncHandler.updateFiles(this);
+//        ArrayList<String> fileList = new ArrayList<String>();
+//        fileList.add("test.JPG");
+//        fileList.add("test.noti");
+//        SyncHandler.uploadFiles(this, this,fileList);
 		Log.i("TAG", "After Start");
 
 	}

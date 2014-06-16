@@ -40,12 +40,15 @@ public class DownloadThread implements Runnable {
 	public void run() {
 		Log.i(TAG, "started download thread");
 		//TODO check for authentication, check if folder exists
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);		
 		
-		String folderId = preferences.getString(SyncHandler.GOOGLE_DRIVE_FOLDER, "");
+		DriveHandler.setup(mContext);
 		
-		at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(),
-				new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
+		String folderId = DriveFolder.checkFolder(mContext);
+		
+		
+		//at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(),
+		//		new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
 		try {
 			ArrayList<File> hostFiles = getFileList(folderId);
 			downloadFiles(getMissingFiles(hostFiles, mContext),mContext);
@@ -59,11 +62,10 @@ public class DownloadThread implements Runnable {
 	
 	
 	private ArrayList<File> getFileList(String _folderId) throws IOException{	
-		String folderId = DriveFolder.checkFolder(mContext);
 		ArrayList<File> fileList = new ArrayList<File>();
-		if(folderId != null){
+		if(_folderId != null){
 			//gets the children of the notify subfolder
-			ChildList children = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.children().list(folderId).execute();
+			ChildList children = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.children().list(_folderId).execute();
 			ArrayList<ChildReference> childList = new ArrayList<ChildReference>();
 				try {
 					childList.addAll(children.getItems());

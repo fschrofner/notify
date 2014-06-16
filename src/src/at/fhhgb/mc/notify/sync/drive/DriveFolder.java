@@ -14,7 +14,7 @@ import com.google.api.services.drive.model.ChildReference;
 import com.google.api.services.drive.model.File;
 
 public class DriveFolder {
-	public static final String TAG = "DriveFolder";
+	static final String TAG = "DriveFolder";
 		
 	/**
 	 * Checks if there is a correct folder id set in the shared preferences,
