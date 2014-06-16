@@ -44,6 +44,9 @@ public class UploadThread implements Runnable {
 		//TODO upload selected files only
 		Log.i(TAG, "started upload thread");
 		
+		//sets up the drive service
+		DriveHandler.setup(mContext);
+		
 		//searches and validates a folder id that is saved in the shared preferences
 		//creates a new folder if none is existent
 		DriveFolder.checkFolder(mContext);

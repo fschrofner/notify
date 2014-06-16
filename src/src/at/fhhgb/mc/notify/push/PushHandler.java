@@ -7,6 +7,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import at.fhhgb.mc.notify.R;
+import at.fhhgb.mc.notify.sync.SyncHandler;
 
 public class PushHandler implements MessageHandler {
 
@@ -32,6 +33,9 @@ public class PushHandler implements MessageHandler {
                                 .bigText(msg))
                         .setContentText(msg);
         notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+        
+        //TODO handle message when app is in foreground
+        SyncHandler.updateFiles(context.getApplicationContext());
 	}
 
 	@Override

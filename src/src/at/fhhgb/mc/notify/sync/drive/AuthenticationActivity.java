@@ -9,7 +9,9 @@ import com.google.api.services.drive.Drive;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
@@ -37,20 +39,23 @@ public class AuthenticationActivity extends Activity {
 		          at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(), 
 		        		  new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
 		          //TODO place the methods in the right class
+		          
+		          SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		          preferences.edit().putString(SyncHandler.GOOGLE_DRIVE, accountName).commit();
+		          Log.i(TAG, "saved account name in shared preferences");
+		          
 		          //SyncHandler.updateFiles(this);
-		          ArrayList<String> fileList = new ArrayList<String>();
-		          fileList.add("test.JPG");
-		          fileList.add("test.noti");
-		          SyncHandler.uploadFiles(this, this,fileList);
+//		          ArrayList<String> fileList = new ArrayList<String>();
+//		          fileList.add("test.JPG");
+//		          fileList.add("test.noti");
+//		          SyncHandler.uploadFiles(this, this,fileList);
 		        }
 		      }
 			break;
 		case REQUEST_AUTHENTICATION:
 			Log.i(TAG, "authentication requested");
 			if (resultCode == Activity.RESULT_OK) {
-//			         UploadThread commThread = new UploadThread(getApplicationContext(), this, FILENAME);
-//			         Thread thread = new Thread(commThread);
-//			  		 thread.start();
+				Log.i(TAG, "authentication given!");
 			} else {
 			    	 startActivityForResult(at.fhhgb.mc.notify.sync.drive.DriveHandler.credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
 			}
