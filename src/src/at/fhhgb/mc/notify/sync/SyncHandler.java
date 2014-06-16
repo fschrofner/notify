@@ -19,7 +19,7 @@ public class SyncHandler {
 	final static public String GOOGLE_DRIVE = "google_drive";
 	final static public String GOOGLE_DRIVE_FOLDER = "google_drive_folder_id";
 	final static public String ROOT_NOTIFICATION_FOLDER = "/storage/emulated/0/Notify/";
-	final static public String NOTIFICATION_FILE_EXTENSION = ".xml";
+	final static public String NOTIFICATION_FILE_EXTENSION = "noti";
 	
 	/**
 	 * Initiates an update 
@@ -56,7 +56,7 @@ public class SyncHandler {
 	}
 	
 	public static String getFileExtension(String _fileName){
-		int lastIndex = _fileName.lastIndexOf(".");
+		int lastIndex = _fileName.lastIndexOf(".") + 1;
 		if(lastIndex < 0){
 			lastIndex = _fileName.length();
 		}

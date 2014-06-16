@@ -39,8 +39,8 @@ public class AuthenticationActivity extends Activity {
 		          //TODO place the methods in the right class
 		          //SyncHandler.updateFiles(this);
 		          ArrayList<String> fileList = new ArrayList<String>();
-		          fileList.add("test.md");
-		          fileList.add("test.xml");
+		          fileList.add("test.JPG");
+		          fileList.add("test.noti");
 		          SyncHandler.uploadFiles(this, this,fileList);
 		        }
 		      }
