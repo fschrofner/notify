@@ -7,10 +7,13 @@ import java.util.Arrays;
 import android.R;
 import android.app.Activity;
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -39,7 +42,12 @@ public class UploadThread implements Runnable {
 	public void run() {
 		// credential.setSelectedAccountName(accountName);
 		//TODO upload selected files only
-		Log.i(TAG, "started upload thread");	
+		Log.i(TAG, "started upload thread");
+		
+		//searches and validates a folder id that is saved in the shared preferences
+		//creates a new folder if none is existent
+		DriveFolder.checkFolder(mContext);
+		
 		for(int i=0; i<mFileList.size();i++){
 			uploadFile(mFileList.get(i));
 		}
@@ -60,7 +68,7 @@ public class UploadThread implements Runnable {
 				body.setParents(Arrays.asList(new ParentReference().setId(parentId)));
 			}	
 			//TODO change mediatype
-			FileContent mediaContent = new FileContent("text/plain", file);
+			FileContent mediaContent = new FileContent(getMimeType(file), file);
 			File resultFile;
 	
 			resultFile = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.files().insert(body, mediaContent).execute();
@@ -71,6 +79,20 @@ public class UploadThread implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private String getMimeType(java.io.File _file){
+		MimeTypeMap mime = MimeTypeMap.getSingleton();
+	    String ext = SyncHandler.getFileExtension(_file.getName());
+	    
+	    //setting the extension to the real mime type extension
+	    if(ext.equals(SyncHandler.NOTIFICATION_FILE_EXTENSION)){
+	    	ext = "xml";
+	    }
+	    
+	    String type = mime.getMimeTypeFromExtension(ext);
+		Log.i(TAG, "mime type of file is: " + type);
+		return type;
 	}
 	
 	private void createApplicationFolder(){
