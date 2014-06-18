@@ -236,7 +236,6 @@ public class NotificationFragment extends Fragment implements
 			// retrieve selected items and delete them out
 			boolean[] selected = listAdapter.getSelectedIds();
 			for (int i = 0; i < selected.length; i++) {
-				Log.i(TAG, "bool: " + selected[i]);
 				if (selected[i]) {
 					Notification noti;
 					if (mNotiStatus) {
@@ -247,23 +246,20 @@ public class NotificationFragment extends Fragment implements
 
 					Intent action = new Intent(getActivity(),
 							NotificationService.class);
-					action.setAction(Notification.ACTION_DISMISS);
+					action.setAction(Notification.ACTION_DELETE);
 					action.putExtra(Notification.EXTRA_UNIQUE_ID,
 							noti.getUniqueID());
 					action.putExtra(Notification.EXTRA_VERSION,
 							noti.getVersion());
 					action.putExtra(Notification.EXTRA_NOTIFICATION_ID,
-							noti.getUniqueID());
+							0); //TODO notificationID
 					getActivity().startService(action);
 					
 //					mTriggeredNotifications.remove(i);
 				}
 			}
 			
-			
-			listAdapter.clear();
 			update(mView);
-			listAdapter.notifyDataSetChanged();
 			mode.finish();
 			return true;
 		default:

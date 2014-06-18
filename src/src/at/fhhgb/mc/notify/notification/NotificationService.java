@@ -230,7 +230,7 @@ public class NotificationService extends IntentService {
 	 * @param _version The Version of the notification
 	 * @param _notificationID The notification ID
 	 */
-	private void deleteNoti(long _uniqueID, int _version, int _notificationID) {
+	private void deleteNotification(long _uniqueID, int _version, int _notificationID) {
 		File file = new File(getFilesDir() + "/" +  String.valueOf(_uniqueID) + "_" + String.valueOf(_version) + ".xml");
 		file.delete();
 		
@@ -238,8 +238,6 @@ public class NotificationService extends IntentService {
 		triggeredNotifications.edit().remove(String.valueOf(_uniqueID)).commit();
 		
 		Notification.cancel(this, _notificationID);
-		
-		Log.i(TAG, "noti id: " + _notificationID);
 		
 		Log.i(TAG, "notification " + _uniqueID + "_" + _version + " dismissed");
 	}
@@ -263,14 +261,12 @@ public class NotificationService extends IntentService {
 			Log.i(TAG, "notifications registered");
 		}
 		
-		else if(_intent.getAction() != null && _intent.getAction().equals(Notification.ACTION_DISMISS)) {
+		else if(_intent.getAction() != null && _intent.getAction().equals(Notification.ACTION_DELETE)) {
 			long uniqueID = _intent.getLongExtra(Notification.EXTRA_UNIQUE_ID, 0);
 			int version = _intent.getIntExtra(Notification.EXTRA_VERSION, 0);
 			int notificationID = _intent.getIntExtra(Notification.EXTRA_NOTIFICATION_ID, 0);
 			
-			Log.i(TAG, "get extra id: " + uniqueID + " extra version: " + version + " extra nid: " + notificationID);
-			
-			deleteNoti(uniqueID, version, notificationID);
+			deleteNotification(uniqueID, version, notificationID);
 		}
 		
 		else if(_intent.getAction() != null && _intent.getAction().equals(Notification.ACTION_COMPARE)) {

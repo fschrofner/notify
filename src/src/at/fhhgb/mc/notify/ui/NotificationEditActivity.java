@@ -162,9 +162,7 @@ public class NotificationEditActivity extends Activity implements
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		} else if (id == R.id.action_save) {
+		if (id == R.id.action_save) {
 			save();
 			finish();
 		} else if (id == R.id.action_cancel) {
@@ -187,12 +185,11 @@ public class NotificationEditActivity extends Activity implements
 			n.setStartTime(mStartHours, mStartMinutes);
 			n.setEndTime(mEndHours, mEndMinutes);
 			if (mUniqueID < 0) {
-				n.setNewUniqueID(this);
+				n.setUniqueID(Notification.generateUniqueID());
 			} else {
 				n.setUniqueID(mUniqueID);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -271,7 +268,8 @@ public class NotificationEditActivity extends Activity implements
 	@Override
 	public void onDateSet(DatePicker _view, int _year, int _monthOfYear,
 			int _dayOfMonth) {
-
+		Log.i(TAG, "onDateSet");
+		
 		mCalendar.set(Calendar.YEAR, _year);
 		mCalendar.set(Calendar.MONTH, _monthOfYear);
 		mCalendar.set(Calendar.DAY_OF_MONTH, _dayOfMonth);
@@ -319,7 +317,6 @@ public class NotificationEditActivity extends Activity implements
 
 	@Override
 	public void onCheckedChanged(CompoundButton _view, boolean _isChecked) {
-		// TODO Auto-generated method stub
 
 		// boolean checked = ((CheckBox) _view).isChecked();
 
