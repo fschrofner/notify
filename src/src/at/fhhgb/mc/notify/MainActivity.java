@@ -32,7 +32,6 @@ import android.widget.Toast;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.push.*;
-import at.fhhgb.mc.notify.ui.EditNotificationActivity;
 import at.fhhgb.mc.notify.ui.NotificationEditActivity;
 import at.fhhgb.mc.notify.ui.NotificationFragment;
 import at.fhhgb.mc.notify.ui.SettingsFragment;

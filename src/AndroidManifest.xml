@@ -56,14 +56,6 @@
         </receiver>
 
         <activity
-            android:name="at.fhhgb.mc.notify.ui.EditNotificationActivity"
-            android:label="@string/title_activity_edit_notification"
-            android:parentActivityName="at.fhhgb.mc.notify.MainActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="at.fhhgb.mc.notify.MainActivity" />
-        </activity>
-        <activity
             android:name="at.fhhgb.mc.notify.ui.NotificationEditActivity"
             android:label="@string/title_activity_notification_edit"
             android:parentActivityName="at.fhhgb.mc.notify.MainActivity" >
