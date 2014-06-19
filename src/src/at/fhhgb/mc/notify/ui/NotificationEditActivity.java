@@ -11,6 +11,7 @@ import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -18,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -34,6 +36,7 @@ public class NotificationEditActivity extends Activity implements
 		OnCheckedChangeListener {
 
 	private static final String TAG = "NotificationEditActivity";
+	private final int REQUESTCODE_GET_FILE = 42;
 	private final int NO_TITLE = 0;
 	private final int TO_SMALL_END_DATE = 1;
 	private final int NO_START_DATE = 2;
@@ -117,6 +120,8 @@ public class NotificationEditActivity extends Activity implements
 		checkStart.setOnCheckedChangeListener(this);
 		CheckBox checkStop = (CheckBox) findViewById(R.id.checkStop);
 		checkStop.setOnCheckedChangeListener(this);
+		Button buttonFile = (Button) findViewById(R.id.buttonFile);
+		buttonFile.setOnClickListener(this);
 
 		if (mStartYear >= 0) {
 			checkStart.setChecked(true);
@@ -292,6 +297,12 @@ public class NotificationEditActivity extends Activity implements
 			tpdEnd.setTitle(R.string.title_end_time);
 			isStart = false;
 			tpdEnd.show();
+			break;
+		case R.id.buttonFile:
+			Intent intent = new Intent();           
+			intent.setAction(android.content.Intent.ACTION_PICK);
+			intent.setType("image/*");
+			startActivityForResult(intent, REQUESTCODE_GET_FILE);
 		}
 
 	}
@@ -553,5 +564,15 @@ public class NotificationEditActivity extends Activity implements
 					}
 				});
 		dialog.show();
+	}
+	
+	@Override
+	//if the file(which should be written) was picked
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if(requestCode == REQUESTCODE_GET_FILE && resultCode == RESULT_OK){
+			TextView tv = (TextView) findViewById(R.id.textFile);
+			tv.setText(data.getData().getPath());
+		}
 	}
 }
