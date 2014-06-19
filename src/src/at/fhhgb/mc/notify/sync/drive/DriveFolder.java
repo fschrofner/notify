@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import at.fhhgb.mc.notify.R;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
 import com.google.api.services.drive.model.ChildList;
@@ -83,7 +84,7 @@ public class DriveFolder {
 				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_context);
 				File body = new File();
 				body.setTitle(SyncHandler.HOST_FOLDER);
-				body.setDescription(SyncHandler.HOST_DESCRIPTION);
+				body.setDescription(_context.getResources().getString(R.string.host_folder_description));
 				body.setMimeType("application/vnd.google-apps.folder");
 				File file;
 				file = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.files().insert(body).execute();

@@ -24,14 +24,13 @@ import com.google.api.services.drive.model.FileList;
 public class DriveHandler {
 	static Drive service;
 	static GoogleAccountCredential credential;
-//	static ArrayList<File> driveFileList;
-//	static Files.List request;
 	final static String TAG = "DriveHandler";
 
 	static public void authenticate(Context _context) {
+		Log.i(TAG, "authentication called");
 		if(credential == null){
 			createCredentials(_context);
-		}		
+		}		 
 		Intent intent = new Intent(_context,at.fhhgb.mc.notify.sync.drive.AuthenticationActivity.class);
 		_context.startActivity(intent);
 	}
@@ -41,14 +40,32 @@ public class DriveHandler {
 				Collections.singleton(DriveScopes.DRIVE));
 	}
 	
+	static public void setup(Context _context, String[] _fileList){
+		Log.i(TAG, "setup called with filelist!");
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_context);
+		String accountName = preferences.getString(SyncHandler.GOOGLE_DRIVE, null);
+		
+		if(_fileList != null && accountName == null){
+			Log.i(TAG, "authentication with filelist called");
+			if(credential == null){
+				createCredentials(_context);
+			}		 
+			Intent intent = new Intent(_context,at.fhhgb.mc.notify.sync.drive.AuthenticationActivity.class);
+			intent.putExtra(SyncHandler.UPLOAD_FILE_LIST, _fileList);
+			_context.startActivity(intent);
+		} else {
+			setup(_context);
+		}
+	}
+	
 	static public void setup(Context _context){
 		Log.i(TAG, "setup called!");
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_context);
 		String accountName = preferences.getString(SyncHandler.GOOGLE_DRIVE, null);
 			
 		if(accountName == null){
-			DriveHandler.authenticate(_context);
 			Log.i(TAG, "no account saved in preferences");
+			DriveHandler.authenticate(_context);		
 		} else {
 			Log.i(TAG, "account found in preferences. setting up the saved account..");
 			createCredentials(_context);

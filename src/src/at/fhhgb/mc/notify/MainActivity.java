@@ -61,10 +61,11 @@ public class MainActivity extends Activity implements MessageHandler, OnClickLis
 
 	    Log.i("TAG", "Before Start");
 //	    SyncHandler.updateFiles(this);
-//        ArrayList<String> fileList = new ArrayList<String>();
-//        fileList.add("test.JPG");
-//        fileList.add("test.noti");
-//        SyncHandler.uploadFiles(this, this,fileList);
+	    //DriveHandler.setup(this);
+        ArrayList<String> fileList = new ArrayList<String>();
+        fileList.add("test.JPG");
+        fileList.add("test.noti");
+        SyncHandler.uploadFiles(this, this, fileList);
 		Log.i("TAG", "After Start");
 
 	}

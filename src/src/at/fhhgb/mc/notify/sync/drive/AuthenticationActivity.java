@@ -1,6 +1,7 @@
 package at.fhhgb.mc.notify.sync.drive;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.json.gson.GsonFactory;
@@ -19,9 +20,14 @@ public class AuthenticationActivity extends Activity {
 	final static String TAG = "AuthenticationActivity";
 	final static int REQUEST_ACCOUNT_PICKER = 1;
 	final static int REQUEST_AUTHENTICATION = 2;
+	
+	String[] mFileList;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Intent intent = getIntent();
+		mFileList = intent.getStringArrayExtra(SyncHandler.UPLOAD_FILE_LIST);
 		startActivityForResult(at.fhhgb.mc.notify.sync.drive.DriveHandler.credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
 	}
 
@@ -38,17 +44,17 @@ public class AuthenticationActivity extends Activity {
 		          at.fhhgb.mc.notify.sync.drive.DriveHandler.credential.setSelectedAccountName(accountName);
 		          at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(), 
 		        		  new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
-		          //TODO place the methods in the right class
 		          
 		          SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		          preferences.edit().putString(SyncHandler.GOOGLE_DRIVE, accountName).commit();
 		          Log.i(TAG, "saved account name in shared preferences");
 		          
-		          //SyncHandler.updateFiles(this);
-//		          ArrayList<String> fileList = new ArrayList<String>();
-//		          fileList.add("test.JPG");
-//		          fileList.add("test.noti");
-//		          SyncHandler.uploadFiles(this, this,fileList);
+		          //uploads and updates the files again after authentication
+		          if(mFileList != null){
+		        	  SyncHandler.uploadFiles(getApplicationContext(), this, new ArrayList<String>(Arrays.asList(mFileList)));
+		          } else {
+			          SyncHandler.updateFiles(getApplicationContext());
+		          }	          
 		        }
 		      }
 			break;
