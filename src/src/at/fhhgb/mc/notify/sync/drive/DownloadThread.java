@@ -39,23 +39,26 @@ public class DownloadThread implements Runnable {
 	@Override
 	public void run() {
 		Log.i(TAG, "started download thread");
-		//TODO check for authentication, check if folder exists
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);		
 		
 		DriveHandler.setup(mContext);
 		
-		String folderId = DriveFolder.checkFolder(mContext);
-		
-		
-		//at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(),
-		//		new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
-		try {
-			ArrayList<File> hostFiles = getFileList(folderId);
-			downloadFiles(getMissingFiles(hostFiles, mContext),mContext);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(DriveHandler.service != null){
+			String folderId = DriveFolder.checkFolder(mContext);
+			
+			
+			//at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(),
+			//		new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
+			try {
+				ArrayList<File> hostFiles = getFileList(folderId);
+				downloadFiles(getMissingFiles(hostFiles, mContext),mContext);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			Log.i(TAG, "no drive service running!");
 		}
+
 		
 		
 	}

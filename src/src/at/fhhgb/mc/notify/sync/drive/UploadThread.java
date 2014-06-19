@@ -40,19 +40,26 @@ public class UploadThread implements Runnable {
 	
 	@Override
 	public void run() {
-		// credential.setSelectedAccountName(accountName);
-		//TODO upload selected files only
 		Log.i(TAG, "started upload thread");
 		
-		//sets up the drive service
-		DriveHandler.setup(mContext);
+		//sets up the drive service. filelist is given for callback
+		String[] fileList = mFileList.toArray(new String[mFileList.size()]);
+		DriveHandler.setup(mContext, fileList);
 		
-		//searches and validates a folder id that is saved in the shared preferences
-		//creates a new folder if none is existent
-		DriveFolder.checkFolder(mContext);
-		
-		for(int i=0; i<mFileList.size();i++){
-			uploadFile(mFileList.get(i));
+		if(DriveHandler.service != null){
+			//searches and validates a folder id that is saved in the shared preferences
+			//creates a new folder if none is existent
+			DriveFolder.checkFolder(mContext);
+			
+			//uploads all files from the list
+			for(int i=0; i<mFileList.size();i++){
+				uploadFile(mFileList.get(i));
+			}
+			
+			//update all files after upload
+			SyncHandler.updateFiles(mContext);
+		} else {
+			Log.i(TAG, "no drive service running!");
 		}
 	}
 	
@@ -63,14 +70,13 @@ public class UploadThread implements Runnable {
 			java.io.File file = new java.io.File(SyncHandler.getFullPath(_fileName));
 			File body = new File();
 			body.setTitle(file.getName());
-			//body.setDescription("A test document");
 			body.setMimeType("text/plain");
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
 			String parentId = preferences.getString(SyncHandler.GOOGLE_DRIVE_FOLDER, null);
 			if(parentId != null){
 				body.setParents(Arrays.asList(new ParentReference().setId(parentId)));
 			}	
-			//TODO change mediatype
+
 			FileContent mediaContent = new FileContent(getMimeType(file), file);
 			File resultFile;
 	
@@ -79,7 +85,6 @@ public class UploadThread implements Runnable {
 		} catch (UserRecoverableAuthIOException e) {
 	          mActivity.startActivityForResult(e.getIntent(), at.fhhgb.mc.notify.sync.drive.AuthenticationActivity.REQUEST_AUTHENTICATION);
 	        } catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -96,13 +101,5 @@ public class UploadThread implements Runnable {
 	    String type = mime.getMimeTypeFromExtension(ext);
 		Log.i(TAG, "mime type of file is: " + type);
 		return type;
-	}
-	
-	private void createApplicationFolder(){
-		File folder =  new File();
-		folder.setTitle(SyncHandler.HOST_FOLDER);
-		//TODO replace description with translatable string
-		folder.setDescription(SyncHandler.HOST_DESCRIPTION);
-		folder.setMimeType("application/vnd.google-apps.folder");
 	}
 }

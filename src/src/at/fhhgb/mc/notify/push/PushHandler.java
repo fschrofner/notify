@@ -40,7 +40,6 @@ public class PushHandler implements MessageHandler {
 
 	@Override
 	public void onError() {
-		// TODO Auto-generated method stub
 
 	}
 

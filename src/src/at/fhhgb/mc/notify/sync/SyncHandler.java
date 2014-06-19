@@ -20,6 +20,7 @@ public class SyncHandler {
 	final static public String GOOGLE_DRIVE_FOLDER = "google_drive_folder_id";
 	final static public String ROOT_NOTIFICATION_FOLDER = "/storage/emulated/0/Notify/";
 	final static public String NOTIFICATION_FILE_EXTENSION = "noti";
+	final static public String UPLOAD_FILE_LIST = "filelist";
 	
 	/**
 	 * Initiates an update 
