@@ -59,5 +59,22 @@
     <string name="edit_end_time">Tap to edit End Time</string>
     <string name="title_end_time">Choose End Time</string>
     
+    <!-- Alert View -->
+    <string name="alert_title_title">Title is missing</string>
+    <string name="alert_title_text">Please input a valid title!</string>
+    <string name="alert_date_title">Date invalid</string>
+    <string name="alert_date_text">The Start-Date must be smaller than the End-Date!</string>
+    <string name="alert_start_date_title">Start-Date is missing</string>
+    <string name="alert_start_date_text">Please insert a start-date!</string>
+    <string name="alert_start_time_title">Start-Time is missing</string>
+    <string name="alert_start_time_text">Please insert a start-time!</string>
+    <string name="alert_end_date_title">End-Date is missing</string>
+    <string name="alert_end_date_text">Please insert a end-date!</string>
+    <string name="alert_end_time_title">End-Time is missing</string>
+    <string name="alert_end_time_text">Please insert a end-time!</string>
+    <string name="alert_no_start_title">Start is missing</string>
+    <string name="alert_no_start_text">Please insert a start date/time</string>
+    <string name="alert_button">Okay</string>
+    
 
 </resources>

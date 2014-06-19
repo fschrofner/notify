@@ -5,10 +5,12 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -32,6 +34,13 @@ public class NotificationEditActivity extends Activity implements
 		OnCheckedChangeListener {
 
 	private static final String TAG = "NotificationEditActivity";
+	private final int NO_TITLE = 0;
+	private final int TO_SMALL_END_DATE = 1;
+	private final int NO_START_DATE = 2;
+	private final int NO_START_TIME = 3;
+	private final int NO_END_DATE = 4;
+	private final int NO_END_TIME = 5;
+	private final int NO_START = 6;
 	private Calendar mCalendar = Calendar.getInstance();
 
 	private TextView mStartDate;
@@ -127,7 +136,7 @@ public class NotificationEditActivity extends Activity implements
 			sdf = new SimpleDateFormat(format, Locale.US);
 			mStartTime.setText(sdf.format(mCalendar.getTime()));
 		}
-		
+
 		if (mEndYear >= 0) {
 			checkStop.setChecked(true);
 			mEndDate.setEnabled(true);
@@ -163,8 +172,29 @@ public class NotificationEditActivity extends Activity implements
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_save) {
-			save();
-			finish();
+			EditText title = (EditText) findViewById(R.id.editTitle);
+			CheckBox checkStart = (CheckBox) findViewById(R.id.checkStart);
+			CheckBox checkStop = (CheckBox) findViewById(R.id.checkStop);
+
+			if (title.getText().toString().equals("")) {
+				showAlertDialog(NO_TITLE);
+			} else if (!checkDate()) {
+				showAlertDialog(TO_SMALL_END_DATE);
+			} else if (checkStart.isChecked() && mStartYear < 0) {
+				showAlertDialog(NO_START_DATE);
+			} else if (checkStart.isChecked() && mStartHours < 0) {
+				showAlertDialog(NO_START_TIME);
+			} else if (checkStop.isChecked() && mEndYear < 0) {
+				showAlertDialog(NO_END_DATE);
+			} else if (checkStop.isChecked() && mEndHours < 0) {
+				showAlertDialog(NO_END_TIME);
+			} else if (mStartYear < 0 && mEndYear >= 0) {
+				showAlertDialog(NO_START);
+				
+			} else {
+				save();
+				finish();
+			}
 		} else if (id == R.id.action_cancel) {
 			finish();
 		}
@@ -177,6 +207,7 @@ public class NotificationEditActivity extends Activity implements
 		XmlCreator creator = new XmlCreator();
 		EditText title = (EditText) findViewById(R.id.editTitle);
 		EditText message = (EditText) findViewById(R.id.editMessage);
+
 		try {
 			n.setTitle(title.getText().toString());
 			n.setMessage(message.getText().toString());
@@ -269,7 +300,7 @@ public class NotificationEditActivity extends Activity implements
 	public void onDateSet(DatePicker _view, int _year, int _monthOfYear,
 			int _dayOfMonth) {
 		Log.i(TAG, "onDateSet");
-		
+
 		mCalendar.set(Calendar.YEAR, _year);
 		mCalendar.set(Calendar.MONTH, _monthOfYear);
 		mCalendar.set(Calendar.DAY_OF_MONTH, _dayOfMonth);
@@ -440,6 +471,87 @@ public class NotificationEditActivity extends Activity implements
 				}
 			}
 		}
+	}
 
+	private boolean checkDate() {
+		if (mEndYear < 0) {
+			return true;
+		} else if (mEndYear > mStartYear) {
+			return true;
+		} else if (mEndYear == mStartYear) {
+			if (mEndMonth > mStartMonth) {
+				return true;
+			} else if (mEndMonth == mStartMonth) {
+				if (mEndDay > mStartDay) {
+					return true;
+				} else if (mEndDay == mStartDay) {
+					if (mEndHours > mStartHours) {
+						return true;
+					} else if (mEndHours == mStartHours) {
+						if (mEndMinutes > mStartMinutes) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private void showAlertDialog(int _status) {
+		AlertDialog.Builder dialog = new AlertDialog.Builder(this,
+				AlertDialog.THEME_DEVICE_DEFAULT_DARK);
+
+		switch (_status) {
+		case NO_TITLE:
+			dialog.setTitle(getResources().getString(R.string.alert_title_title));
+			dialog.setMessage(getResources()
+					.getString(R.string.alert_title_text));
+			break;
+		case TO_SMALL_END_DATE:
+			dialog.setTitle(getResources().getString(R.string.alert_date_title));
+			dialog.setMessage(getResources()
+					.getString(R.string.alert_date_text));
+			break;
+		case NO_START_DATE:
+			dialog.setTitle(getResources().getString(R.string.alert_start_date_title));
+			dialog.setMessage(getResources()
+					.getString(R.string.alert_start_date_text));
+			break;
+		case NO_START_TIME:
+			dialog.setTitle(getResources().getString(R.string.alert_start_time_title));
+			dialog.setMessage(getResources()
+					.getString(R.string.alert_start_time_text));
+			break;
+		case NO_END_DATE:
+			dialog.setTitle(getResources().getString(R.string.alert_end_date_title));
+			dialog.setMessage(getResources()
+					.getString(R.string.alert_end_date_text));
+			break;
+		case NO_END_TIME:
+			dialog.setTitle(getResources().getString(R.string.alert_end_time_title));
+			dialog.setMessage(getResources()
+					.getString(R.string.alert_end_time_text));
+			break;
+		case NO_START:
+			dialog.setTitle(getResources().getString(R.string.alert_no_start_title));
+			dialog.setMessage(getResources()
+					.getString(R.string.alert_no_start_text));
+			break;
+		default:
+			Log.e(TAG, "Error showing AlertDialog");
+		}
+
+		// dialog.setIcon(R.drawable.alerts_and_states_warning);
+		dialog.setNegativeButton(getResources()
+				.getString(R.string.alert_button),
+				new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				});
+		dialog.show();
 	}
 }
