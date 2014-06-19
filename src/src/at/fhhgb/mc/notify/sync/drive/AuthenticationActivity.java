@@ -11,9 +11,11 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import at.fhhgb.mc.notify.push.PushConstants;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
 public class AuthenticationActivity extends Activity {
@@ -46,8 +48,12 @@ public class AuthenticationActivity extends Activity {
 		        		  new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
 		          
 		          SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		          preferences.edit().putString(SyncHandler.GOOGLE_DRIVE, accountName).commit();
-		          Log.i(TAG, "saved account name in shared preferences");
+		          Editor editor = preferences.edit();
+		          editor.putString(SyncHandler.GOOGLE_DRIVE, accountName);
+		          editor.putString(PushConstants.PUSH_ALIAS, accountName);
+		          editor.commit();
+		          Log.i(TAG, "saved account name and push alias in shared preferences");
+		          
 		          
 		          //uploads and updates the files again after authentication
 		          if(mFileList != null){

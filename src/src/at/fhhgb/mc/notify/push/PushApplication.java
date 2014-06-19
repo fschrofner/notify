@@ -8,6 +8,9 @@ import org.jboss.aerogear.android.unifiedpush.PushRegistrar;
 import org.jboss.aerogear.android.unifiedpush.Registrations;
 
 import android.app.Application;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 public class PushApplication extends Application {
 	
@@ -15,6 +18,7 @@ public class PushApplication extends Application {
     // it can be any arbitary value (e.g. name, email etc)
     private final String MY_ALIAS = "devtest";
 
+    final static String TAG = "PushApplication";
     private PushRegistrar registration;
 
     @Override
@@ -24,13 +28,23 @@ public class PushApplication extends Application {
         Registrations registrations = new Registrations();
 
         try {
-            PushConfig config = new PushConfig(new URI(PushConstants.UNIFIED_PUSH_URL), 
-            		PushConstants.GCM_SENDER_ID);
-            config.setVariantID(PushConstants.VARIANT_ID);
-            config.setSecret(PushConstants.SECRET);
-            config.setAlias(MY_ALIAS);
+        	
+        	SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        	String alias = preferences.getString(PushConstants.PUSH_ALIAS, null);
+        	
+        	if(alias != null){
+                PushConfig config = new PushConfig(new URI(PushConstants.UNIFIED_PUSH_URL), 
+                		PushConstants.GCM_SENDER_ID);
+                config.setVariantID(PushConstants.VARIANT_ID);
+                config.setSecret(PushConstants.SECRET);
+                config.setAlias(alias);
 
-            registration = registrations.push("unifiedpush", config);
+                registration = registrations.push("unifiedpush", config);
+                Log.i(TAG, "registered pushes for alias " + alias + "in shared preferences");
+        	} else {
+        		Log.i(TAG, "no alias saved, did not register for pushes!");
+        	}
+
 
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
