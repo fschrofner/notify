@@ -35,7 +35,6 @@ public final class PushSender {
 			thread.start();
 			Log.i(TAG, "started push thread");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
 	}
@@ -55,7 +54,7 @@ class PushThread implements Runnable {
 			throw new Exception("alias must not be null!");
 		} else {
 			alias = _alias;
-			Log.i(TAG, "alias was set to: " + alias);
+			Log.i(TAG, "alias " + alias + "will receive push");
 		}
 	}
 	
@@ -76,13 +75,10 @@ class PushThread implements Runnable {
 			    Log.i(TAG, "http result: " + instream.toString());
 			}
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 

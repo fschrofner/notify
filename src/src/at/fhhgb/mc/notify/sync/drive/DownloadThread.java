@@ -25,7 +25,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import at.fhhgb.mc.notify.notification.Notification;
+import at.fhhgb.mc.notify.push.PushConstants;
 import at.fhhgb.mc.notify.sync.SyncHandler;
+import at.fhhgb.mc.notify.xml.XmlParser;
 
 public class DownloadThread implements Runnable {
 
@@ -136,10 +139,32 @@ public class DownloadThread implements Runnable {
 	
 	private void deleteFile(String _fileName){
 		java.io.File oldFile;
-		oldFile = new java.io.File(SyncHandler.getFullPath(_fileName));
+		
 		if(SyncHandler.getFileExtension(_fileName).equals(SyncHandler.NOTIFICATION_FILE_EXTENSION)){
 			//TODO get associated files for notification and check if notification is really outdated
+			
+			try {
+				XmlParser parser = new XmlParser(mContext);
+				Notification notification = parser.readXml(_fileName);
+				//TODO make thread to delete files on google drive
+				//move code from here to this thread
+				if(notification != null){
+					ArrayList<String> files = notification.getFiles();
+					
+					if(files != null){
+						for(int i=0;i<files.size();i++){
+							java.io.File file = new java.io.File(SyncHandler.getFullPath(files.get(i)));
+							file.delete();
+						}
+					}
+				}
+								
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}	
+		oldFile = new java.io.File(SyncHandler.getFullPath(_fileName));
 		oldFile.delete();
 		Log.i(TAG, "file " + _fileName + " is outdated and was deleted");
 	}
@@ -182,7 +207,9 @@ public class DownloadThread implements Runnable {
 						while ((read = inputStream.read(bytes)) != -1) {
 							outputStream.write(bytes, 0, read);
 						}
+						
 						Log.i(TAG, "file " + _files.get(i).getOriginalFilename() + " complete!");
+						
 					}
 				}			
 			}		

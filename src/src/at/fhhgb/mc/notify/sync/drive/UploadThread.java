@@ -14,6 +14,8 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+import at.fhhgb.mc.notify.push.PushConstants;
+import at.fhhgb.mc.notify.push.PushSender;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -57,7 +59,12 @@ public class UploadThread implements Runnable {
 			}
 			
 			//update all files after upload
-			SyncHandler.updateFiles(mContext);
+			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+			
+			//TODO set push alias in sharedpreferences before reading
+			String alias = preferences.getString(PushConstants.PUSH_ALIAS, null);
+			PushSender.sendPushToAlias(alias);
+			//SyncHandler.updateFiles(mContext);
 		} else {
 			Log.i(TAG, "no drive service running!");
 		}

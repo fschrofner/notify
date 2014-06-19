@@ -8,6 +8,7 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
+import at.fhhgb.mc.notify.push.PushConstants;
 import at.fhhgb.mc.notify.sync.drive.DriveHandler;
 
 public class SyncHandler {
@@ -18,7 +19,7 @@ public class SyncHandler {
 	final static public String HOST_DESCRIPTION = "A folder used for notify syncing";
 	final static public String GOOGLE_DRIVE = "google_drive";
 	final static public String GOOGLE_DRIVE_FOLDER = "google_drive_folder_id";
-	final static public String ROOT_NOTIFICATION_FOLDER = "/storage/emulated/0/Notify/";
+	final static public String ROOT_NOTIFICATION_FOLDER = "/storage/emulated/0/Notify";
 	final static public String NOTIFICATION_FILE_EXTENSION = "noti";
 	final static public String UPLOAD_FILE_LIST = "filelist";
 	
@@ -54,6 +55,15 @@ public class SyncHandler {
 			Log.i(TAG, "file in file folder, because extension is: " + fileExtension);
 		}
 		return fullPath;
+	}
+	
+	public static String getFileNameWithoutExtension(String _fileName){
+		int lastIndex = _fileName.lastIndexOf(".") + 1;
+		if(lastIndex < 0){
+			lastIndex = _fileName.length();
+		}
+		String fileName = _fileName.substring(0,lastIndex);
+		return fileName;
 	}
 	
 	public static String getFileExtension(String _fileName){
