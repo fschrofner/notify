@@ -46,12 +46,14 @@
     <string name="message">Message: </string>
     <string name="edit_message">Insert Message</string>
     <string name="check">Change Value</string>
+    <string name="start">START</string>
     <string name="start_date">Start Date: </string>
     <string name="edit_start_date">Tap to edit Start Date</string>
     <string name="title_start_date">Choose Start Date</string>
     <string name="start_time">Start Time: </string>
     <string name="edit_start_time">Tap to edit Start Time</string>
     <string name="title_start_time">Choose Start Time</string>
+    <string name="end">END</string>
     <string name="end_date">End Date: </string>
     <string name="edit_end_date">Tap to edit End Date</string>
     <string name="title_end_date">Choose End Date</string>

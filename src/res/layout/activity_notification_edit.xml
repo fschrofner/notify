@@ -63,9 +63,27 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
+                android:lines="3"
                 android:inputType="textMultiLine" />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/textStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/start"
+            android:layout_marginTop="15dp"
+            android:textSize="12sp"
+            android:textColor="#555555" />
+        
+        <CheckBox
+                android:id="@+id/checkStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:textSize="15sp"
+                android:text="@string/check" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -75,6 +93,8 @@
                 android:id="@+id/textStartDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:layout_marginRight="15dp"
                 android:text="@string/start_date" />
 
             <TextView
@@ -82,14 +102,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:enabled="false"
+                android:textSize="15sp"
                 android:text="@string/ignored" />
-
-            <CheckBox
-                android:id="@+id/checkStart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:text="@string/check" />
 
         </LinearLayout>
         
@@ -101,6 +115,8 @@
                 android:id="@+id/textStartTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:layout_marginRight="15dp"
                 android:text="@string/start_time" />
 
             <TextView
@@ -108,9 +124,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:enabled="false"
+                android:textSize="15sp"
                 android:text="@string/ignored" />
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/textEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:textSize="12sp"
+            android:textColor="#444444"
+            android:text="@string/end" />
+        
+        <CheckBox
+                android:id="@+id/checkStop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="@string/check" />
         
         <LinearLayout
             android:layout_width="match_parent"
@@ -120,6 +153,8 @@
                 android:id="@+id/textEndDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:layout_marginRight="15dp"
                 android:text="@string/end_date" />
 
             <TextView
@@ -127,14 +162,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:enabled="false"
+                android:textSize="15sp"
                 android:text="@string/ignored" />
-
-            <CheckBox
-                android:id="@+id/checkStop"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="false"
-                android:text="@string/check" />
 
         </LinearLayout>
         
@@ -146,6 +175,8 @@
                 android:id="@+id/textEndTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:layout_marginRight="15dp"
                 android:text="@string/end_time" />
 
             <TextView
@@ -153,9 +184,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:enabled="false"
+                android:textSize="15sp"
                 android:text="@string/ignored" />
 
         </LinearLayout>
+        
+        <TextView
+            android:id="@+id/textEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:textSize="12sp"
+            android:textColor="#666666"
+            android:text="@string/end" />
 
         <LinearLayout
             android:layout_width="match_parent"
