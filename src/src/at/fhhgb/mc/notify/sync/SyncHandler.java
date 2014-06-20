@@ -22,6 +22,7 @@ public class SyncHandler {
 	final static public String ROOT_NOTIFICATION_FOLDER = "/storage/emulated/0/Notify";
 	final static public String NOTIFICATION_FILE_EXTENSION = "noti";
 	final static public String UPLOAD_FILE_LIST = "filelist";
+	final static public String APPLICATION_NAME = "Notify";
 	
 	/**
 	 * Initiates an update 
@@ -34,6 +35,17 @@ public class SyncHandler {
 	static public void uploadFiles(Context _context,Activity _activity, ArrayList<String> _fileList){
 		//TODO differentiate different hosts
 		DriveHandler.uploadFiles(_context, _activity, _fileList);
+	}
+	
+	/**
+	 * Deletes the given giles from the local file system AND from the host.
+	 * @param _context context needed for some methods
+	 * @param _activity activity needed to show authentication activity, when there is an authentication error
+	 * @param _fileNames the names of the files you want to delete
+	 */
+	static public void deleteFiles(Context _context, Activity _activity, ArrayList<String> _fileNames){
+		//TODO differentiate different hosts
+		DriveHandler.deleteFiles(_context, _activity, _fileNames);
 	}
 	
 	static private ArrayList<String> removeRevisions(ArrayList<String> _files){

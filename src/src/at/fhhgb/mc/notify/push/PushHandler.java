@@ -22,23 +22,8 @@ public class PushHandler implements MessageHandler {
 	}
 
 	@Override
-	public void onMessage(Context context, Bundle message) {
-		
+	public void onMessage(Context context, Bundle message) {		
 		Log.i(TAG, "received push!");
-		
-		String msg = message.getString("alert");
-        NotificationManager notificationManager = (NotificationManager)
-                context.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle("Notify")
-                        .setStyle(new NotificationCompat.BigTextStyle()
-                                .bigText(msg))
-                        .setContentText(msg);
-        notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
-        
-        //TODO handle message when app is in foreground
         SyncHandler.updateFiles(context.getApplicationContext());
 	}
 
