@@ -40,7 +40,7 @@ public class PushApplication extends Application {
                 config.setAlias(alias);
 
                 registration = registrations.push("unifiedpush", config);
-                Log.i(TAG, "registered pushes for alias " + alias + "in shared preferences");
+                Log.i(TAG, "registered pushes for alias " + alias + " in shared preferences");
         	} else {
         		Log.i(TAG, "no alias saved, did not register for pushes!");
         	}

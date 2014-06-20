@@ -53,40 +53,16 @@ public class DownloadThread implements Runnable {
 			//at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(),
 			//		new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
 			try {
-				ArrayList<File> hostFiles = getFileList(folderId);
+				ArrayList<File> hostFiles = DriveHandler.getFileList(folderId);
 				downloadFiles(getMissingFiles(hostFiles, mContext),mContext);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		} else {
 			Log.i(TAG, "no drive service running!");
-		}
-
-		
-		
+		}	
 	}
-	
-	
-	private ArrayList<File> getFileList(String _folderId) throws IOException{	
-		ArrayList<File> fileList = new ArrayList<File>();
-		if(_folderId != null){
-			//gets the children of the notify subfolder
-			ChildList children = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.children().list(_folderId).execute();
-			ArrayList<ChildReference> childList = new ArrayList<ChildReference>();
-				try {
-					childList.addAll(children.getItems());
-					//gets the fileobject of every child
-					for(int i = 0; i<childList.size();i++){
-						fileList.add(at.fhhgb.mc.notify.sync.drive.DriveHandler.service.files().get(childList.get(i).getId()).execute());
-						Log.i(TAG, "got: " + fileList.get(i).getOriginalFilename());
-					}			
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-		}
-		return fileList;
-	}
-	
+		
 	private ArrayList<File> getMissingFiles(ArrayList<File> _hostFiles,Context _context){
 		ArrayList<File> missingFiles = new ArrayList<File>();
 		java.io.File rootFolder = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER); 
@@ -140,30 +116,33 @@ public class DownloadThread implements Runnable {
 	private void deleteFile(String _fileName){
 		java.io.File oldFile;
 		
-		if(SyncHandler.getFileExtension(_fileName).equals(SyncHandler.NOTIFICATION_FILE_EXTENSION)){
-			//TODO get associated files for notification and check if notification is really outdated
-			
-			try {
-				XmlParser parser = new XmlParser(mContext);
-				Notification notification = parser.readXml(_fileName);
-				//TODO make thread to delete files on google drive
-				//move code from here to this thread
-				if(notification != null){
-					ArrayList<String> files = notification.getFiles();
-					
-					if(files != null){
-						for(int i=0;i<files.size();i++){
-							java.io.File file = new java.io.File(SyncHandler.getFullPath(files.get(i)));
-							file.delete();
-						}
-					}
-				}
-								
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}	
+		//TODO delete this code part. all other files should be automatically deleted, as they are missing.
+		//TODO check if notification is really outdated, upload it otherwise
+//		if(SyncHandler.getFileExtension(_fileName).equals(SyncHandler.NOTIFICATION_FILE_EXTENSION)){
+//			//TODO get associated files for notification and check if notification is really outdated
+//			
+//			try {
+//				XmlParser parser = new XmlParser(mContext);
+//				Notification notification = parser.readXml(_fileName);
+//				//TODO make thread to delete files on google drive
+//				//move code from here to this thread
+//				if(notification != null){
+//					ArrayList<String> files = notification.getFiles();
+//					
+//					if(files != null){
+//						for(int i=0;i<files.size();i++){
+//							java.io.File file = new java.io.File(SyncHandler.getFullPath(files.get(i)));
+//							file.delete();
+//						}
+//					}
+//				}
+//								
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}	
+		
 		oldFile = new java.io.File(SyncHandler.getFullPath(_fileName));
 		oldFile.delete();
 		Log.i(TAG, "file " + _fileName + " is outdated and was deleted");

@@ -62,7 +62,7 @@ public class MainActivity extends Activity implements OnClickListener{
     	} else {
     		Log.i(TAG, "no push alias saved, did not register for pushes");
     	}
-	    
+    	
 	    Button pushButton = (Button)findViewById(R.id.push_button);
 	    pushButton.setOnClickListener(this);
 	}

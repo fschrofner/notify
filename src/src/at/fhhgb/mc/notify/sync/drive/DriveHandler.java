@@ -18,6 +18,8 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.Drive.Files;
 import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.ChildList;
+import com.google.api.services.drive.model.ChildReference;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 
@@ -70,8 +72,10 @@ public class DriveHandler {
 			Log.i(TAG, "account found in preferences. setting up the saved account..");
 			createCredentials(_context);
 			credential.setSelectedAccountName(accountName);
-			service = new Drive.Builder(AndroidHttp.newCompatibleTransport(), 
-			    new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
+			Drive.Builder builder = new Drive.Builder(AndroidHttp.newCompatibleTransport(), 
+			    new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential);
+			builder.setApplicationName(SyncHandler.APPLICATION_NAME);
+			service = builder.build();
 		}
 	}
 	
@@ -81,9 +85,35 @@ public class DriveHandler {
 		thread.start();	
 	}
 	
+	static public ArrayList<File> getFileList(String _folderId) throws IOException{	
+		ArrayList<File> fileList = new ArrayList<File>();
+		if(_folderId != null){
+			//gets the children of the notify subfolder
+			ChildList children = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.children().list(_folderId).execute();
+			ArrayList<ChildReference> childList = new ArrayList<ChildReference>();
+				try {
+					childList.addAll(children.getItems());
+					//gets the fileobject of every child
+					for(int i = 0; i<childList.size();i++){
+						fileList.add(at.fhhgb.mc.notify.sync.drive.DriveHandler.service.files().get(childList.get(i).getId()).execute());
+						Log.i(TAG, "got: " + fileList.get(i).getOriginalFilename());
+					}			
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		}
+		return fileList;
+	}
+	
 	static public void uploadFiles(Context _context, Activity _activity, ArrayList<String> _fileList){
 		UploadThread upThread = new UploadThread(_context, _activity, _fileList);
 		Thread thread = new Thread(upThread);
+		thread.start();
+	}
+	
+	static public void deleteFiles(Context _context, Activity _activity, ArrayList<String> _fileNames){
+		DeleteThread delThread = new DeleteThread(_context, _activity, _fileNames);
+		Thread thread = new Thread(delThread);
 		thread.start();
 	}
 	
