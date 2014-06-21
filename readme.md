@@ -17,7 +17,9 @@ public class PushConstants {
     protected static final String GCM_SENDER_ID = "INSERT_GOOGLE_CLOUD_MESSAGE_SENDER_ID";
     protected static final String UNIFIED_PUSH_URL = "INSERT_SERVER_URL";
     protected static final String UNIFIED_PUSH_BROKER_URL = "INSERT_BROKER_URL/push";
-
+    
+  //these values are only used internally and can stay the same
+    public static final String PUSH_ALIAS = "push_alias";
 }
 ```  
 

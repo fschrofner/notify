@@ -50,8 +50,7 @@ public class MainActivity extends Activity implements OnClickListener{
 
     	        @Override
     	        public void onSuccess(Void ignore) {
-    	            Toast.makeText(MainActivity.this, "Registration Succeeded!",
-    	                    Toast.LENGTH_LONG).show();
+    	            Log.i(TAG, "registration to push service succeeded");
     	        }
 
     	        @Override
