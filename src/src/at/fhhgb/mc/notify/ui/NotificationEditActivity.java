@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import at.fhhgb.mc.notify.R;
 import at.fhhgb.mc.notify.notification.Notification;
+import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.xml.XmlCreator;
 
 public class NotificationEditActivity extends Activity implements
@@ -53,6 +54,7 @@ public class NotificationEditActivity extends Activity implements
 	private boolean isStart = true;
 
 	private long mUniqueID = -1;
+	private int mVersion = -1;
 	private String mTitle;
 	private String mMessage;
 	private int mStartYear = -1;
@@ -86,6 +88,7 @@ public class NotificationEditActivity extends Activity implements
 
 		if (b != null) {
 			mUniqueID = b.getLong(Notification.KEY_UNIQUE_ID);
+			mVersion = b.getInt(Notification.KEY_VERSION);
 			mTitle = b.getString(Notification.KEY_TITLE);
 			mMessage = b.getString(Notification.KEY_MESSAGE);
 			mStartYear = b.getInt(Notification.KEY_START_YEAR);
@@ -195,7 +198,7 @@ public class NotificationEditActivity extends Activity implements
 				showAlertDialog(NO_END_TIME);
 			} else if (mStartYear < 0 && mEndYear >= 0) {
 				showAlertDialog(NO_START);
-				
+
 			} else {
 				save();
 				finish();
@@ -224,6 +227,19 @@ public class NotificationEditActivity extends Activity implements
 				n.setUniqueID(Notification.generateUniqueID());
 			} else {
 				n.setUniqueID(mUniqueID);
+			}
+			if (mVersion < 0) {
+				n.setVersion(0);
+				Log.i(TAG, "new");
+			} else {
+				Log.i(TAG, "Version: " + mVersion);
+				Intent action = new Intent(this, NotificationService.class);
+				action.setAction(Notification.ACTION_DELETE);
+				action.putExtra(Notification.EXTRA_UNIQUE_ID, mUniqueID);
+				action.putExtra(Notification.EXTRA_VERSION, mVersion);
+				action.putExtra(Notification.EXTRA_NOTIFICATION_ID, 0); // TODO notificationID
+				this.startService(action);
+				n.setVersion(mVersion + 1);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -299,7 +315,7 @@ public class NotificationEditActivity extends Activity implements
 			tpdEnd.show();
 			break;
 		case R.id.buttonFile:
-			Intent intent = new Intent();           
+			Intent intent = new Intent();
 			intent.setAction(android.content.Intent.ACTION_PICK);
 			intent.setType("image/*");
 			startActivityForResult(intent, REQUESTCODE_GET_FILE);
@@ -515,9 +531,10 @@ public class NotificationEditActivity extends Activity implements
 
 		switch (_status) {
 		case NO_TITLE:
-			dialog.setTitle(getResources().getString(R.string.alert_title_title));
-			dialog.setMessage(getResources()
-					.getString(R.string.alert_title_text));
+			dialog.setTitle(getResources()
+					.getString(R.string.alert_title_title));
+			dialog.setMessage(getResources().getString(
+					R.string.alert_title_text));
 			break;
 		case TO_SMALL_END_DATE:
 			dialog.setTitle(getResources().getString(R.string.alert_date_title));
@@ -525,29 +542,34 @@ public class NotificationEditActivity extends Activity implements
 					.getString(R.string.alert_date_text));
 			break;
 		case NO_START_DATE:
-			dialog.setTitle(getResources().getString(R.string.alert_start_date_title));
-			dialog.setMessage(getResources()
-					.getString(R.string.alert_start_date_text));
+			dialog.setTitle(getResources().getString(
+					R.string.alert_start_date_title));
+			dialog.setMessage(getResources().getString(
+					R.string.alert_start_date_text));
 			break;
 		case NO_START_TIME:
-			dialog.setTitle(getResources().getString(R.string.alert_start_time_title));
-			dialog.setMessage(getResources()
-					.getString(R.string.alert_start_time_text));
+			dialog.setTitle(getResources().getString(
+					R.string.alert_start_time_title));
+			dialog.setMessage(getResources().getString(
+					R.string.alert_start_time_text));
 			break;
 		case NO_END_DATE:
-			dialog.setTitle(getResources().getString(R.string.alert_end_date_title));
-			dialog.setMessage(getResources()
-					.getString(R.string.alert_end_date_text));
+			dialog.setTitle(getResources().getString(
+					R.string.alert_end_date_title));
+			dialog.setMessage(getResources().getString(
+					R.string.alert_end_date_text));
 			break;
 		case NO_END_TIME:
-			dialog.setTitle(getResources().getString(R.string.alert_end_time_title));
-			dialog.setMessage(getResources()
-					.getString(R.string.alert_end_time_text));
+			dialog.setTitle(getResources().getString(
+					R.string.alert_end_time_title));
+			dialog.setMessage(getResources().getString(
+					R.string.alert_end_time_text));
 			break;
 		case NO_START:
-			dialog.setTitle(getResources().getString(R.string.alert_no_start_title));
-			dialog.setMessage(getResources()
-					.getString(R.string.alert_no_start_text));
+			dialog.setTitle(getResources().getString(
+					R.string.alert_no_start_title));
+			dialog.setMessage(getResources().getString(
+					R.string.alert_no_start_text));
 			break;
 		default:
 			Log.e(TAG, "Error showing AlertDialog");
@@ -565,12 +587,12 @@ public class NotificationEditActivity extends Activity implements
 				});
 		dialog.show();
 	}
-	
+
 	@Override
-	//if the file(which should be written) was picked
+	// if the file(which should be written) was picked
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if(requestCode == REQUESTCODE_GET_FILE && resultCode == RESULT_OK){
+		if (requestCode == REQUESTCODE_GET_FILE && resultCode == RESULT_OK) {
 			TextView tv = (TextView) findViewById(R.id.textFile);
 			tv.setText(data.getData().getPath());
 		}

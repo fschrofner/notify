@@ -104,7 +104,7 @@ public class XmlCreator {
 				}
 			}
 			
-			writeToFile(_notification.getUniqueIDString()+"_0.xml", generateString(mDocument), _context);
+			writeToFile(_notification.getUniqueIDString() + "_" + _notification.getVersion() + ".xml", generateString(mDocument), _context);
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

@@ -198,6 +198,7 @@ public class NotificationFragment extends Fragment implements
 		Intent i = new Intent(getActivity(), NotificationEditActivity.class);
 		Bundle b = new Bundle();
 		b.putLong(Notification.KEY_UNIQUE_ID, n.getUniqueID());
+		b.putInt(Notification.KEY_VERSION, n.getVersion());
 		b.putString(Notification.KEY_TITLE, n.getTitle());
 		b.putString(Notification.KEY_MESSAGE, n.getMessage());
 		b.putInt(Notification.KEY_START_YEAR, n.getStartYear());
