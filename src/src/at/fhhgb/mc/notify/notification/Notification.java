@@ -54,6 +54,7 @@ public class Notification {
 	public final static String KEY_MESSAGE = "message";
 	public final static String KEY_FILE = "file";
 	public final static String KEY_UNIQUE_ID = "unique_id";
+	public final static String KEY_VERSION = "version";
 	public final static String ATTRIBUTE_CONTENT = "content";
 	public final static String ATTRIBUTE_PATH = "path";
 	public final static String ATTRIBUTE_START_YEAR = "start_year";
