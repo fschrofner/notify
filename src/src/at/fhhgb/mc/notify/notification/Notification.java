@@ -18,6 +18,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import at.fhhgb.mc.notify.MainActivity;
 import at.fhhgb.mc.notify.R;
+import at.fhhgb.mc.notify.ui.NotificationEditActivity;
 
 /**
  * Container class that is used to transfer notifications between methods.
@@ -115,8 +116,25 @@ public class Notification {
 	 * Shows the notification.
 	 */
 	public void showNotification(Context _context) {
-		Intent i = new Intent(_context, MainActivity.class);
-		PendingIntent pi = PendingIntent.getActivity(_context, 0, i, 0);
+		Intent i = new Intent(_context, NotificationEditActivity.class);
+		Bundle b = new Bundle();
+		b.putLong(Notification.KEY_UNIQUE_ID, getUniqueID());
+		b.putInt(Notification.KEY_VERSION, getVersion());
+		b.putString(Notification.KEY_TITLE, getTitle());
+		b.putString(Notification.KEY_MESSAGE, getMessage());
+		b.putInt(Notification.KEY_START_YEAR, getStartYear());
+		b.putInt(Notification.KEY_START_MONTH, getStartMonth());
+		b.putInt(Notification.KEY_START_DAY, getStartDay());
+		b.putInt(Notification.KEY_START_HOURS, getStartHours());
+		b.putInt(Notification.KEY_START_MINUTES, getStartMinutes());
+		b.putInt(Notification.KEY_END_YEAR, getEndYear());
+		b.putInt(Notification.KEY_END_MONTH, getEndMonth());
+		b.putInt(Notification.KEY_END_DAY, getEndDay());
+		b.putInt(Notification.KEY_END_HOURS, getEndHours());
+		b.putInt(Notification.KEY_END_MINUTES, getEndMinutes());
+		i.putExtra(Notification.KEY_ROOT, b);
+		PendingIntent pi = PendingIntent.getActivity(_context, mNotificationID,
+				i, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		Intent action = new Intent(_context, NotificationService.class);
 		action.setAction(Notification.ACTION_DELETE);
