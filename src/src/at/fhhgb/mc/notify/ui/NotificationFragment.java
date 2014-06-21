@@ -260,6 +260,9 @@ public class NotificationFragment extends Fragment implements
 				}
 			}
 			
+//			listAdapter.notifyDataSetChanged();
+			listAdapter = null;
+			Log.i(TAG, "test");
 			update(mView);
 			mode.finish();
 			return true;
