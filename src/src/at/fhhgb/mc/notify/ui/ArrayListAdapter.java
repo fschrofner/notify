@@ -41,6 +41,11 @@ public class ArrayListAdapter extends ArrayAdapter<String> {
 			_convertView = inflater.inflate(R.layout.fragment_list_item, null);
 		}
 
+		Log.i(TAG, "size: " + mMessageList.size());
+		for (int i = 0; i < mMessageList.size(); i++) {
+			Log.i(TAG, "message: " + mMessageList.get(i));
+		}
+		
 		if (_convertView != null) {
 			TextView message = (TextView) _convertView
 					.findViewById(R.id.item_message);

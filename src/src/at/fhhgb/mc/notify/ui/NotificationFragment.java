@@ -10,7 +10,6 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,12 +20,11 @@ import android.view.ViewGroup;
 import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import at.fhhgb.mc.notify.R;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.notification.NotificationService;
+import at.fhhgb.mc.notify.sync.SyncHandler;
 import at.fhhgb.mc.notify.xml.XmlParser;
 
 public class NotificationFragment extends Fragment implements
@@ -171,9 +169,25 @@ public class NotificationFragment extends Fragment implements
 	 */
 	private void reload() {
 		mNotifications = new ArrayList<Notification>();
-		String[] xmlList = getActivity().getFilesDir().list();
+//		String[] xmlList = getActivity().getFilesDir().list();
+//		java.io.File fileFolder = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + SyncHandler.NOTIFICATION_FOLDER);
+//		boolean returnV = fileFolder.mkdirs();
+		
+		java.io.File rootFolder = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER); 
+		rootFolder.mkdirs();
+		
+		//create directory
+		java.io.File fileFolder = new java.io.File(rootFolder,SyncHandler.NOTIFICATION_FOLDER);
+		fileFolder.mkdirs();
+
+		String[] xmlList = fileFolder.list();
 		XmlParser parser = new XmlParser(getActivity().getApplicationContext());
 		Notification noti;
+		
+		if(xmlList == null) {
+			Log.i(TAG, "null");
+		}
+		
 		try {
 			for (String file : xmlList) {
 				noti = parser.readXml(file);
@@ -261,8 +275,7 @@ public class NotificationFragment extends Fragment implements
 			}
 			
 //			listAdapter.notifyDataSetChanged();
-			listAdapter = null;
-			Log.i(TAG, "test");
+//			listAdapter = null;
 			update(mView);
 			mode.finish();
 			return true;

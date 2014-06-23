@@ -8,10 +8,12 @@ import org.jboss.aerogear.android.unifiedpush.PushRegistrar;
 import org.jboss.aerogear.android.unifiedpush.Registrations;
 
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -35,10 +37,10 @@ import at.fhhgb.mc.notify.push.*;
 import at.fhhgb.mc.notify.ui.NotificationEditActivity;
 import at.fhhgb.mc.notify.ui.NotificationFragment;
 import at.fhhgb.mc.notify.ui.SettingsFragment;
+import at.fhhgb.mc.notify.sync.SyncHandler;
 
-public class MainActivity extends Activity implements MessageHandler,
-		OnClickListener {
-
+public class MainActivity extends Activity implements OnClickListener{
+	
 	private static final String TAG = "MainActivity";
 	private String[] mDrawerTitles;
 	private ActionBarDrawerToggle mDrawerToggle;
@@ -98,35 +100,40 @@ public class MainActivity extends Activity implements MessageHandler,
 		 selectItem(0);
 		 }
 
-		// access the registration object
-		PushRegistrar push = ((PushApplication) getApplication())
-				.getRegistration();
+		//TODO register push on system start-up
+		
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+    	String alias = preferences.getString(PushConstants.PUSH_ALIAS, null);
+    	
+    	if(alias != null){
+    		// access the registration object
+    	    PushRegistrar push = ((PushApplication) getApplication()).
+    	    		getRegistration();
 
-		// fire up registration..
+    	    // fire up registration..
 
-		// The method will attempt to register the device with GCM and the
-		// UnifiedPush server
-		push.register(getApplicationContext(), new Callback<Void>() { // 2
-					private static final long serialVersionUID = 1L;
+    	    // The method will attempt to register the device with GCM and the UnifiedPush server
+    	    push.register(getApplicationContext(),new Callback<Void>() { 
+    	        private static final long serialVersionUID = 1L;
 
-					@Override
-					public void onSuccess(Void ignore) {
-						Toast.makeText(MainActivity.this,
-								"Registration Succeeded!", Toast.LENGTH_LONG)
-								.show();
-					}
+    	        @Override
+    	        public void onSuccess(Void ignore) {
+    	            Log.i(TAG, "registration to push service succeeded");
+    	        }
 
-					@Override
-					public void onFailure(Exception exception) {
-						Log.e(TAG, exception.getMessage(), exception);
-					}
-				});
-
-//		Button pushButton = (Button) findViewById(R.id.push_button);
-//		pushButton.setOnClickListener(this);
-//		Log.i(TAG, "End of onCreate");
+    	        @Override
+    	        public void onFailure(Exception exception) {
+    	            Log.e("MainActivity", exception.getMessage(), exception);
+    	        }
+    	    });
+    	} else {
+    		Log.i(TAG, "no push alias saved, did not register for pushes");
+    	}
+    	
+//	    Button pushButton = (Button)findViewById(R.id.push_button);
+//	    pushButton.setOnClickListener(this);
 	}
-	
+
 	@Override
 	protected void onStart() {
 		Intent intent = new Intent(this, NotificationService.class);
@@ -185,37 +192,7 @@ public class MainActivity extends Activity implements MessageHandler,
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		Registrations.registerMainThreadHandler(this); // 1
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		Registrations.unregisterMainThreadHandler(this); // 2
-	}
-
-	@Override
-	public void onMessage(Context context, Bundle message) { // 3
-//		// display the message contained in the payload
-//		TextView text = (TextView) findViewById(R.id.label);
-//		text.setText(message.getString("alert"));
-//		text.invalidate();
-	}
-
-	@Override
-	public void onDeleteMessage(Context context, Bundle message) {
-		// handle GoogleCloudMessaging.MESSAGE_TYPE_DELETED
-	}
-
-	@Override
-	public void onError() {
-		// handle GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR
-	}
-
+		
 	@Override
 	public void onClick(View v) {
 //		EditText text = (EditText) findViewById(R.id.alias_text);

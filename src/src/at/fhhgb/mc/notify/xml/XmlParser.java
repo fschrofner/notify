@@ -1,5 +1,7 @@
 package at.fhhgb.mc.notify.xml;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +14,7 @@ import android.content.Context;
 import android.util.Log;
 import android.util.Xml;
 import at.fhhgb.mc.notify.notification.Notification;
+import at.fhhgb.mc.notify.sync.SyncHandler;
 
 public class XmlParser {
 	
@@ -31,7 +34,9 @@ public class XmlParser {
 			XmlPullParser parser = Xml.newPullParser();
 			parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
 //			input = mContext.openFileInput(_uniqueID + ".xml");
-			input = mContext.openFileInput(_fileName);
+//			input = mContext.openFileInput(SyncHandler.getFullPath(_fileName));
+//			input = mContext.openFileInput(_fileName);;
+			input = new FileInputStream(SyncHandler.getFullPath(_fileName));
 			parser.setInput(input, null);
 			parser.nextTag();
 			read(parser);
@@ -48,7 +53,9 @@ public class XmlParser {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			input.close();					//closes the inputstream in the end
+			if(input != null){
+				input.close();					//closes the inputstream in the end
+			}		
 		}
 		
 		StringBuffer sb = new StringBuffer();
@@ -74,7 +81,7 @@ public class XmlParser {
 			Log.w(TAG, "filename " + _fileName + " invalid");
 			version = "-1";
 		} else {
-			version = sb.substring(sb.indexOf("_") + 1, sb.length() - 4);
+			version = sb.substring(sb.indexOf("_") + 1, sb.length() - 5);
 		}
 		
 		mNotification.setVersion(Integer.parseInt(version));

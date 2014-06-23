@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.util.Log;
+import at.fhhgb.mc.notify.sync.SyncHandler;
 import at.fhhgb.mc.notify.xml.XmlCreator;
 import at.fhhgb.mc.notify.xml.XmlParser;
 
@@ -48,11 +49,23 @@ public class NotificationService extends IntentService {
 	private void reload(){
 		//TODO these are just some test notifications, the real notifications need to be loaded from xml files here
 		mNotifications = new ArrayList<Notification>();
-		String[] xmlList = getFilesDir().list();
+//		String[] xmlList = getFilesDir().list();
+//		java.io.File fileFolder = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + SyncHandler.NOTIFICATION_FOLDER);
+//		boolean returnV = fileFolder.mkdirs();
+		
+		java.io.File rootFolder = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER); 
+		rootFolder.mkdirs();
+		
+		//create directory
+		java.io.File fileFolder = new java.io.File(rootFolder,SyncHandler.NOTIFICATION_FOLDER);
+		fileFolder.mkdirs();
+		
+		String[] xmlList = fileFolder.list();
 		XmlParser parser = new XmlParser(getApplicationContext());
 		Notification noti;
 		try {
 			for (String file : xmlList) {
+				Log.i(TAG, "file: " + file);
 				noti = parser.readXml(file);
 				mNotifications.add(noti);
 			}
