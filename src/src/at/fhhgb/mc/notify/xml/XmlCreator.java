@@ -24,6 +24,7 @@ import org.w3c.dom.Element;
 import android.content.Context;
 import android.util.Log;
 import at.fhhgb.mc.notify.notification.Notification;
+import at.fhhgb.mc.notify.sync.SyncHandler;
 
 public class XmlCreator {
 	
@@ -86,9 +87,9 @@ public class XmlCreator {
 			attributes.add(Notification.ATTRIBUTE_START_MINUTES);
 			values.add(String.valueOf(_notification.getStartMinutes()));
 			attributes.add(Notification.ATTRIBUTE_END_HOURS);
-			values.add(String.valueOf(_notification.getEndMonth()));
+			values.add(String.valueOf(_notification.getEndHours()));
 			attributes.add(Notification.ATTRIBUTE_END_MINUTES);
-			values.add(String.valueOf(_notification.getEndDay()));
+			values.add(String.valueOf(_notification.getEndMinutes()));
 			
 			createElement(rootElement,Notification.KEY_TIME,attributes,values);
 			
@@ -104,7 +105,7 @@ public class XmlCreator {
 				}
 			}
 			
-			writeToFile(_notification.getUniqueIDString()+"_0.xml", generateString(mDocument), _context);
+			writeToFile(_notification.getUniqueIDString() + "_" + _notification.getVersion() + "." + SyncHandler.NOTIFICATION_FILE_EXTENSION, generateString(mDocument), _context);
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -146,7 +147,16 @@ public class XmlCreator {
 	
 	private void writeToFile(String _fileName,String _xml,Context _context){
 		try {
-			FileOutputStream output = _context.openFileOutput(_fileName, Context.MODE_PRIVATE);
+			java.io.File directory = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + SyncHandler.NOTIFICATION_FOLDER);
+			directory.mkdirs();
+			Log.i(TAG, "dir: " + directory.isDirectory());
+			java.io.File outputFile = new java.io.File(SyncHandler.getFullPath(_fileName));
+			
+			
+			outputFile.createNewFile();
+			FileOutputStream output = new FileOutputStream(outputFile);
+			
+//			FileOutputStream output = _context.openFileOutput(_fileName, Context.MODE_PRIVATE);
 			output.write(_xml.getBytes());
 			output.close();
 		} catch (IOException e) {

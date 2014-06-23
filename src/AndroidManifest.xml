@@ -8,7 +8,7 @@
    	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
    	<uses-permission android:name="android.permission.WAKE_LOCK" />
   	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-  	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+  	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
   	    
    	<permission
         android:name="com.push.pushapplication.permission.C2D_MESSAGE"
@@ -16,15 +16,15 @@
    	<uses-permission android:name="com.push.pushapplication.permission.C2D_MESSAGE" />
    
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="14"
         android:targetSdkVersion="19" />
-    
+
     <application
+        android:name="at.fhhgb.mc.notify.push.PushApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" 
-        android:name="at.fhhgb.mc.notify.push.PushApplication">
+        android:theme="@style/AppTheme" >
         <activity
             android:name="at.fhhgb.mc.notify.MainActivity"
             android:label="@string/app_name" >
@@ -43,21 +43,34 @@
             	android:value="at.fhhgb.mc.notify.MainActivity" />
         </activity>
         
-        <receiver android:name="at.fhhgb.mc.notify.notification.NotificationBroadcastReceiver">
+        <receiver android:name="at.fhhgb.mc.notify.notification.NotificationBroadcastReceiver" >
         </receiver>
         
-        <service android:name="at.fhhgb.mc.notify.notification.NotificationService">
+        <service android:name="at.fhhgb.mc.notify.notification.NotificationService" >
         </service>
         
         <receiver
-   			android:name="org.jboss.aerogear.android.unifiedpush.AeroGearGCMMessageReceiver"
-    		android:permission="com.google.android.c2dm.permission.SEND" >
-    		<intent-filter>
-        		<action android:name="com.google.android.c2dm.intent.RECEIVE" />
-        		<category android:name="at.fhhgb.mc.push.PushApplication" />
-    		</intent-filter>
-    		<meta-data android:name="DEFAULT_MESSAGE_HANDLER_KEY" android:value="at.fhhgb.mc.notify.push.PushHandler"/>
-		</receiver>
+            android:name="org.jboss.aerogear.android.unifiedpush.AeroGearGCMMessageReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category android:name="at.fhhgb.mc.push.PushApplication" />
+            </intent-filter>
+
+            <meta-data
+                android:name="DEFAULT_MESSAGE_HANDLER_KEY"
+                android:value="at.fhhgb.mc.notify.push.PushHandler" />
+        </receiver>
+
+        <activity
+            android:name="at.fhhgb.mc.notify.ui.NotificationEditActivity"
+            android:label="@string/title_activity_notification_edit"
+            android:parentActivityName="at.fhhgb.mc.notify.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="at.fhhgb.mc.notify.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

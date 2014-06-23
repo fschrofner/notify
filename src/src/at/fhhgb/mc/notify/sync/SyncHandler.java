@@ -7,6 +7,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 import at.fhhgb.mc.notify.push.PushConstants;
 import at.fhhgb.mc.notify.sync.drive.DriveHandler;
@@ -19,7 +20,8 @@ public class SyncHandler {
 	final static public String HOST_DESCRIPTION = "A folder used for notify syncing";
 	final static public String GOOGLE_DRIVE = "google_drive";
 	final static public String GOOGLE_DRIVE_FOLDER = "google_drive_folder_id";
-	final static public String ROOT_NOTIFICATION_FOLDER = "/storage/emulated/0/Notify";
+//	final static public String ROOT_NOTIFICATION_FOLDER = "/data/data/at.fhhgb.mc.notify";
+	final static public String ROOT_NOTIFICATION_FOLDER = Environment.getExternalStorageDirectory().toString() + "/Notify";
 	final static public String NOTIFICATION_FILE_EXTENSION = "noti";
 	final static public String UPLOAD_FILE_LIST = "filelist";
 	final static public String APPLICATION_NAME = "Notify";
