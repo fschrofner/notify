@@ -12,6 +12,7 @@ import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -215,6 +216,7 @@ public class NotificationEditActivity extends Activity implements
 		XmlCreator creator = new XmlCreator();
 		EditText title = (EditText) findViewById(R.id.editTitle);
 		EditText message = (EditText) findViewById(R.id.editMessage);
+		SharedPreferences triggeredNotifications = getSharedPreferences(NotificationService.TRIGGERED_NOTIFICATIONS, 0);
 
 		try {
 			n.setTitle(title.getText().toString());
@@ -232,12 +234,13 @@ public class NotificationEditActivity extends Activity implements
 				n.setVersion(0);
 				Log.i(TAG, "new");
 			} else {
+				int notificationID = triggeredNotifications.getInt(String.valueOf(mUniqueID), -1);
 				Log.i(TAG, "Version: " + mVersion);
 				Intent action = new Intent(this, NotificationService.class);
 				action.setAction(Notification.ACTION_DELETE);
 				action.putExtra(Notification.EXTRA_UNIQUE_ID, mUniqueID);
 				action.putExtra(Notification.EXTRA_VERSION, mVersion);
-				action.putExtra(Notification.EXTRA_NOTIFICATION_ID, 0); // TODO notificationID
+				action.putExtra(Notification.EXTRA_NOTIFICATION_ID, notificationID);
 				this.startService(action);
 				n.setVersion(mVersion + 1);
 			}

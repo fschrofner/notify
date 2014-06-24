@@ -31,7 +31,7 @@ public class NotificationService extends IntentService {
 	}
 
 	private static final String TAG = "NotificationService";
-	private static final String TRIGGERED_NOTIFICATIONS = "triggered_notifications";
+	public static final String TRIGGERED_NOTIFICATIONS = "triggered_notifications";
 	
 //	private int mCurrentYear;
 //	private int mCurrentMonth;
@@ -160,7 +160,8 @@ public class NotificationService extends IntentService {
 			if (!triggeredNotifications.contains(mNotifications.get(i).getUniqueIDString())) {
 				Log.i(TAG, "notification showed: " + mTriggeredNotifications.get(i));
 				mNotifications.get(i).showNotification(getApplicationContext());
-				triggeredNotifications.edit().putBoolean(mNotifications.get(i).getUniqueIDString(), true).commit();
+				triggeredNotifications.edit().putInt(mNotifications.get(i).getUniqueIDString(), Notification.mNotificationID).commit();
+				Notification.mNotificationID++;
 			} else {
 				Log.i(TAG, "notification has already been showed");
 			}
@@ -244,7 +245,8 @@ public class NotificationService extends IntentService {
 	 * @param _notificationID The notification ID
 	 */
 	private void deleteNotification(long _uniqueID, int _version, int _notificationID) {
-		File file = new File(getFilesDir() + "/" +  String.valueOf(_uniqueID) + "_" + String.valueOf(_version) + ".xml");
+		String fileName = _uniqueID + "_" + _version + "." + SyncHandler.NOTIFICATION_FILE_EXTENSION;
+		File file = new File(SyncHandler.getFullPath(fileName));
 		file.delete();
 		
 		SharedPreferences triggeredNotifications = getSharedPreferences(TRIGGERED_NOTIFICATIONS, 0);
