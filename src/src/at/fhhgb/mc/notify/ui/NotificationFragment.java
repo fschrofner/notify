@@ -8,6 +8,7 @@ import org.joda.time.DateTime;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ActionMode;
@@ -246,6 +247,9 @@ public class NotificationFragment extends Fragment implements
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+		SharedPreferences triggeredNotifications = getActivity().getSharedPreferences(NotificationService.TRIGGERED_NOTIFICATIONS, 0);
+		
+		
 		switch (item.getItemId()) {
 		case R.id.menu_delete:
 			// retrieve selected items and delete them out
@@ -258,6 +262,8 @@ public class NotificationFragment extends Fragment implements
 					} else {
 						noti = mFutureNotifications.get(i);
 					}
+					
+					int notificationID = triggeredNotifications.getInt(noti.getUniqueIDString(), -1);
 
 					Intent action = new Intent(getActivity(),
 							NotificationService.class);
@@ -267,7 +273,7 @@ public class NotificationFragment extends Fragment implements
 					action.putExtra(Notification.EXTRA_VERSION,
 							noti.getVersion());
 					action.putExtra(Notification.EXTRA_NOTIFICATION_ID,
-							0); //TODO notificationID
+							notificationID);
 					getActivity().startService(action);
 					
 //					mTriggeredNotifications.remove(i);

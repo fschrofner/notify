@@ -164,7 +164,6 @@ public class Notification {
 						pAction).setAutoCancel(true);
 		notificationManager.notify(mNotificationID, mBuilder.build());
 
-		mNotificationID++;
 		Log.i(TAG, "notification built");
 
 	}
