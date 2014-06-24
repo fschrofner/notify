@@ -62,6 +62,11 @@ public class MainActivity extends Activity implements OnClickListener{
     		Log.i(TAG, "no push alias saved, did not register for pushes");
     	}
     	
+    	ArrayList<String> fileList = new ArrayList<String>();
+    	fileList.add("test.JPG");
+    	fileList.add("test.noti");
+    	SyncHandler.uploadFiles(getApplicationContext(), this, fileList);
+    	
 	    Button pushButton = (Button)findViewById(R.id.push_button);
 	    pushButton.setOnClickListener(this);
 	}

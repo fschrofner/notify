@@ -1,5 +1,6 @@
 package at.fhhgb.mc.notify.xml;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +33,8 @@ public class XmlParser {
 			XmlPullParser parser = Xml.newPullParser();
 			parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
 //			input = mContext.openFileInput(_uniqueID + ".xml");
-			input = mContext.openFileInput(SyncHandler.getFullPath(_fileName));
+			input = new FileInputStream(SyncHandler.getFullPath(_fileName));
+			//input = mContext.openFileInput(SyncHandler.getFullPath(_fileName));
 			parser.setInput(input, null);
 			parser.nextTag();
 			read(parser);

@@ -3,6 +3,8 @@ package at.fhhgb.mc.notify.sync.drive;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.R;
 import android.app.Activity;
@@ -10,7 +12,10 @@ import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
@@ -30,14 +35,18 @@ import com.google.api.services.drive.model.ParentReference;
 public class UploadThread implements Runnable {
 
 	final static String TAG = "UploadThread";
-	Context mContext;
-	Activity mActivity;
-	ArrayList<String> mFileList;
+	private Context mContext;
+	private Activity mActivity;
+	private ArrayList<String> mFileList;
+	private boolean mFinishedUpload;
+	private boolean mConnected;
 	
 	public UploadThread(Context _context, Activity _activity, ArrayList<String> _fileList){
 		mContext = _context;
 		mActivity = _activity;
 		mFileList = _fileList;
+		mFinishedUpload = false;
+		mConnected = true;
 	}
 	
 	@Override
@@ -55,7 +64,26 @@ public class UploadThread implements Runnable {
 			
 			//uploads all files from the list
 			for(int i=0; i<mFileList.size();i++){
-				uploadFile(mFileList.get(i));
+				mFinishedUpload = false;
+				do{
+					uploadFile(mFileList.get(i));
+					Log.i(TAG, "tried uploading file: " + i);
+					
+					//tries uploading the file until the upload completes
+					if(!mFinishedUpload && mConnected){
+						try {
+							Thread.sleep(10000);
+							Log.i(TAG, "upload failed! waiting for 10 seconds and retry");
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					//internet connectivity is not present, doesn't retry
+					if(!mConnected){
+						break;
+					}
+				} while (!mFinishedUpload);
 			}
 			
 			//update all files after upload
@@ -88,11 +116,28 @@ public class UploadThread implements Runnable {
 			File resultFile;
 	
 			resultFile = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.files().insert(body, mediaContent).execute();
+			
+			//sets the boolean flag to true
+			mFinishedUpload = true;
 			Log.i(TAG, "upload complete, file id: " + resultFile.getId());
 		} catch (UserRecoverableAuthIOException e) {
-	          mActivity.startActivityForResult(e.getIntent(), at.fhhgb.mc.notify.sync.drive.AuthenticationActivity.REQUEST_AUTHENTICATION);
+			if(mActivity != null){
+				mActivity.startActivityForResult(e.getIntent(), at.fhhgb.mc.notify.sync.drive.AuthenticationActivity.REQUEST_AUTHENTICATION);
+			} else {
+				Log.w(TAG, "upload thread not started from activity and authentication error occurred!");
+			}
+	          
 	        } catch (IOException e) {
-			e.printStackTrace();
+	        	//TODO schedule a re-upload, if network error. save files to upload, if internet connectivity is deactivated.	
+	        	Log.w(TAG, "network error!");
+	        	ConnectivityManager cm = (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);    	 
+	        	NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+	        	boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+	        	if(!isConnected){
+	        		//TODO register broadcast receiver for network connectivity changed and save files to upload in shared preferences
+	        		mConnected = false;
+	        		Log.i(TAG, "no internet connectivity! scheduled upload for connectivity change");
+	        	}
 		}
 	}
 	

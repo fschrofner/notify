@@ -33,10 +33,14 @@ import at.fhhgb.mc.notify.xml.XmlParser;
 public class DownloadThread implements Runnable {
 
 	final static String TAG = "DownloadThread";
-	Context mContext;
+	private Context mContext;
+	private boolean mDownloadFinished;
+	private boolean mConnected;
 	
 	public DownloadThread(Context _context){
 		mContext = _context;
+		mDownloadFinished = false;
+		mConnected = true;
 	}
 	
 	@Override
@@ -116,42 +120,44 @@ public class DownloadThread implements Runnable {
 	private void deleteFile(String _fileName){
 		java.io.File oldFile;
 		
-		//TODO delete this code part. all other files should be automatically deleted, as they are missing.
-		//TODO check if notification is really outdated, upload it otherwise
-//		if(SyncHandler.getFileExtension(_fileName).equals(SyncHandler.NOTIFICATION_FILE_EXTENSION)){
-//			//TODO get associated files for notification and check if notification is really outdated
-//			
-//			try {
-//				XmlParser parser = new XmlParser(mContext);
-//				Notification notification = parser.readXml(_fileName);
-//				//TODO make thread to delete files on google drive
-//				//move code from here to this thread
-//				if(notification != null){
-//					ArrayList<String> files = notification.getFiles();
-//					
-//					if(files != null){
-//						for(int i=0;i<files.size();i++){
-//							java.io.File file = new java.io.File(SyncHandler.getFullPath(files.get(i)));
-//							file.delete();
-//						}
-//					}
-//				}
-//								
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}	
+		//TODO only delete notification files (and their added files)
+		if(SyncHandler.getFileExtension(_fileName).equals(SyncHandler.NOTIFICATION_FILE_EXTENSION)){
+			//TODO get associated files for notification and check if notification is really outdated
+			//upload it otherwise
+			
+			try {
+				XmlParser parser = new XmlParser(mContext);
+				Notification notification = parser.readXml(_fileName);
+
+				if(notification != null){
+					
+					//TODO check if notification is still valid
+					
+					
+					ArrayList<String> files = notification.getFiles();
+					
+					if(files != null){
+						for(int i=0;i<files.size();i++){
+							java.io.File file = new java.io.File(SyncHandler.getFullPath(files.get(i)));
+							file.delete();
+						}
+					}
+				}
+				
+				oldFile = new java.io.File(SyncHandler.getFullPath(_fileName));
+				oldFile.delete();
+				Log.i(TAG, "file " + _fileName + " is outdated and was deleted");
+								
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}	
 		
-		oldFile = new java.io.File(SyncHandler.getFullPath(_fileName));
-		oldFile.delete();
-		Log.i(TAG, "file " + _fileName + " is outdated and was deleted");
+
 	}
 	
 	private void downloadFiles(ArrayList<File> _files, Context _context){
-		InputStream inputStream = null;
-		OutputStream outputStream = null;
-		 try {
 			java.io.File rootFolder = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER); 
 			
 			//create directories
@@ -163,39 +169,64 @@ public class DownloadThread implements Runnable {
 			for(int i=0;i<_files.size();i++){
 				//check for correct file
 				if(_files.get(i) != null){
-					String downloadLink = _files.get(i).getDownloadUrl(); 
-					
-					//check if the file is downloadable
-					if(downloadLink != null){
-						GenericUrl downloadUrl = new GenericUrl(downloadLink);
-						Log.i(TAG, "downloadlink created: " + downloadLink.toString());
-						HttpResponse resp = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.getRequestFactory().
-								 buildGetRequest(downloadUrl).execute();
-						inputStream = resp.getContent();
-						java.io.File outputFile;
-						
-						String fullPath = SyncHandler.getFullPath(_files.get(i).getOriginalFilename());
-						
-						outputFile = new java.io.File(fullPath);
-						
-						outputFile.createNewFile();
-						outputStream = new FileOutputStream(outputFile);
-						int read = 0;
-						byte[] bytes = new byte[1024];
-				 
-						while ((read = inputStream.read(bytes)) != -1) {
-							outputStream.write(bytes, 0, read);
+					mDownloadFinished = false;
+					do{
+						Log.i(TAG, "tried downloading file: " + i);
+						downloadFile(_files.get(i),_context);	
+						if(!mDownloadFinished){
+							try {
+								Log.i(TAG, "download failed! waiting for 10 seconds and retry");
+								Thread.sleep(10000);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 						}
-						
-						Log.i(TAG, "file " + _files.get(i).getOriginalFilename() + " complete!");
-						
-					}
-				}			
+					} while(!mDownloadFinished);
+				}
+		
 			}		
-		} catch (IOException e) {
-			e.printStackTrace();
+	}
+	
+	private void downloadFile(File _file, Context _context){
+		try {
+			InputStream inputStream = null;
+			OutputStream outputStream = null;
+			
+			String downloadLink = _file.getDownloadUrl(); 
+			
+			//check if the file is downloadable
+			if(downloadLink != null){
+				GenericUrl downloadUrl = new GenericUrl(downloadLink);
+				Log.i(TAG, "downloadlink created: " + downloadLink.toString());
+				HttpResponse resp;
+					resp = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.getRequestFactory().
+							 buildGetRequest(downloadUrl).execute();
+	
+				inputStream = resp.getContent();
+				java.io.File outputFile;
+				
+				String fullPath = SyncHandler.getFullPath(_file.getOriginalFilename());
+				
+				outputFile = new java.io.File(fullPath);
+				
+				outputFile.createNewFile();
+				outputStream = new FileOutputStream(outputFile);
+				int read = 0;
+				byte[] bytes = new byte[1024];
+				while ((read = inputStream.read(bytes)) != -1) {
+					outputStream.write(bytes, 0, read);
+				}
+				
+				Log.i(TAG, "file " + _file.getOriginalFilename() + " complete!");
+				mDownloadFinished = true;
+			} 
+		}catch (IOException e) {
+			// TODO register broadcast receiver, when no connection is present
+			Log.w(TAG, "network error!");
 		}
 	}
 }
+
 
 

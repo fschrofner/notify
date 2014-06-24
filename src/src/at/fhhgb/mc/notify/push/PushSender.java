@@ -54,7 +54,7 @@ class PushThread implements Runnable {
 			throw new Exception("alias must not be null!");
 		} else {
 			alias = _alias;
-			Log.i(TAG, "alias " + alias + "will receive push");
+			Log.i(TAG, "alias " + alias + " will receive push");
 		}
 	}
 	

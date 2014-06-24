@@ -3,10 +3,14 @@ package at.fhhgb.mc.notify.sync;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
+
+import org.joda.time.DateTime;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 import at.fhhgb.mc.notify.push.PushConstants;
 import at.fhhgb.mc.notify.sync.drive.DriveHandler;
@@ -19,7 +23,7 @@ public class SyncHandler {
 	final static public String HOST_DESCRIPTION = "A folder used for notify syncing";
 	final static public String GOOGLE_DRIVE = "google_drive";
 	final static public String GOOGLE_DRIVE_FOLDER = "google_drive_folder_id";
-	final static public String ROOT_NOTIFICATION_FOLDER = "/storage/emulated/0/Notify";
+	final static public String ROOT_NOTIFICATION_FOLDER = Environment.getExternalStorageDirectory().toString() + "/Notify";
 	final static public String NOTIFICATION_FILE_EXTENSION = "noti";
 	final static public String UPLOAD_FILE_LIST = "filelist";
 	final static public String APPLICATION_NAME = "Notify";
@@ -76,6 +80,18 @@ public class SyncHandler {
 		}
 		String fileName = _fileName.substring(0,lastIndex);
 		return fileName;
+	}
+	
+	public static DateTime getCurrentSystemTime(){
+		Calendar calendar = Calendar.getInstance(); 
+		int minutes = calendar.get(Calendar.MINUTE);
+		int hours = calendar.get(Calendar.HOUR_OF_DAY);
+		int day = calendar.get(Calendar.DAY_OF_MONTH);
+		int month = calendar.get(Calendar.MONTH);
+		++month;
+		int year = calendar.get(Calendar.YEAR);
+		DateTime date = new DateTime(year,month,day,hours,minutes);
+		return date;
 	}
 	
 	public static String getFileExtension(String _fileName){
