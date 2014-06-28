@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.util.Log;
+import at.fhhgb.mc.notify.push.PushRegisterReceiver;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
@@ -22,6 +23,16 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 				Log.i(TAG, "network change received! internet now available");
 				SharedPreferences outstanding = _context.getSharedPreferences(SyncHandler.OUTSTANDING_TASKS, Context.MODE_PRIVATE); 
 				
+				//push registration
+				if(outstanding.getBoolean(SyncHandler.OUTSTANDING_PUSH_REGISTRATION, false)){
+        			Log.i(TAG, "connected to internet, handling outstanding push registration");
+        			Intent intent = new Intent(_context.getApplicationContext(), PushRegisterReceiver.class);
+        			_context.sendBroadcast(intent);
+        		} else {
+        			Log.i(TAG, "connected to internet, but no outstanding push registration");
+        		}
+				
+				//send push
         		if(outstanding.getBoolean(SyncHandler.OUTSTANDING_PUSH, false)){
         			Log.i(TAG, "connected to internet, handling outstanding pushes");
         			//use application context here, because receivers are not allowed to bind to services (= connect to host)
@@ -30,6 +41,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         			Log.i(TAG, "connected to internet, but no outstanding pushes");
         		}
         		
+        		//download
         		if(outstanding.getBoolean(SyncHandler.OUTSTANDING_DOWNLOAD, false)){
         			Log.i(TAG, "connected to internet, handling outstanding download");
         			SyncHandler.updateFiles(_context.getApplicationContext());
@@ -37,6 +49,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         			Log.i(TAG, "connected to internet, but no outstanding download");
         		}
         		
+        		//upload
         		if(outstanding.contains(SyncHandler.OUTSTANDING_UPLOAD)){
         			Log.i(TAG, "connected to internet, handling outstanding upload");
         			HashSet<String> redoFileList = (HashSet<String>) outstanding.getStringSet(SyncHandler.OUTSTANDING_UPLOAD, null);

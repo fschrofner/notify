@@ -29,6 +29,7 @@ public class DeleteThread implements Runnable {
 	
 	@Override
 	public void run() {
+		//TODO schedule deletion, when there's no internet connection
 		DriveHandler.setup(mContext);
 		updateFileList();
 		for(int i=0; i<mFileList.size(); i++){
