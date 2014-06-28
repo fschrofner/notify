@@ -40,6 +40,8 @@ public class SyncHandler {
 	final static public String OUTSTANDING_PUSH = "push";
 	final static public String OUTSTANDING_DOWNLOAD = "download";
 	final static public String OUTSTANDING_UPLOAD = "upload";
+	final static public String OUTSTANDING_DELETION = "delete";
+	final static public String OUTSTANDING_PUSH_REGISTRATION = "push_registration";
 	
 	/**
 	 * Initiates an update 
