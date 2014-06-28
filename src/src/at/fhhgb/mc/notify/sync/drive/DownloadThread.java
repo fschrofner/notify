@@ -56,12 +56,19 @@ public class DownloadThread implements Runnable {
 			
 			//at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(),
 			//		new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
-			try {
-				ArrayList<File> hostFiles = DriveHandler.getFileList(folderId);
-				downloadFiles(getMissingFiles(hostFiles, mContext),mContext);
-			} catch (IOException e) {
-				e.printStackTrace();
+			if(folderId != null){
+				try {
+					ArrayList<File> hostFiles = DriveHandler.getFileList(folderId);
+					downloadFiles(getMissingFiles(hostFiles, mContext),mContext);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				Log.i(TAG, "currently no internet connection! scheduled download");
+				SharedPreferences outstanding = mContext.getSharedPreferences(SyncHandler.OUTSTANDING_TASKS, Context.MODE_PRIVATE); 
+				outstanding.edit().putBoolean(SyncHandler.OUTSTANDING_DOWNLOAD, true).commit();
 			}
+
 		} else {
 			Log.i(TAG, "no drive service running!");
 		}	
@@ -132,14 +139,15 @@ public class DownloadThread implements Runnable {
 				if(notification != null){
 					
 					//TODO check if notification is still valid
-					
+					//TODO if yes check for revisions
 					
 					ArrayList<String> files = notification.getFiles();
 					
 					if(files != null){
 						for(int i=0;i<files.size();i++){
-							java.io.File file = new java.io.File(SyncHandler.getFullPath(files.get(i)));
-							file.delete();
+							SyncHandler.deleteFiles(mContext, null, files);
+//							java.io.File file = new java.io.File(SyncHandler.getFullPath(files.get(i)));
+//							file.delete();
 						}
 					}
 				}
@@ -182,6 +190,13 @@ public class DownloadThread implements Runnable {
 								e.printStackTrace();
 							}
 						}
+						if(!mConnected){
+							//schedules the download until connectivity state changes
+							Log.i(TAG, "currently no internet connection! scheduled download");
+							SharedPreferences outstanding = _context.getSharedPreferences(SyncHandler.OUTSTANDING_TASKS, Context.MODE_PRIVATE); 
+							outstanding.edit().putBoolean(SyncHandler.OUTSTANDING_DOWNLOAD, true).commit();
+							break;
+						}
 					} while(!mDownloadFinished);
 				}
 		
@@ -222,8 +237,8 @@ public class DownloadThread implements Runnable {
 				mDownloadFinished = true;
 			} 
 		}catch (IOException e) {
-			// TODO register broadcast receiver, when no connection is present
 			Log.w(TAG, "network error!");
+			mConnected = false;
 		}
 	}
 }

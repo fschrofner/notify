@@ -60,9 +60,11 @@ public class AuthenticationActivity extends Activity {
 		        	  SyncHandler.uploadFiles(getApplicationContext(), this, new ArrayList<String>(Arrays.asList(mFileList)));
 		          } else {
 			          SyncHandler.updateFiles(getApplicationContext());
-		          }	          
+		          }
 		        }
 		      }
+			//close the activity after the result has been returned
+			finish();
 			break;
 		case REQUEST_AUTHENTICATION:
 			Log.i(TAG, "authentication requested");
@@ -73,5 +75,6 @@ public class AuthenticationActivity extends Activity {
 			}
 			break;
 		}
+
 	}
 }
