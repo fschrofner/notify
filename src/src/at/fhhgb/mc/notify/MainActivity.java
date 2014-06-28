@@ -37,35 +37,38 @@ public class MainActivity extends Activity implements OnClickListener{
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
     	String alias = preferences.getString(PushConstants.PUSH_ALIAS, null);
     	
-    	if(alias != null){
-    		// access the registration object
-    	    PushRegistrar push = ((PushApplication) getApplication()).
-    	    		getRegistration();
-
-    	    // fire up registration..
-
-    	    // The method will attempt to register the device with GCM and the UnifiedPush server
-    	    push.register(getApplicationContext(),new Callback<Void>() { 
-    	        private static final long serialVersionUID = 1L;
-
-    	        @Override
-    	        public void onSuccess(Void ignore) {
-    	            Log.i(TAG, "registration to push service succeeded");
-    	        }
-
-    	        @Override
-    	        public void onFailure(Exception exception) {
-    	            Log.e("MainActivity", exception.getMessage(), exception);
-    	        }
-    	    });
-    	} else {
-    		Log.i(TAG, "no push alias saved, did not register for pushes");
-    	}
+    	//TODO check for internet connectivity first
+//    	if(alias != null){
+//    		// access the registration object
+//    	    PushRegistrar push = ((PushApplication) getApplication()).
+//    	    		getRegistration();
+//
+//    	    // fire up registration..
+//
+//    	    // The method will attempt to register the device with GCM and the UnifiedPush server
+//    	    push.register(getApplicationContext(),new Callback<Void>() { 
+//    	        private static final long serialVersionUID = 1L;
+//
+//    	        @Override
+//    	        public void onSuccess(Void ignore) {
+//    	            Log.i(TAG, "registration to push service succeeded");
+//    	        }
+//
+//    	        @Override
+//    	        public void onFailure(Exception exception) {
+//    	            Log.e("MainActivity", exception.getMessage(), exception);
+//    	        }
+//    	    });
+//    	} else {
+//    		Log.i(TAG, "no push alias saved, did not register for pushes");
+//    	}
     	
-    	ArrayList<String> fileList = new ArrayList<String>();
-    	fileList.add("test.JPG");
-    	fileList.add("test.noti");
-    	SyncHandler.uploadFiles(getApplicationContext(), this, fileList);
+//    	ArrayList<String> fileList = new ArrayList<String>();
+//    	fileList.add("test.JPG");
+//    	fileList.add("test.noti");
+//    	SyncHandler.uploadFiles(getApplicationContext(), this, fileList);
+    	
+    	SyncHandler.updateFiles(this);
     	
 	    Button pushButton = (Button)findViewById(R.id.push_button);
 	    pushButton.setOnClickListener(this);
@@ -81,7 +84,7 @@ public class MainActivity extends Activity implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 		EditText text = (EditText)findViewById(R.id.alias_text);
-		PushSender.sendPushToAlias(text.getText().toString());
+		PushSender.sendPushToAlias(text.getText().toString(),this);
 	}
 
 }

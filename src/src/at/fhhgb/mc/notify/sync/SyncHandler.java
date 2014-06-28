@@ -10,9 +10,14 @@ import org.joda.time.DateTime;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import at.fhhgb.mc.notify.push.PushConstants;
+import at.fhhgb.mc.notify.push.PushSender;
 import at.fhhgb.mc.notify.sync.drive.DriveHandler;
 
 public class SyncHandler {
@@ -28,6 +33,14 @@ public class SyncHandler {
 	final static public String UPLOAD_FILE_LIST = "filelist";
 	final static public String APPLICATION_NAME = "Notify";
 	
+	//the name of the shared preferences which save outstanding tasks
+	final static public String OUTSTANDING_TASKS = "outstanding_tasks";
+	
+	//the names for outstanding tasks inside the shared preferences
+	final static public String OUTSTANDING_PUSH = "push";
+	final static public String OUTSTANDING_DOWNLOAD = "download";
+	final static public String OUTSTANDING_UPLOAD = "upload";
+	
 	/**
 	 * Initiates an update 
 	 */
@@ -41,6 +54,24 @@ public class SyncHandler {
 		DriveHandler.uploadFiles(_context, _activity, _fileList);
 	}
 	
+	static public void sendPush(Context _context){
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_context);	
+		//TODO set push alias in sharedpreferences before reading
+		String alias = preferences.getString(PushConstants.PUSH_ALIAS, null);
+		PushSender.sendPushToAlias(alias,_context);
+	}
+	/**
+	 * Checks if the device is currently connected to the internet.
+	 * @param _context context used for the check
+	 * @return true = connected, false = no connection
+	 */
+	static public boolean networkConnected(Context _context){
+		ConnectivityManager cm = (ConnectivityManager)_context.getSystemService(Context.CONNECTIVITY_SERVICE);    	 
+    	NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+    	boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    	Log.i(TAG, "current network status: internet connectivity = " + isConnected);
+    	return isConnected;
+	}
 	/**
 	 * Deletes the given giles from the local file system AND from the host.
 	 * @param _context context needed for some methods

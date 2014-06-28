@@ -24,32 +24,37 @@ public class DriveFolder {
 	 */
 	public static String checkFolder(Context _context){
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_context);
-		//TODO change the folder from public folder to appdata folder
-		if(preferences.contains(SyncHandler.GOOGLE_DRIVE_FOLDER)){
-			try {
-				String folderId = preferences.getString(SyncHandler.GOOGLE_DRIVE_FOLDER, null);
-				Log.i(TAG, "found folder id " + folderId + "in preferences");
-				File folder = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.files().get(folderId).execute();
-				if(folder != null){
-					Log.i(TAG, "confirmed online folder from preferences: " + folderId);
-					return folderId;
-				} else {
-					Log.i(TAG, "online folder not confirmed!");
+		if(SyncHandler.networkConnected(_context)){
+			//TODO change the folder from public folder to appdata folder
+			if(preferences.contains(SyncHandler.GOOGLE_DRIVE_FOLDER)){
+				try {
+					String folderId = preferences.getString(SyncHandler.GOOGLE_DRIVE_FOLDER, null);
+					Log.i(TAG, "found folder id " + folderId + "in preferences");
+					File folder = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.files().get(folderId).execute();
+					if(folder != null){
+						Log.i(TAG, "confirmed online folder from preferences: " + folderId);
+						return folderId;
+					} else {
+						Log.i(TAG, "online folder not confirmed!");
+					}
+				} catch (IOException e) {
+					//if folder id is not matching an online folder
+					Log.w(TAG, "found folder id, but the folder is not available on google drive!");
 				}
-			} catch (IOException e) {
-				//if folder id is not matching an online folder
-				Log.w(TAG, "found folder id, but the folder is not available on google drive!");
+			} 
+			String onlineId = searchFolder();
+			if(onlineId == null){
+				createFolder(_context);
+			} else {
+				preferences.edit().putString(SyncHandler.GOOGLE_DRIVE_FOLDER, onlineId).commit();
+				Log.i(TAG, "id saved in preferences");
+				return onlineId;
 			}
-		} 
-		String onlineId = searchFolder();
-		if(onlineId == null){
-			createFolder(_context);
+			return preferences.getString(SyncHandler.GOOGLE_DRIVE_FOLDER, null);
 		} else {
-			preferences.edit().putString(SyncHandler.GOOGLE_DRIVE_FOLDER, onlineId).commit();
-			Log.i(TAG, "id saved in preferences");
-			return onlineId;
+			Log.i(TAG, "can't verify folder. device is not connected to the internet!");
+			return null;
 		}
-		return preferences.getString(SyncHandler.GOOGLE_DRIVE_FOLDER, null);
 	}
 	
 	private static String searchFolder(){
