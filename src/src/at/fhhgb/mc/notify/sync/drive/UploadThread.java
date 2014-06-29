@@ -37,7 +37,7 @@ public class UploadThread implements Runnable {
 
 	final static String TAG = "UploadThread";
 	private Context mContext;
-	private Activity mActivity;
+	private volatile Activity mActivity;
 	private ArrayList<String> mFileList;
 	private boolean mFinishedUpload;
 	private boolean mConnected;
@@ -63,7 +63,7 @@ public class UploadThread implements Runnable {
 		if(DriveHandler.service != null){
 			//searches and validates a folder id that is saved in the shared preferences
 			//creates a new folder if none is existent
-			String folderId = DriveFolder.checkFolder(mContext);
+			String folderId = DriveFolder.checkFolder(mContext, mActivity);
 			
 			//if folderId is null there must have been some error
 			if(folderId != null){

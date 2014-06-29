@@ -272,18 +272,23 @@ public class NotificationFragment extends Fragment implements
 						noti = mFutureNotifications.get(i);
 					}
 					
-					int notificationID = triggeredNotifications.getInt(noti.getUniqueIDString(), -1);
+//					int notificationID = triggeredNotifications.getInt(noti.getUniqueIDString(), -1);
 
-					Intent action = new Intent(getActivity(),
-							NotificationService.class);
-					action.setAction(Notification.ACTION_DELETE);
-					action.putExtra(Notification.EXTRA_UNIQUE_ID,
-							noti.getUniqueID());
-					action.putExtra(Notification.EXTRA_VERSION,
-							noti.getVersion());
-					action.putExtra(Notification.EXTRA_NOTIFICATION_ID,
-							notificationID);
-					getActivity().startService(action);
+//					Intent action = new Intent(getActivity(),
+//							NotificationService.class);
+//					action.setAction(Notification.ACTION_DELETE);
+//					action.putExtra(Notification.EXTRA_UNIQUE_ID,
+//							noti.getUniqueID());
+//					action.putExtra(Notification.EXTRA_VERSION,
+//							noti.getVersion());
+//					action.putExtra(Notification.EXTRA_NOTIFICATION_ID,
+//							notificationID);
+//					getActivity().startService(action);
+					
+					
+					ArrayList<String> fileList = new ArrayList<String>();
+					fileList.add(noti.getFileName());
+					SyncHandler.deleteFiles(getActivity(), getActivity(), fileList);
 					
 //					mTriggeredNotifications.remove(i);
 				}

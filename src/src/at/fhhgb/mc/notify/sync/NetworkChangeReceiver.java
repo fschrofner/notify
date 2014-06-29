@@ -55,7 +55,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         		//download
         		if(outstanding.getBoolean(SyncHandler.OUTSTANDING_DOWNLOAD, false)){
         			Log.i(TAG, "connected to internet, handling outstanding download");
-        			SyncHandler.updateFiles(_context.getApplicationContext());
+        			SyncHandler.updateFiles(_context.getApplicationContext(),null);
         		} else {
         			Log.i(TAG, "connected to internet, but no outstanding download");
         		}

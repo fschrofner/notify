@@ -25,18 +25,21 @@
     <string name="selected">selected</string>
     <string name="delete">Delete</string>
 
-    <string-array name="entries_list_preference">
-        <item>test1</item>
-        <item>test2</item>
-        <item>test3</item>
-    </string-array>
-    <string-array name="entryvalues_list_preference">
-        <item>Test1</item>
-        <item>Test2</item>
-        <item>Test3</item>
-    </string-array>
+<!--     <string-array name="entries_list_preference"> -->
+<!--         <item>test1</item> -->
+<!--         <item>test2</item> -->
+<!--         <item>test3</item> -->
+<!--     </string-array> -->
+<!--     <string-array name="entryvalues_list_preference"> -->
+<!--         <item>Test1</item> -->
+<!--         <item>Test2</item> -->
+<!--         <item>Test3</item> -->
+<!--     </string-array> -->
 
     <string name="title_activity_notification_edit">Edit Notification</string>
+    <string name="title_change_account">Select Account</string>
+    <string name="summary_change_account">Click here to change the Google account</string>
+    
 
     <!-- Notification Edit -->
 

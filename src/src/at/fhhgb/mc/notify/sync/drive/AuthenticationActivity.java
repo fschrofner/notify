@@ -41,7 +41,6 @@ public class AuthenticationActivity extends Activity {
 		Log.i(TAG, "activity result received!");
 		switch (requestCode) {
 		case REQUEST_ACCOUNT_PICKER:	
-			Log.i(TAG, "account picker requested");
 			if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
 		        String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
 		        Log.i(TAG, "selected account: " + accountName);
@@ -64,14 +63,13 @@ public class AuthenticationActivity extends Activity {
 				outEdit.commit();
 
 		          
-		          Log.i(TAG, "saved account name and push alias in shared preferences");
-		          
+		         Log.i(TAG, "saved account name and push alias in shared preferences");
 		          
 		          //uploads and updates the files again after authentication
 		          if(mFileList != null){
 		        	  SyncHandler.uploadFiles(getApplicationContext(), this, new ArrayList<String>(Arrays.asList(mFileList)));
 		          } else {
-			          SyncHandler.updateFiles(getApplicationContext());
+			          SyncHandler.updateFiles(getApplicationContext(),this);
 		          }
 		        }
 		      }
@@ -83,7 +81,7 @@ public class AuthenticationActivity extends Activity {
 			if (resultCode == Activity.RESULT_OK) {
 				Log.i(TAG, "authentication given!");
 			} else {
-			    	 startActivityForResult(at.fhhgb.mc.notify.sync.drive.DriveHandler.credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
+			    startActivityForResult(at.fhhgb.mc.notify.sync.drive.DriveHandler.credential.newChooseAccountIntent(),REQUEST_ACCOUNT_PICKER);
 			}
 			break;
 		}

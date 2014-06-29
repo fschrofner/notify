@@ -3,6 +3,7 @@ package at.fhhgb.mc.notify.sync.drive;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -10,6 +11,7 @@ import android.util.Log;
 import at.fhhgb.mc.notify.R;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.services.drive.model.ChildList;
 import com.google.api.services.drive.model.ChildReference;
 import com.google.api.services.drive.model.File;
@@ -22,7 +24,7 @@ public class DriveFolder {
 	 * if not a folder is created and the id is saved.
 	 * @return the id of the online folder
 	 */
-	public static String checkFolder(Context _context){
+	public static String checkFolder(Context _context, Activity _activity){
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_context);
 		if(SyncHandler.networkConnected(_context)){
 			//TODO change the folder from public folder to appdata folder
@@ -42,7 +44,7 @@ public class DriveFolder {
 					Log.w(TAG, "found folder id, but the folder is not available on google drive!");
 				}
 			} 
-			String onlineId = searchFolder();
+			String onlineId = searchFolder(_activity);
 			if(onlineId == null){
 				createFolder(_context);
 			} else {
@@ -57,7 +59,7 @@ public class DriveFolder {
 		}
 	}
 	
-	private static String searchFolder(){
+	private static String searchFolder(Activity _activity){
 		//TODO when migrating to app data folder this method should become a lot shorter
 		try {
 			ChildList children = at.fhhgb.mc.notify.sync.drive.DriveHandler.service.children().list("root").execute();
@@ -71,6 +73,8 @@ public class DriveFolder {
 				}
 			}
 			
+		} catch (UserRecoverableAuthIOException e) {
+			  _activity.startActivityForResult(e.getIntent(), AuthenticationActivity.REQUEST_AUTHENTICATION);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.FileContent;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpResponse;
@@ -21,6 +22,7 @@ import com.google.api.services.drive.model.ChildReference;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -36,11 +38,13 @@ public class DownloadThread implements Runnable {
 	private Context mContext;
 	private boolean mDownloadFinished;
 	private boolean mConnected;
+	private Activity mActivity;
 	
-	public DownloadThread(Context _context){
+	public DownloadThread(Context _context, Activity _activity){
 		mContext = _context;
 		mDownloadFinished = false;
 		mConnected = true;
+		mActivity = _activity;
 	}
 	
 	@Override
@@ -51,7 +55,7 @@ public class DownloadThread implements Runnable {
 		DriveHandler.setup(mContext);
 		
 		if(DriveHandler.service != null){
-			String folderId = DriveFolder.checkFolder(mContext);
+			String folderId = DriveFolder.checkFolder(mContext,mActivity);
 			
 			
 			//at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(),
@@ -236,7 +240,14 @@ public class DownloadThread implements Runnable {
 				Log.i(TAG, "file " + _file.getOriginalFilename() + " complete!");
 				mDownloadFinished = true;
 			} 
-		}catch (IOException e) {
+		} catch (UserRecoverableAuthIOException e) {
+			if(mActivity != null){
+				mActivity.startActivityForResult(e.getIntent(), AuthenticationActivity.REQUEST_AUTHENTICATION);
+			} else {
+				Log.w(TAG, "authentication exception but no activity given!");
+			}
+			  
+		} catch (IOException e) {
 			Log.w(TAG, "network error!");
 			mConnected = false;
 		}
