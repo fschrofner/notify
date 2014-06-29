@@ -54,6 +54,7 @@ public class DriveHandler {
 			}		 
 			Intent intent = new Intent(_context,at.fhhgb.mc.notify.sync.drive.AuthenticationActivity.class);
 			intent.putExtra(SyncHandler.UPLOAD_FILE_LIST, _fileList);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			_context.startActivity(intent);
 		} else {
 			setup(_context);
@@ -83,6 +84,13 @@ public class DriveHandler {
 		DownloadThread downThread = new DownloadThread(_context);
 		Thread thread = new Thread(downThread);
 		thread.start();	
+	}
+	
+	static public void buildService(){
+		Drive.Builder builder = new Drive.Builder(AndroidHttp.newCompatibleTransport(),
+				new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential);
+		builder.setApplicationName(SyncHandler.APPLICATION_NAME);
+		at.fhhgb.mc.notify.sync.drive.DriveHandler.service = builder.build();
 	}
 	
 	static public ArrayList<File> getFileList(String _folderId) throws IOException{	
