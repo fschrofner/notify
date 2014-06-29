@@ -159,7 +159,7 @@ public class Notification {
 				.setVibrate(new long[] { 200, 200, 200, 200 })
 				.setLights(Color.WHITE, 1000, 10000)
 				.setContentIntent(pi)
-				.addAction(R.drawable.ic_launcher,
+				.addAction(R.drawable.ic_action_discard,
 						_context.getResources().getString(R.string.delete),
 						pAction).setAutoCancel(true);
 		notificationManager.notify(mNotificationID, mBuilder.build());

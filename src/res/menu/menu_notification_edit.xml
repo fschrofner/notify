@@ -2,6 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/action_add_file"
+        android:icon="@drawable/ic_action_picture"
+        android:showAsAction="ifRoom"
+        android:title="@string/add_file"
+        android:visible="true">
+    </item>
+    <item
         android:id="@+id/action_save"
         android:icon="@drawable/navigation_accept"
         android:showAsAction="always"

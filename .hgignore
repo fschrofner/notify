@@ -21,3 +21,8 @@ libs/GooglePlayServices/.classpath
 libs/GooglePlayServices/.project
 libs/GooglePlayServices/.settings
 libs/AerogearAndroid/gen/org/jboss/aerogear/R.java
+libs/datetimepicker/gen/*
+libs/datetimepicker/bin/*
+libs/datetimepicker/.classpath
+libs/datetimepicker/.project
+libs/datetimepicker/.settings
