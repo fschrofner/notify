@@ -80,8 +80,8 @@ public class DriveHandler {
 		}
 	}
 	
-	static public void updateFiles(Context _context){
-		DownloadThread downThread = new DownloadThread(_context);
+	static public void updateFiles(Context _context, Activity _activity){
+		DownloadThread downThread = new DownloadThread(_context, _activity);
 		Thread thread = new Thread(downThread);
 		thread.start();	
 	}

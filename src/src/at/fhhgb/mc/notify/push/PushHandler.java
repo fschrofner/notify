@@ -24,7 +24,7 @@ public class PushHandler implements MessageHandler {
 	@Override
 	public void onMessage(Context context, Bundle message) {		
 		Log.i(TAG, "received push!");
-        SyncHandler.updateFiles(context.getApplicationContext());
+        SyncHandler.updateFiles(context.getApplicationContext(),null);
 	}
 
 	@Override

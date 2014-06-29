@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -15,13 +16,10 @@ import com.android.datetimepicker.date.DatePickerDialog.OnDateSetListener;
 import com.android.datetimepicker.time.RadialPickerLayout;
 import com.android.datetimepicker.time.TimePickerDialog;
 import com.android.datetimepicker.time.TimePickerDialog.OnTimeSetListener;
-import com.andtinder.model.CardModel;
-import com.andtinder.model.Orientations.Orientation;
-import com.andtinder.view.CardContainer;
-import com.andtinder.view.SimpleCardStackAdapter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,15 +36,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
-import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import at.fhhgb.mc.notify.R;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.notification.NotificationService;
@@ -105,8 +100,8 @@ public class NotificationEditActivity extends Activity implements
 	private int mEndMinutesTemp = -1;
 	
 	private int addedFiles = 0;
-	private CardContainer mCardContainer;
-	private SimpleCardStackAdapter mCardStackAdapter;
+	
+	private ArrayList<String> mFileList;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -266,26 +261,32 @@ public class NotificationEditActivity extends Activity implements
 			}
 			if (mVersion < 0) {
 				n.setVersion(0);
-				Log.i(TAG, "new");
 			} else {
-				int notificationID = triggeredNotifications.getInt(
-						String.valueOf(mUniqueID), -1);
-				Log.i(TAG, "Version: " + mVersion);
-				Intent action = new Intent(this, NotificationService.class);
-				action.setAction(Notification.ACTION_DELETE);
-				action.putExtra(Notification.EXTRA_UNIQUE_ID, mUniqueID);
-				action.putExtra(Notification.EXTRA_VERSION, mVersion);
-				action.putExtra(Notification.EXTRA_NOTIFICATION_ID,
-						notificationID);
-				this.startService(action);
+//				int notificationID = triggeredNotifications.getInt(
+//						String.valueOf(mUniqueID), -1);
+//				Log.i(TAG, "Version: " + mVersion);
+//				Intent action = new Intent(this, NotificationService.class);
+//				action.setAction(Notification.ACTION_DELETE);
+//				action.putExtra(Notification.EXTRA_UNIQUE_ID, mUniqueID);
+//				action.putExtra(Notification.EXTRA_VERSION, mVersion);
+//				action.putExtra(Notification.EXTRA_NOTIFICATION_ID,
+//						notificationID);
+//				this.startService(action);
+				
+				ArrayList<String> fileList = new ArrayList<String>();
+				fileList.add(n.getFileName());
+				SyncHandler.deleteFiles(this, this, fileList);
 				n.setVersion(mVersion + 1);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
 		creator.create(n, this);
-
+		
+		mFileList = new ArrayList<String>();
+		mFileList.add(n.getFileName());
+		
 	}
 
 	@Override
@@ -668,6 +669,16 @@ public class NotificationEditActivity extends Activity implements
 //			mCardContainer.setAdapter(mCardStackAdapter);
 		}
 	}
+	
+	@Override
+	public void finish() {
+	  // Prepare data intent 
+	  Intent data = new Intent();
+	  //TODO replace with constant
+	  data.putExtra("uploadList", mFileList);
+	  setResult(RESULT_OK, data);
+	  super.finish();
+	} 
 	
 	public void copy(File src, File dst) throws IOException {
 	    InputStream in = new FileInputStream(src);

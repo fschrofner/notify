@@ -147,7 +147,7 @@ public class DeleteThread implements Runnable {
 	
 	private void updateFileList(){	
 		try {
-			String folderId = DriveFolder.checkFolder(mContext);
+			String folderId = DriveFolder.checkFolder(mContext, mActivity);
 			mHostFiles = DriveHandler.getFileList(folderId);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

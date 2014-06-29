@@ -265,7 +265,7 @@ public class NotificationService extends IntentService {
 			showNotifications();
 		}
 		
-		else if(_intent.getAction() != null && _intent.getAction().equals("bla")){
+		else if(_intent.getAction() != null && _intent.getAction().equals(Notification.ACTION_START_SERVICE)){
 			registerNotificationAlarms();
 			Log.i(TAG, "notifications registered");
 		}

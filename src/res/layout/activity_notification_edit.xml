@@ -146,11 +146,11 @@
             android:layout_height="wrap_content"
             android:text="TextView" />
         
-        <com.andtinder.view.CardContainer
-            android:id="@+id/image_view"
-            android:layout_width="fill_parent"
-            android:layout_weight="1"
-            android:layout_height="match_parent" />
+<!--         <com.andtinder.view.CardContainer -->
+<!--             android:id="@+id/image_view" -->
+<!--             android:layout_width="fill_parent" -->
+<!--             android:layout_weight="1" -->
+<!--             android:layout_height="match_parent" /> -->
     </LinearLayout>
 
 </ScrollView>

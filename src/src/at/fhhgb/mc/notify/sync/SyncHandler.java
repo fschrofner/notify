@@ -46,9 +46,9 @@ public class SyncHandler {
 	/**
 	 * Initiates an update 
 	 */
-	static public void updateFiles(Context _context){
+	static public void updateFiles(Context _context, Activity _activity){
 		//TODO  differentiate the different hosts
-		DriveHandler.updateFiles(_context);
+		DriveHandler.updateFiles(_context, _activity);
 	}
 	
 	static public void uploadFiles(Context _context,Activity _activity, ArrayList<String> _fileList){

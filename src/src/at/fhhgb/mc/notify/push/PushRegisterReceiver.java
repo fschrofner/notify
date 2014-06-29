@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import at.fhhgb.mc.notify.notification.Notification;
+import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
 public class PushRegisterReceiver extends BroadcastReceiver {
@@ -27,6 +29,10 @@ public class PushRegisterReceiver extends BroadcastReceiver {
 			Log.i(TAG, "device rebooted, scheduling first file sync");
 			SharedPreferences outstanding = _context.getSharedPreferences(SyncHandler.OUTSTANDING_TASKS, Context.MODE_PRIVATE); 
 			outstanding.edit().putBoolean(SyncHandler.OUTSTANDING_DOWNLOAD, true).commit();
+			
+			Intent intent = new Intent(_context, NotificationService.class);
+			intent.setAction(Notification.ACTION_START_SERVICE);
+			_context.getApplicationContext().startService(intent);
 		}
 	}
 	

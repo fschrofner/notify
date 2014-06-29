@@ -1,21 +1,12 @@
 package at.fhhgb.mc.notify;
 
+
 import java.util.ArrayList;
 
-import org.jboss.aerogear.android.Callback;
-import org.jboss.aerogear.android.unifiedpush.MessageHandler;
-import org.jboss.aerogear.android.unifiedpush.PushConfig;
-import org.jboss.aerogear.android.unifiedpush.PushRegistrar;
-import org.jboss.aerogear.android.unifiedpush.Registrations;
-
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -28,11 +19,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.push.*;
@@ -40,7 +27,6 @@ import at.fhhgb.mc.notify.ui.NotificationEditActivity;
 import at.fhhgb.mc.notify.ui.NotificationFragment;
 import at.fhhgb.mc.notify.ui.SettingsFragment;
 import at.fhhgb.mc.notify.sync.SyncHandler;
-import at.fhhgb.mc.notify.sync.drive.DriveHandler;
 
 public class MainActivity extends Activity implements OnClickListener{
 	
@@ -51,6 +37,8 @@ public class MainActivity extends Activity implements OnClickListener{
 	private ListView mDrawerList;
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
+	
+	final static int NOTIFICATION_REQUEST = 42;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -105,17 +93,16 @@ public class MainActivity extends Activity implements OnClickListener{
 
 		//TODO register push on system start-up
 		
-		DriveHandler.setup(this);
-		Intent intent = new Intent(this, PushRegisterReceiver.class);
-		sendBroadcast(intent);
-    	    	
-		SyncHandler.updateFiles(this);
+//		DriveHandler.setup(this);
+//		Intent intent = new Intent(this, PushRegisterReceiver.class);
+//		sendBroadcast(intent);
+		//SyncHandler.updateFiles(this,this);
 	}
 
 @Override
 	protected void onStart() {
 		Intent intent = new Intent(this, NotificationService.class);
-		intent.setAction("bla");
+		intent.setAction(Notification.ACTION_START_SERVICE);
 		startService(intent);
 		super.onStart();
 	}
@@ -151,13 +138,24 @@ public class MainActivity extends Activity implements OnClickListener{
 			return true;
 		} else if (item.getItemId() == R.id.action_add) {
 			Intent i = new Intent(this, NotificationEditActivity.class);
-			startActivity(i);
+			startActivityForResult(i, NOTIFICATION_REQUEST);
 		}
 		// Handle your other action bar items...
 
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		ArrayList<String> fileList = data.getStringArrayListExtra("uploadList"); //TODO replace with constant
+		if(fileList != null){
+			SyncHandler.uploadFiles(this, this, fileList);
+		} else {
+			Log.w(TAG, "error! saved notification did not return a filelist!");
+		}
+		
+	}
+	
 	@Override
 	public void setTitle(CharSequence title) {
 		mTitle = title;

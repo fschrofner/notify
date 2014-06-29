@@ -18,6 +18,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import at.fhhgb.mc.notify.MainActivity;
 import at.fhhgb.mc.notify.R;
+import at.fhhgb.mc.notify.sync.SyncHandler;
 import at.fhhgb.mc.notify.ui.NotificationEditActivity;
 
 /**
@@ -33,6 +34,7 @@ public class Notification {
 	public final static String ACTION_ALARM = "at.fhhgb.mc.notify.notification.NOTIFICATION_ALARM";
 	public final static String ACTION_DELETE = "at.fhhgb.mc.notify.notification.NOTIFICATION_DELETE";
 	public final static String ACTION_COMPARE = "at.fhhgb.mc.notify.notification.NOTIFICATION_COMPARE";
+	public final static String ACTION_START_SERVICE = "at.fhhgb.mc.notify.notification.NOTIFICATION_START_SERVICE";
 	public final static String EXTRA_UNIQUE_ID = "at.fhhgb.mc.notify.notification.NOTIFICATION_UNIQUE_ID";
 	public final static String EXTRA_NOTIFICATION_ID = "at.fhhgb.mc.notify.notification.NOTIFICATION_ID";
 	public final static String EXTRA_VERSION = "at.fhhgb.mc.notify.notification.NOTIFICATION_VERSION";
@@ -228,6 +230,10 @@ public class Notification {
 				+ System.currentTimeMillis());
 		Log.i(TAG, "generated unique id: " + id);
 		return id;
+	}
+	
+	public String getFileName() {
+		return getUniqueIDString() + "_" +  getVersion() + "." + SyncHandler.NOTIFICATION_FILE_EXTENSION;
 	}
 
 	public void setStartDate(int _year, int _month, int _day) {
