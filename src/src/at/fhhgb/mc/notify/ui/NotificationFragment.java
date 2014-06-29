@@ -33,6 +33,10 @@ public class NotificationFragment extends Fragment implements
 
 	private static final String TAG = "NotificationFragment";
 	public static final String ARG_NOTI_STATUS = "at.fhhgb.mc.notify.ui.NotificationFragment.ARG_NOTI_STATUS";
+	private static final int NOTIFICATION_CURRENT = 0;
+	private static final int NOTIFICATION_FUTURE = 1;
+	private static final int NOTIFICATION_PAST = 2;
+	
 	private boolean mNotiStatus;
 	private ArrayList<Notification> mNotifications;
 	private static ArrayList<Notification> mTriggeredNotifications;
@@ -124,11 +128,11 @@ public class NotificationFragment extends Fragment implements
 			// time and if it hasn't been triggered before
 			Log.i(TAG, "CHECKING UNIQUE ID: "
 					+ mNotifications.get(i).getUniqueIDString());
-			if (compareDates(currentDate, mNotifications.get(i))) {
+			if (compareDates(currentDate, mNotifications.get(i)) == NOTIFICATION_CURRENT) {
 				Log.i(TAG, "matching notification: "
 						+ mNotifications.get(i).getTitle());
 				mTriggeredNotifications.add(mNotifications.get(i));
-			} else {
+			} else if (compareDates(currentDate, mNotifications.get(i)) == NOTIFICATION_FUTURE) {
 				Log.i(TAG, "notification does not match");
 				mFutureNotifications.add(mNotifications.get(i));
 			}
@@ -144,7 +148,7 @@ public class NotificationFragment extends Fragment implements
 	 *            the date range to which it should be compared
 	 * @return true = date inside range, false = date outside the range
 	 */
-	private boolean compareDates(DateTime _date, Notification _notification) {
+	private int compareDates(DateTime _date, Notification _notification) {
 		ArrayList<DateTime> dateRange = _notification.getDates();
 
 		if ((_notification.getStartYear() == -1 && _notification.getEndYear() == -1)
@@ -152,16 +156,21 @@ public class NotificationFragment extends Fragment implements
 						.getEndYear() == -1)) {
 			Log.i(TAG,
 					"no start year, or start year was before and no end year specified");
-			return true;
+			return NOTIFICATION_CURRENT;
 		} else if ((_date.isAfter(dateRange.get(0)) || _date.isEqual(dateRange
 				.get(0)))
 				&& (_date.isBefore(dateRange.get(1)) || _date.isEqual(dateRange
 						.get(1)))) {
 			Log.i(TAG,
 					"start date and end date specified, current time is inbetween or equal");
-			return true;
+			return NOTIFICATION_CURRENT;
+		} else if (_date.isBefore(dateRange.get(0))) {
+			return NOTIFICATION_FUTURE;
+		} else if (_date.isAfter(dateRange.get(1))) {
+			return NOTIFICATION_PAST;
 		} else {
-			return false;
+			Log.e(TAG, "Error while comparing times");
+			return NOTIFICATION_CURRENT;
 		}
 	}
 

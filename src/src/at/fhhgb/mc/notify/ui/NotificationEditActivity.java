@@ -1,36 +1,56 @@
 package at.fhhgb.mc.notify.ui;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
+import com.android.datetimepicker.date.DatePickerDialog;
+import com.android.datetimepicker.date.DatePickerDialog.OnDateSetListener;
+import com.android.datetimepicker.time.RadialPickerLayout;
+import com.android.datetimepicker.time.TimePickerDialog;
+import com.android.datetimepicker.time.TimePickerDialog.OnTimeSetListener;
+import com.andtinder.model.CardModel;
+import com.andtinder.model.Orientations.Orientation;
+import com.andtinder.view.CardContainer;
+import com.andtinder.view.SimpleCardStackAdapter;
+
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.app.DatePickerDialog.OnDateSetListener;
-import android.app.TimePickerDialog;
-import android.app.TimePickerDialog.OnTimeSetListener;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.text.Html;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Gallery;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.TimePicker;
+import android.widget.Toast;
 import at.fhhgb.mc.notify.R;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.notification.NotificationService;
+import at.fhhgb.mc.notify.sync.SyncHandler;
 import at.fhhgb.mc.notify.xml.XmlCreator;
 
 public class NotificationEditActivity extends Activity implements
@@ -38,6 +58,10 @@ public class NotificationEditActivity extends Activity implements
 		OnCheckedChangeListener {
 
 	private static final String TAG = "NotificationEditActivity";
+	public static final String DATEPICKER_START_TAG = "datepicker_start";
+    public static final String TIMEPICKER_START_TAG = "timepicker_start";
+    public static final String DATEPICKER_END_TAG = "datepicker_end";
+    public static final String TIMEPICKER_END_TAG = "timepicker_end";
 	private final int REQUESTCODE_GET_FILE = 42;
 	private final int NO_TITLE = 0;
 	private final int TO_SMALL_END_DATE = 1;
@@ -79,11 +103,20 @@ public class NotificationEditActivity extends Activity implements
 	private int mStartMinutesTemp = -1;
 	private int mEndHoursTemp = -1;
 	private int mEndMinutesTemp = -1;
+	
+	private int addedFiles = 0;
+	private CardContainer mCardContainer;
+	private SimpleCardStackAdapter mCardStackAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_notification_edit);
+		
+//		mCardContainer = (CardContainer) findViewById(R.id.image_view);
+//		mCardContainer.setOrientation(Orientation.Ordered);
+//		mCardStackAdapter = new SimpleCardStackAdapter(this);
+//		mCardContainer.setAdapter(mCardStackAdapter);
 
 		Bundle b = getIntent().getBundleExtra(Notification.KEY_ROOT);
 
@@ -124,8 +157,6 @@ public class NotificationEditActivity extends Activity implements
 		checkStart.setOnCheckedChangeListener(this);
 		CheckBox checkStop = (CheckBox) findViewById(R.id.checkStop);
 		checkStop.setOnCheckedChangeListener(this);
-		Button buttonFile = (Button) findViewById(R.id.buttonFile);
-		buttonFile.setOnClickListener(this);
 
 		if (mStartYear >= 0) {
 			checkStart.setChecked(true);
@@ -140,10 +171,10 @@ public class NotificationEditActivity extends Activity implements
 
 			String format = "MM/dd/yy";
 			SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
-			mStartDate.setText(sdf.format(mCalendar.getTime()));
+			mStartDate.setText(Html.fromHtml("<u>" + sdf.format(mCalendar.getTime()) + "</u>"));
 			format = "kk:mm";
 			sdf = new SimpleDateFormat(format, Locale.US);
-			mStartTime.setText(sdf.format(mCalendar.getTime()));
+			mStartTime.setText(Html.fromHtml("<u>" + sdf.format(mCalendar.getTime()) + "</u>"));
 		}
 
 		if (mEndYear >= 0) {
@@ -159,10 +190,10 @@ public class NotificationEditActivity extends Activity implements
 
 			String format = "MM/dd/yy";
 			SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
-			mEndDate.setText(sdf.format(mCalendar.getTime()));
+			mEndDate.setText(Html.fromHtml("<u>" + sdf.format(mCalendar.getTime()) + "</u>"));
 			format = "kk:mm";
 			sdf = new SimpleDateFormat(format, Locale.US);
-			mEndTime.setText(sdf.format(mCalendar.getTime()));
+			mEndTime.setText(Html.fromHtml("<u>" + sdf.format(mCalendar.getTime()) + "</u>"));
 		}
 	}
 
@@ -176,9 +207,6 @@ public class NotificationEditActivity extends Activity implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_save) {
 			EditText title = (EditText) findViewById(R.id.editTitle);
@@ -206,6 +234,11 @@ public class NotificationEditActivity extends Activity implements
 			}
 		} else if (id == R.id.action_cancel) {
 			finish();
+		} else if (id == R.id.action_add_file) {
+			Intent intent = new Intent();
+			intent.setAction(android.content.Intent.ACTION_PICK);
+			intent.setType("image/*");
+			startActivityForResult(intent, REQUESTCODE_GET_FILE);
 		}
 
 		return super.onOptionsItemSelected(item);
@@ -216,7 +249,8 @@ public class NotificationEditActivity extends Activity implements
 		XmlCreator creator = new XmlCreator();
 		EditText title = (EditText) findViewById(R.id.editTitle);
 		EditText message = (EditText) findViewById(R.id.editMessage);
-		SharedPreferences triggeredNotifications = getSharedPreferences(NotificationService.TRIGGERED_NOTIFICATIONS, 0);
+		SharedPreferences triggeredNotifications = getSharedPreferences(
+				NotificationService.TRIGGERED_NOTIFICATIONS, 0);
 
 		try {
 			n.setTitle(title.getText().toString());
@@ -234,13 +268,15 @@ public class NotificationEditActivity extends Activity implements
 				n.setVersion(0);
 				Log.i(TAG, "new");
 			} else {
-				int notificationID = triggeredNotifications.getInt(String.valueOf(mUniqueID), -1);
+				int notificationID = triggeredNotifications.getInt(
+						String.valueOf(mUniqueID), -1);
 				Log.i(TAG, "Version: " + mVersion);
 				Intent action = new Intent(this, NotificationService.class);
 				action.setAction(Notification.ACTION_DELETE);
 				action.putExtra(Notification.EXTRA_UNIQUE_ID, mUniqueID);
 				action.putExtra(Notification.EXTRA_VERSION, mVersion);
-				action.putExtra(Notification.EXTRA_NOTIFICATION_ID, notificationID);
+				action.putExtra(Notification.EXTRA_NOTIFICATION_ID,
+						notificationID);
 				this.startService(action);
 				n.setVersion(mVersion + 1);
 			}
@@ -259,75 +295,67 @@ public class NotificationEditActivity extends Activity implements
 			DatePickerDialog dpdStart;
 			if (mStartYear < 0 || mStartMonth < 0 || mStartDay < 0) {
 				getCurrentTimeDate();
-				dpdStart = new DatePickerDialog(this, this,
+
+				dpdStart = DatePickerDialog.newInstance(this,
 						mCalendar.get(Calendar.YEAR),
 						mCalendar.get(Calendar.MONTH),
 						mCalendar.get(Calendar.DAY_OF_MONTH));
 			} else {
-				dpdStart = new DatePickerDialog(this, this, mStartYear,
+				dpdStart = DatePickerDialog.newInstance(this, mStartYear,
 						mStartMonth - 1, mStartDay);
 			}
-			dpdStart.setTitle(R.string.title_start_date);
 			isStart = true;
-			dpdStart.show();
+			dpdStart.show(getFragmentManager(), DATEPICKER_START_TAG);
 			break;
 		case R.id.editStartTime:
 			TimePickerDialog tpdStart;
 			if (mStartHours < 0 || mStartMinutes < 0) {
-				tpdStart = new TimePickerDialog(this, this,
+				tpdStart = TimePickerDialog.newInstance(this,
 						mCalendar.get(Calendar.HOUR_OF_DAY),
 						mCalendar.get(Calendar.MINUTE),
 						DateFormat.is24HourFormat(this));
 			} else {
-				tpdStart = new TimePickerDialog(this, this, mStartHours,
+				tpdStart = TimePickerDialog.newInstance(this, mStartHours,
 						mStartMinutes, DateFormat.is24HourFormat(this));
 			}
-			tpdStart.setTitle(R.string.title_start_time);
 			isStart = true;
-			tpdStart.show();
+			tpdStart.show(getFragmentManager(), TIMEPICKER_START_TAG);
 			break;
 		case R.id.editEndDate:
 			DatePickerDialog dpdEnd;
 			if (mEndYear < 0 || mEndMonth < 0 || mEndDay < 0) {
 				getCurrentTimeDate();
-				dpdEnd = new DatePickerDialog(this, this,
+				dpdEnd = DatePickerDialog.newInstance(this,
 						mCalendar.get(Calendar.YEAR),
 						mCalendar.get(Calendar.MONTH),
 						mCalendar.get(Calendar.DAY_OF_MONTH));
 			} else {
-				dpdEnd = new DatePickerDialog(this, this, mEndYear,
+				dpdEnd = DatePickerDialog.newInstance(this, mEndYear,
 						mEndMonth - 1, mEndDay);
 			}
-			dpdEnd.setTitle(R.string.title_end_date);
 			isStart = false;
-			dpdEnd.show();
+			dpdEnd.show(getFragmentManager(), DATEPICKER_END_TAG);
 			break;
 		case R.id.editEndTime:
 			TimePickerDialog tpdEnd;
 			if (mEndHours < 0 || mEndMinutes < 0) {
-				tpdEnd = new TimePickerDialog(this, this,
+				tpdEnd = TimePickerDialog.newInstance(this,
 						mCalendar.get(Calendar.HOUR_OF_DAY),
 						mCalendar.get(Calendar.MINUTE),
 						DateFormat.is24HourFormat(this));
 			} else {
-				tpdEnd = new TimePickerDialog(this, this, mEndHours,
+				tpdEnd = TimePickerDialog.newInstance(this, mEndHours,
 						mEndMinutes, DateFormat.is24HourFormat(this));
 			}
-			tpdEnd.setTitle(R.string.title_end_time);
 			isStart = false;
-			tpdEnd.show();
-			break;
-		case R.id.buttonFile:
-			Intent intent = new Intent();
-			intent.setAction(android.content.Intent.ACTION_PICK);
-			intent.setType("image/*");
-			startActivityForResult(intent, REQUESTCODE_GET_FILE);
+			tpdEnd.show(getFragmentManager(), TIMEPICKER_END_TAG);
+			break;			
 		}
 
 	}
 
 	@Override
-	public void onDateSet(DatePicker _view, int _year, int _monthOfYear,
+	public void onDateSet(DatePickerDialog _view, int _year, int _monthOfYear,
 			int _dayOfMonth) {
 		Log.i(TAG, "onDateSet");
 
@@ -338,12 +366,12 @@ public class NotificationEditActivity extends Activity implements
 		SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
 
 		if (isStart) {
-			mStartDate.setText(sdf.format(mCalendar.getTime()));
+			mStartDate.setText(Html.fromHtml("<u>" + sdf.format(mCalendar.getTime()) + "</u>"));
 			mStartYear = _year;
 			mStartMonth = _monthOfYear + 1;
 			mStartDay = _dayOfMonth;
 		} else {
-			mEndDate.setText(sdf.format(mCalendar.getTime()));
+			mEndDate.setText(Html.fromHtml("<u>" + sdf.format(mCalendar.getTime()) + "</u>"));
 			mEndYear = _year;
 			mEndMonth = _monthOfYear + 1;
 			mEndDay = _dayOfMonth;
@@ -351,18 +379,18 @@ public class NotificationEditActivity extends Activity implements
 	}
 
 	@Override
-	public void onTimeSet(TimePicker _view, int _hourOfDay, int _minute) {
+	public void onTimeSet(RadialPickerLayout _view, int _hourOfDay, int _minute) {
 		mCalendar.set(Calendar.HOUR_OF_DAY, _hourOfDay);
 		mCalendar.set(Calendar.MINUTE, _minute);
 		String format = "kk:mm";
 		SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.US);
 
 		if (isStart) {
-			mStartTime.setText(sdf.format(mCalendar.getTime()));
+			mStartTime.setText(Html.fromHtml("<u>" + sdf.format(mCalendar.getTime()) + "</u>"));
 			mStartHours = _hourOfDay;
 			mStartMinutes = _minute;
 		} else {
-			mEndTime.setText(sdf.format(mCalendar.getTime()));
+			mEndTime.setText(Html.fromHtml("<u>" + sdf.format(mCalendar.getTime()) + "</u>"));
 			mEndHours = _hourOfDay;
 			mEndMinutes = _minute;
 		}
@@ -378,8 +406,6 @@ public class NotificationEditActivity extends Activity implements
 
 	@Override
 	public void onCheckedChanged(CompoundButton _view, boolean _isChecked) {
-
-		// boolean checked = ((CheckBox) _view).isChecked();
 
 		if (_view.getId() == R.id.checkStart) {
 			if (!_isChecked) {
@@ -420,9 +446,9 @@ public class NotificationEditActivity extends Activity implements
 					String format = "MM/dd/yy";
 					SimpleDateFormat sdf = new SimpleDateFormat(format,
 							Locale.US);
-					mStartDate.setText(sdf.format(mCalendar.getTime()));
+					mStartDate.setText(Html.fromHtml("<u>" + sdf.format(mCalendar.getTime()) + "</u>"));
 				} else {
-					mStartDate.setText(R.string.edit_start_date);
+					mStartDate.setText(Html.fromHtml("<u>" + getResources().getString(R.string.edit_date) + "</u>"));
 				}
 
 				if (mStartHoursTemp != -1) {
@@ -435,9 +461,9 @@ public class NotificationEditActivity extends Activity implements
 					String format = "kk:mm";
 					SimpleDateFormat sdf = new SimpleDateFormat(format,
 							Locale.US);
-					mStartTime.setText(sdf.format(mCalendar.getTime()));
+					mStartTime.setText(Html.fromHtml("<u>" + sdf.format(mCalendar.getTime()) + "</u>"));
 				} else {
-					mStartTime.setText(R.string.edit_start_time);
+					mStartTime.setText(Html.fromHtml("<u>" + getResources().getString(R.string.edit_time) + "</u>"));
 				}
 
 			}
@@ -480,9 +506,9 @@ public class NotificationEditActivity extends Activity implements
 					String format = "MM/dd/yy";
 					SimpleDateFormat sdf = new SimpleDateFormat(format,
 							Locale.US);
-					mEndDate.setText(sdf.format(mCalendar.getTime()));
+					mEndDate.setText(Html.fromHtml("<u>" + sdf.format(mCalendar.getTime()) + "</u>"));
 				} else {
-					mEndDate.setText(R.string.edit_end_date);
+					mEndDate.setText(Html.fromHtml("<u>" + getResources().getString(R.string.edit_date) + "</u>"));
 				}
 
 				if (mEndHoursTemp != -1) {
@@ -495,9 +521,9 @@ public class NotificationEditActivity extends Activity implements
 					String format = "kk:mm";
 					SimpleDateFormat sdf = new SimpleDateFormat(format,
 							Locale.US);
-					mEndTime.setText(sdf.format(mCalendar.getTime()));
+					mEndTime.setText(Html.fromHtml("<u>" + sdf.format(mCalendar.getTime()) + "</u>"));
 				} else {
-					mEndTime.setText(R.string.edit_end_time);
+					mEndTime.setText(Html.fromHtml("<u>" + getResources().getString(R.string.edit_time) + "</u>"));
 				}
 			}
 		}
@@ -598,6 +624,62 @@ public class NotificationEditActivity extends Activity implements
 		if (requestCode == REQUESTCODE_GET_FILE && resultCode == RESULT_OK) {
 			TextView tv = (TextView) findViewById(R.id.textFile);
 			tv.setText(data.getData().getPath());
+			
+			LayoutInflater li = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View v = li.inflate(R.layout.image_view_layout, null);
+			
+//			String path = Environment.getExternalStorageDirectory().toString() + "/DCIM/Camera/IMG_20131126_135635.jpg";
+			String path = Environment.getExternalStorageDirectory().toString() + "/DCIM/Camera/IMG_20140629_143308.jpg";
+			ImageView iv = (ImageView) v.findViewById(R.id.image_view_file);
+			iv.setImageURI(Uri.parse(path));
+//			try {
+//				copy(new File(path), new File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + SyncHandler.FILE_FOLDER));
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+			
+//			ImageView iv = (ImageView) v.findViewById(R.id.image_view_file);
+//			
+//			if(addedFiles == 0) {
+//				iv.setImageDrawable(getResources().getDrawable(R.drawable.test));
+//			} else {
+//				iv.setImageDrawable(getResources().getDrawable(R.drawable.test2));
+//			}
+			
+			
+			View insertPoint = findViewById(R.id.linear_layout_files);
+			((ViewGroup) insertPoint).addView(v, addedFiles, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+			addedFiles++;
+			
+//			mCardContainer = (CardContainer) findViewById(R.id.image_view);
+//			mCardContainer.setOrientation(Orientation.Ordered);
+//			mCardStackAdapter = new SimpleCardStackAdapter(this);
+//			
+//			CardModel card;
+//			
+//			if (addedFiles == 0) {
+//				card = new CardModel("Title", "Description", getResources().getDrawable(R.drawable.test));
+//				addedFiles++;
+//			} else {
+//				card = new CardModel("Title2", "Description2", getResources().getDrawable(R.drawable.test2));
+//			}
+//			
+//			mCardStackAdapter.add(card);
+//			mCardContainer.setAdapter(mCardStackAdapter);
 		}
+	}
+	
+	public void copy(File src, File dst) throws IOException {
+	    InputStream in = new FileInputStream(src);
+	    OutputStream out = new FileOutputStream(dst);
+
+	    // Transfer bytes from in to out
+	    byte[] buf = new byte[1024];
+	    int len;
+	    while ((len = in.read(buf)) > 0) {
+	        out.write(buf, 0, len);
+	    }
+	    in.close();
+	    out.close();
 	}
 }

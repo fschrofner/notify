@@ -33,24 +33,17 @@ public class XmlParser {
 		try {
 			XmlPullParser parser = Xml.newPullParser();
 			parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-//			input = mContext.openFileInput(_uniqueID + ".xml");
-//			input = mContext.openFileInput(SyncHandler.getFullPath(_fileName));
-//			input = mContext.openFileInput(_fileName);;
 			input = new FileInputStream(SyncHandler.getFullPath(_fileName));
 			parser.setInput(input, null);
 			parser.nextTag();
 			read(parser);
 		} catch (XmlPullParserException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			if(input != null){
@@ -81,7 +74,7 @@ public class XmlParser {
 			Log.w(TAG, "filename " + _fileName + " invalid");
 			version = "-1";
 		} else {
-			version = sb.substring(sb.indexOf("_") + 1, sb.length() - 5);
+			version = sb.substring(sb.indexOf("_") + 1, sb.indexOf("."));
 		}
 		
 		mNotification.setVersion(Integer.parseInt(version));

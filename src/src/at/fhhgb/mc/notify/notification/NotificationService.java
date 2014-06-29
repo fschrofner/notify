@@ -33,12 +33,6 @@ public class NotificationService extends IntentService {
 	private static final String TAG = "NotificationService";
 	public static final String TRIGGERED_NOTIFICATIONS = "triggered_notifications";
 	
-//	private int mCurrentYear;
-//	private int mCurrentMonth;
-//	private int mCurrentDay;
-//	private int mCurrentHours;
-//	private int mCurrentMinutes;
-	
 	private ArrayList<Notification> mNotifications;
 	public static ArrayList<Notification> mTriggeredNotifications;
 	public static ArrayList<Notification> mFutureNotifications;
