@@ -41,6 +41,16 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         			Log.i(TAG, "connected to internet, but no outstanding pushes");
         		}
         		
+        		//deletion
+        		if(outstanding.contains(SyncHandler.OUTSTANDING_DELETION)){
+        			Log.i(TAG, "connected to internet, handling outstanding deletion");
+        			HashSet<String> redoFileList = (HashSet<String>) outstanding.getStringSet(SyncHandler.OUTSTANDING_DELETION, null);
+        			ArrayList<String> fileList = new ArrayList<String>(redoFileList);
+        			SyncHandler.deleteFiles(_context.getApplicationContext(), null, fileList);
+        		} else {
+        			Log.i(TAG, "connected to internet, but no outstanding deletion");
+        		}
+        		
         		//download
         		if(outstanding.getBoolean(SyncHandler.OUTSTANDING_DOWNLOAD, false)){
         			Log.i(TAG, "connected to internet, handling outstanding download");

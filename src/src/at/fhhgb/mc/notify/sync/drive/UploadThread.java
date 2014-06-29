@@ -132,7 +132,6 @@ public class UploadThread implements Runnable {
 		}
 		
 		outstanding.edit().putStringSet(SyncHandler.OUTSTANDING_UPLOAD, redoFileList).commit();
-
 	}
 	
 	private void uploadFile(String _fileName, String _parentId){

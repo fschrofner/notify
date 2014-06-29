@@ -37,12 +37,12 @@ public class MainActivity extends Activity implements OnClickListener{
 		Intent intent = new Intent(this, PushRegisterReceiver.class);
 		sendBroadcast(intent);
     	
-//    	ArrayList<String> fileList = new ArrayList<String>();
-//    	fileList.add("test.JPG");
+    	ArrayList<String> fileList = new ArrayList<String>();
+    	fileList.add("test.JPG");
 //    	fileList.add("test.noti");
 //    	SyncHandler.uploadFiles(getApplicationContext(), this, fileList);
     	
-    	SyncHandler.updateFiles(this);
+    	SyncHandler.deleteFiles(getApplicationContext(), this, fileList);
     	
 	    Button pushButton = (Button)findViewById(R.id.push_button);
 	    pushButton.setOnClickListener(this);
