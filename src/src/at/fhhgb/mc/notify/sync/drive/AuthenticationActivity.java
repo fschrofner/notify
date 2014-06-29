@@ -9,6 +9,7 @@ import com.google.api.services.drive.Drive;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -16,6 +17,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import at.fhhgb.mc.notify.push.PushConstants;
+import at.fhhgb.mc.notify.push.PushRegisterReceiver;
+import at.fhhgb.mc.notify.sync.NetworkChangeReceiver;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
 public class AuthenticationActivity extends Activity {
@@ -52,6 +55,15 @@ public class AuthenticationActivity extends Activity {
 		          editor.putString(SyncHandler.GOOGLE_DRIVE, accountName);
 		          editor.putString(PushConstants.PUSH_ALIAS, accountName);
 		          editor.commit();
+		          
+		    	Log.i(TAG, "currently no internet connection, scheduling registration for pushes");
+		    	SharedPreferences outstanding = getSharedPreferences(SyncHandler.OUTSTANDING_TASKS, Context.MODE_PRIVATE); 
+				Editor outEdit = outstanding.edit();
+		    	outEdit.putBoolean(SyncHandler.OUTSTANDING_PUSH_REGISTRATION, true);
+				outEdit.putBoolean(SyncHandler.OUTSTANDING_DOWNLOAD, true);
+				outEdit.commit();
+
+		          
 		          Log.i(TAG, "saved account name and push alias in shared preferences");
 		          
 		          
@@ -60,9 +72,11 @@ public class AuthenticationActivity extends Activity {
 		        	  SyncHandler.uploadFiles(getApplicationContext(), this, new ArrayList<String>(Arrays.asList(mFileList)));
 		          } else {
 			          SyncHandler.updateFiles(getApplicationContext());
-		          }	          
+		          }
 		        }
 		      }
+			//close the activity after the result has been returned
+			finish();
 			break;
 		case REQUEST_AUTHENTICATION:
 			Log.i(TAG, "authentication requested");
@@ -73,5 +87,6 @@ public class AuthenticationActivity extends Activity {
 			}
 			break;
 		}
+
 	}
 }

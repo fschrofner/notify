@@ -12,7 +12,12 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
+import at.fhhgb.mc.notify.sync.SyncHandler;
 
 /**
  * Class to simplify pushes to other devices.
@@ -28,12 +33,21 @@ public final class PushSender {
 	 * Starts a separate thread.
 	 * @param _alias the alias you want to send a push to
 	 */
-	public static void sendPushToAlias(String _alias){
+	public static void sendPushToAlias(String _alias, Context _context){
 		try {
-			PushThread pushThread = new PushThread(_alias);
-			Thread thread = new Thread(pushThread);
-			thread.start();
-			Log.i(TAG, "started push thread");
+			//TODO check for internet connectivity first
+        	boolean isConnected = SyncHandler.networkConnected(_context);
+        	if(isConnected){
+    			PushThread pushThread = new PushThread(_alias);
+    			Thread thread = new Thread(pushThread);
+    			thread.start();
+    			Log.i(TAG, "connected to internet, started push thread");
+        	} else {
+        		//TODO schedule push when connected
+        		Log.i(TAG, "no internet connection! push scheduled on connectivity change");
+        		SharedPreferences outstanding = _context.getSharedPreferences(SyncHandler.OUTSTANDING_TASKS, Context.MODE_PRIVATE); 
+        		outstanding.edit().putBoolean(SyncHandler.OUTSTANDING_PUSH, true).commit();
+        	}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}	
@@ -54,7 +68,7 @@ class PushThread implements Runnable {
 			throw new Exception("alias must not be null!");
 		} else {
 			alias = _alias;
-			Log.i(TAG, "alias " + alias + "will receive push");
+			Log.i(TAG, "alias " + alias + " will receive push");
 		}
 	}
 	

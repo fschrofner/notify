@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.jboss.aerogear.android.Callback;
 import org.jboss.aerogear.android.unifiedpush.MessageHandler;
+import org.jboss.aerogear.android.unifiedpush.PushConfig;
 import org.jboss.aerogear.android.unifiedpush.PushRegistrar;
 import org.jboss.aerogear.android.unifiedpush.Registrations;
 
@@ -13,6 +14,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -38,6 +40,7 @@ import at.fhhgb.mc.notify.ui.NotificationEditActivity;
 import at.fhhgb.mc.notify.ui.NotificationFragment;
 import at.fhhgb.mc.notify.ui.SettingsFragment;
 import at.fhhgb.mc.notify.sync.SyncHandler;
+import at.fhhgb.mc.notify.sync.drive.DriveHandler;
 
 public class MainActivity extends Activity implements OnClickListener{
 	
@@ -102,39 +105,14 @@ public class MainActivity extends Activity implements OnClickListener{
 
 		//TODO register push on system start-up
 		
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-    	String alias = preferences.getString(PushConstants.PUSH_ALIAS, null);
-    	
-    	if(alias != null){
-    		// access the registration object
-    	    PushRegistrar push = ((PushApplication) getApplication()).
-    	    		getRegistration();
-
-    	    // fire up registration..
-
-    	    // The method will attempt to register the device with GCM and the UnifiedPush server
-    	    push.register(getApplicationContext(),new Callback<Void>() { 
-    	        private static final long serialVersionUID = 1L;
-
-    	        @Override
-    	        public void onSuccess(Void ignore) {
-    	            Log.i(TAG, "registration to push service succeeded");
-    	        }
-
-    	        @Override
-    	        public void onFailure(Exception exception) {
-    	            Log.e("MainActivity", exception.getMessage(), exception);
-    	        }
-    	    });
-    	} else {
-    		Log.i(TAG, "no push alias saved, did not register for pushes");
-    	}
-    	
-//	    Button pushButton = (Button)findViewById(R.id.push_button);
-//	    pushButton.setOnClickListener(this);
+		DriveHandler.setup(this);
+		Intent intent = new Intent(this, PushRegisterReceiver.class);
+		sendBroadcast(intent);
+    	    	
+		SyncHandler.updateFiles(this);
 	}
 
-	@Override
+@Override
 	protected void onStart() {
 		Intent intent = new Intent(this, NotificationService.class);
 		intent.setAction("bla");
@@ -192,7 +170,7 @@ public class MainActivity extends Activity implements OnClickListener{
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-		
+
 	@Override
 	public void onClick(View v) {
 //		EditText text = (EditText) findViewById(R.id.alias_text);

@@ -38,12 +38,16 @@ public class XmlParser {
 			parser.nextTag();
 			read(parser);
 		} catch (XmlPullParserException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			if(input != null){
