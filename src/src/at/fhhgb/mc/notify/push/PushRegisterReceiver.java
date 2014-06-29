@@ -18,22 +18,32 @@ public class PushRegisterReceiver extends BroadcastReceiver {
 	final static String TAG = "PushRegisterReceiver";
 	@Override
 	public void onReceive(Context _context, Intent _intent) {
+		
 		Log.i(TAG, "received intent! registering for pushes now..");
+		registerForPushes(_context.getApplicationContext());
 		
-		
+		//scheduling a download for the first network connection
+		if(_intent.getAction() != null && _intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+			Log.i(TAG, "device rebooted, scheduling first file sync");
+			SharedPreferences outstanding = _context.getSharedPreferences(SyncHandler.OUTSTANDING_TASKS, Context.MODE_PRIVATE); 
+			outstanding.edit().putBoolean(SyncHandler.OUTSTANDING_DOWNLOAD, true).commit();
+		}
+	}
+	
+	private void registerForPushes(Context _context){
 		//schedules the push registration if there's currently no internet connection
     	if(SyncHandler.networkConnected(_context)){
     		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_context);
         	String alias = preferences.getString(PushConstants.PUSH_ALIAS, null);
     		if(alias != null){
         		// access the registration object     		
-        	    PushRegistrar push = ((PushApplication) _context.getApplicationContext()).
+        	    PushRegistrar push = ((PushApplication) _context).
         	    		getRegistration();
 
         	    // fire up registration..
 
         	    // The method will attempt to register the device with GCM and the UnifiedPush server
-        	    push.register(_context.getApplicationContext(),new Callback<Void>() { 
+        	    push.register(_context ,new Callback<Void>() { 
         	        private static final long serialVersionUID = 1L;
 
         	        @Override
@@ -54,7 +64,6 @@ public class PushRegisterReceiver extends BroadcastReceiver {
     		SharedPreferences outstanding = _context.getSharedPreferences(SyncHandler.OUTSTANDING_TASKS, Context.MODE_PRIVATE); 
 			outstanding.edit().putBoolean(SyncHandler.OUTSTANDING_PUSH_REGISTRATION, true).commit();
     	}
-    	
 	}
 
 }
