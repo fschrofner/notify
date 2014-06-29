@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.util.Log;
+import at.fhhgb.mc.notify.push.PushConstants;
 import at.fhhgb.mc.notify.push.PushRegisterReceiver;
 
 public class NetworkChangeReceiver extends BroadcastReceiver {
@@ -73,8 +74,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
 			} else {
 				Log.i(TAG, "network change received! internet not available");
 			}
-		}
-	
+		} 
 	}
 
 }
