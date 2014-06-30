@@ -89,10 +89,11 @@ public class Notification {
 
 	// static notification id makes sure that each id is unique
 	// so that multiple notification don't get concatenated
-	static int mNotificationID = 0;
+	static int mNotificationID = 1000; //start with 1000 here to prevent a bug on Android 4.3+
 
 	public Notification() {
 		initialiseDate();
+		mUniqueID = -1;
 	}
 
 	public Notification(String _title, String _message) {
@@ -138,7 +139,7 @@ public class Notification {
 		PendingIntent pi = PendingIntent.getActivity(_context, mNotificationID,
 				i, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		Intent action = new Intent(_context, NotificationService.class);
+		Intent action = new Intent(_context.getApplicationContext(), NotificationService.class);
 		action.setAction(Notification.ACTION_DELETE);
 		action.putExtra(EXTRA_UNIQUE_ID, getUniqueID());
 		action.putExtra(EXTRA_VERSION, getVersion());
@@ -148,7 +149,7 @@ public class Notification {
 
 		NotificationManager notificationManager = (NotificationManager) _context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
-
+		
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
 				_context)
 				.setSmallIcon(R.drawable.ic_launcher)

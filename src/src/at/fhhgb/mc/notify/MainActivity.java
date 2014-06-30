@@ -102,16 +102,17 @@ public class MainActivity extends Activity implements OnClickListener,MessageHan
 		// TODO register push on system start-up
 
 		// DriveHandler.setup(this);
-		// Intent intent = new Intent(this, PushRegisterReceiver.class);
-		// sendBroadcast(intent);
-		// SyncHandler.updateFiles(this,this);
+		Intent intent = new Intent(this, PushRegisterReceiver.class);
+		sendBroadcast(intent);
+		SyncHandler.updateFiles(this,this);
 	}
 
 	@Override
 	protected void onStart() {
-		Intent intent = new Intent(this, NotificationService.class);
+		Intent intent = new Intent(this.getApplicationContext(), NotificationService.class);
 		intent.setAction(Notification.ACTION_START_SERVICE);
 		startService(intent);
+
 		super.onStart();
 	}
 

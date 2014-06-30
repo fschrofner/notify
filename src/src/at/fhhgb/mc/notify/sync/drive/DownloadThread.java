@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -26,11 +27,13 @@ import com.google.api.services.drive.model.FileList;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import at.fhhgb.mc.notify.MainActivity;
 import at.fhhgb.mc.notify.notification.Notification;
+import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.push.PushConstants;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 import at.fhhgb.mc.notify.xml.XmlParser;
@@ -87,6 +90,11 @@ public class DownloadThread implements Runnable {
 			//TODO check if activity is castable to MainActivity
 			((MainActivity)mActivity).refreshFragments();
 		}
+		
+		//comparing and displaying the notifications
+		Intent intent = new Intent(mContext, NotificationService.class);
+		intent.setAction(Notification.ACTION_START_SERVICE);
+		mContext.startService(intent);
 		
 	}
 		
@@ -158,7 +166,18 @@ public class DownloadThread implements Runnable {
 					//TODO if yes check for revisions
 					
 					ArrayList<DateTime> dates = notification.getDates();
-					if(dates.get(1) != null && dates.get(1).isBeforeNow() ){
+					
+					SharedPreferences outstanding = mContext.getSharedPreferences(SyncHandler.OUTSTANDING_TASKS, Context.MODE_PRIVATE); 
+					HashSet<String> redoFileList = (HashSet<String>) outstanding.getStringSet(SyncHandler.OUTSTANDING_UPLOAD, null);
+					ArrayList<String> fileList = null;
+					if(redoFileList != null){
+						 fileList = new ArrayList<String>(redoFileList);
+					}
+        			
+        			
+        			
+					if((dates.get(1) != null && dates.get(1).isBeforeNow()) || (fileList == null || !fileList.contains(_fileName))){
+						Log.w(TAG, "found outdated notification " + notification.getTitle() + ". deleting now..");
 						ArrayList<String> files = notification.getFiles();
 						
 						if(files != null){
@@ -168,12 +187,17 @@ public class DownloadThread implements Runnable {
 //								file.delete();
 							}
 						}
+						oldFile = new java.io.File(SyncHandler.getFullPath(_fileName));
+						oldFile.delete();
+						Log.i(TAG, "file " + _fileName + " is outdated and was deleted");
+					} else {
+//						ArrayList<String> files = notification.getFiles();
+//						files.add(notification.getFileName());
+//						SyncHandler.uploadFiles(mContext, mActivity, files);
 					}
 				}
 				
-				oldFile = new java.io.File(SyncHandler.getFullPath(_fileName));
-				oldFile.delete();
-				Log.i(TAG, "file " + _fileName + " is outdated and was deleted");
+				
 								
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
