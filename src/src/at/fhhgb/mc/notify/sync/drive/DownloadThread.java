@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.joda.time.DateTime;
+
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.FileContent;
@@ -27,6 +29,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import at.fhhgb.mc.notify.MainActivity;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.push.PushConstants;
 import at.fhhgb.mc.notify.sync.SyncHandler;
@@ -64,6 +67,7 @@ public class DownloadThread implements Runnable {
 				try {
 					ArrayList<File> hostFiles = DriveHandler.getFileList(folderId);
 					downloadFiles(getMissingFiles(hostFiles, mContext),mContext);
+					
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -75,7 +79,15 @@ public class DownloadThread implements Runnable {
 
 		} else {
 			Log.i(TAG, "no drive service running!");
-		}	
+		}
+		
+		//refresh the notification fragment afterwards
+		if(mActivity != null){
+			Log.i(TAG, "finished deleting, trying to refresh fragments now.");
+			//TODO check if activity is castable to MainActivity
+			((MainActivity)mActivity).refreshFragments();
+		}
+		
 	}
 		
 	private ArrayList<File> getMissingFiles(ArrayList<File> _hostFiles,Context _context){
@@ -145,13 +157,16 @@ public class DownloadThread implements Runnable {
 					//TODO check if notification is still valid
 					//TODO if yes check for revisions
 					
-					ArrayList<String> files = notification.getFiles();
-					
-					if(files != null){
-						for(int i=0;i<files.size();i++){
-							SyncHandler.deleteFiles(mContext, null, files);
-//							java.io.File file = new java.io.File(SyncHandler.getFullPath(files.get(i)));
-//							file.delete();
+					ArrayList<DateTime> dates = notification.getDates();
+					if(dates.get(1) != null && dates.get(1).isBeforeNow() ){
+						ArrayList<String> files = notification.getFiles();
+						
+						if(files != null){
+							for(int i=0;i<files.size();i++){
+								SyncHandler.deleteFiles(mContext, null, files);
+//								java.io.File file = new java.io.File(SyncHandler.getFullPath(files.get(i)));
+//								file.delete();
+							}
 						}
 					}
 				}

@@ -24,9 +24,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -100,8 +102,9 @@ public class NotificationEditActivity extends Activity implements
 	private int mEndMinutesTemp = -1;
 	
 	private int addedFiles = 0;
-	
 	private ArrayList<String> mFileList;
+	private ArrayList<String> mFileListDelete;
+	private ArrayList<String> mTitleList;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -230,9 +233,11 @@ public class NotificationEditActivity extends Activity implements
 		} else if (id == R.id.action_cancel) {
 			finish();
 		} else if (id == R.id.action_add_file) {
-			Intent intent = new Intent();
-			intent.setAction(android.content.Intent.ACTION_PICK);
-			intent.setType("image/*");
+//			Intent intent = new Intent();
+//			intent.setAction(android.content.Intent.ACTION_PICK);
+//			intent.setType("image/*");
+			Intent intent = new Intent(Intent.ACTION_PICK,
+		               android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 			startActivityForResult(intent, REQUESTCODE_GET_FILE);
 		}
 
@@ -273,10 +278,15 @@ public class NotificationEditActivity extends Activity implements
 //						notificationID);
 //				this.startService(action);
 				
-				ArrayList<String> fileList = new ArrayList<String>();
-				fileList.add(n.getFileName());
-				SyncHandler.deleteFiles(this, this, fileList);
+				n.setVersion(mVersion);
+				
+				mFileListDelete = new ArrayList<String>();
+				mFileListDelete.add(n.getFileName());
+				mTitleList = new ArrayList<String>();
+				mTitleList.add(mTitle);
+				
 				n.setVersion(mVersion + 1);
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -286,6 +296,12 @@ public class NotificationEditActivity extends Activity implements
 		
 		mFileList = new ArrayList<String>();
 		mFileList.add(n.getFileName());
+		
+		
+		ArrayList<String> fileList = n.getFiles();
+		if(fileList != null){
+			mFileList.addAll(fileList);
+		}
 		
 	}
 
@@ -623,16 +639,33 @@ public class NotificationEditActivity extends Activity implements
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == REQUESTCODE_GET_FILE && resultCode == RESULT_OK) {
-			TextView tv = (TextView) findViewById(R.id.textFile);
-			tv.setText(data.getData().getPath());
 			
-			LayoutInflater li = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View v = li.inflate(R.layout.image_view_layout, null);
-			
-//			String path = Environment.getExternalStorageDirectory().toString() + "/DCIM/Camera/IMG_20131126_135635.jpg";
-			String path = Environment.getExternalStorageDirectory().toString() + "/DCIM/Camera/IMG_20140629_143308.jpg";
-			ImageView iv = (ImageView) v.findViewById(R.id.image_view_file);
-			iv.setImageURI(Uri.parse(path));
+			Uri selectedImage = data.getData();
+			if(selectedImage != null){
+	            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+	            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+	            cursor.moveToFirst();
+	            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+	            String filePath = cursor.getString(columnIndex);
+	            
+	            
+	            
+				TextView tv = (TextView) findViewById(R.id.textFile);
+				tv.setText(filePath);
+				
+				LayoutInflater li = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				View v = li.inflate(R.layout.image_view_layout, null);
+				
+				ImageView iv = (ImageView) v.findViewById(R.id.image_view_file);
+				iv.setImageURI(Uri.parse(filePath));
+				
+				View insertPoint = findViewById(R.id.linear_layout_files);
+				((ViewGroup) insertPoint).addView(v, addedFiles, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+				addedFiles++;
+			}
+
+//			String path = Environment.getExternalStorageDirectory().toString() + "/DCIM/Camera/IMG_20140629_143308.jpg";
+
 //			try {
 //				copy(new File(path), new File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + SyncHandler.FILE_FOLDER));
 //			} catch (IOException e) {
@@ -647,10 +680,6 @@ public class NotificationEditActivity extends Activity implements
 //				iv.setImageDrawable(getResources().getDrawable(R.drawable.test2));
 //			}
 			
-			
-			View insertPoint = findViewById(R.id.linear_layout_files);
-			((ViewGroup) insertPoint).addView(v, addedFiles, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-			addedFiles++;
 			
 //			mCardContainer = (CardContainer) findViewById(R.id.image_view);
 //			mCardContainer.setOrientation(Orientation.Ordered);
@@ -674,8 +703,9 @@ public class NotificationEditActivity extends Activity implements
 	public void finish() {
 	  // Prepare data intent 
 	  Intent data = new Intent();
-	  //TODO replace with constant
-	  data.putExtra("uploadList", mFileList);
+	  data.putExtra(SyncHandler.EXTRA_FILE_LIST, mFileList);
+	  data.putExtra(SyncHandler.EXTRA_FILE_LIST_DELETE, mFileListDelete);
+	  data.putExtra(SyncHandler.EXTRA_TITLE_LIST, mTitleList);
 	  setResult(RESULT_OK, data);
 	  super.finish();
 	} 

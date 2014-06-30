@@ -157,7 +157,7 @@ public class NotificationService extends IntentService {
 				triggeredNotifications.edit().putInt(mNotifications.get(i).getUniqueIDString(), Notification.mNotificationID).commit();
 				Notification.mNotificationID++;
 			} else {
-				Log.i(TAG, "notification has already been showed");
+				Log.i(TAG, "notification has already been shown");
 			}
 		}
 		

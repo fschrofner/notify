@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import at.fhhgb.mc.notify.MainActivity;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 import at.fhhgb.mc.notify.xml.XmlParser;
@@ -35,12 +36,17 @@ public class DeleteThread implements Runnable {
 	
 	@Override
 	public void run() {
-		//TODO schedule deletion, when there's no internet connection
 		DriveHandler.setup(mContext);
 		updateFileList();
 		
 		for(int i=0; i<mFileList.size(); i++){
 			deleteFile(mFileList.get(i));
+		}
+		
+		if(mActivity != null){
+			Log.i(TAG, "finished deleting, trying to refresh fragments now.");
+			//TODO check if activity is castable to MainActivity
+			((MainActivity)mActivity).refreshFragments();
 		}
 	}
 	
