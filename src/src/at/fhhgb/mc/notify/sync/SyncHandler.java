@@ -33,6 +33,10 @@ public class SyncHandler {
 	final static public String UPLOAD_FILE_LIST = "filelist";
 	final static public String APPLICATION_NAME = "Notify";
 	
+	final static public String EXTRA_FILE_LIST = "at.fhhgb.mc.notify.sync.SyncHandler.FILE_LIST";
+	final static public String EXTRA_FILE_LIST_DELETE = "at.fhhgb.mc.notify.sync.SyncHandler.FILE_LIST_DELETE";
+	final static public String EXTRA_TITLE_LIST = "at.fhhgb.mc.notify.sync.SyncHandler.TITLE_LIST";
+	
 	//the name of the shared preferences which save outstanding tasks
 	final static public String OUTSTANDING_TASKS = "outstanding_tasks";
 	

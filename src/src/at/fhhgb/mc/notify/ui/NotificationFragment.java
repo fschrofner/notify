@@ -22,6 +22,7 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import at.fhhgb.mc.notify.MainActivity;
 import at.fhhgb.mc.notify.R;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.notification.NotificationService;
@@ -36,7 +37,9 @@ public class NotificationFragment extends Fragment implements
 	private static final int NOTIFICATION_CURRENT = 0;
 	private static final int NOTIFICATION_FUTURE = 1;
 	private static final int NOTIFICATION_PAST = 2;
-	
+
+	public static final String NOTIFICATION_FRAGMENT_TAG = "at.fhhgb.mc.notify.notification_fragment";
+
 	private boolean mNotiStatus;
 	private ArrayList<Notification> mNotifications;
 	private static ArrayList<Notification> mTriggeredNotifications;
@@ -44,6 +47,13 @@ public class NotificationFragment extends Fragment implements
 	private View mView;
 	private int mNr;
 	private ArrayListAdapter listAdapter;
+	private Menu mMenu;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater _inflater, ViewGroup container,
@@ -53,15 +63,119 @@ public class NotificationFragment extends Fragment implements
 
 		mView = _inflater.inflate(R.layout.fragment_notification, null);
 
+		update(mView);
+		
 		return mView;
 	}
 
 	@Override
 	public void onStart() {
 
-		update(mView);
-
 		super.onStart();
+	}
+
+	public void updateFragment() {
+		update(mView);
+	}
+	
+	public void showAddOption() {
+		mMenu.findItem(R.id.action_add).setVisible(true);
+	}
+	
+	public void hideAddOption() {
+		mMenu.findItem(R.id.action_add).setVisible(false);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		mMenu = menu;
+		
+		inflater.inflate(R.menu.main, mMenu);
+
+		super.onCreateOptionsMenu(mMenu, inflater);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		if (item.getItemId() == R.id.action_add) {
+			Intent i = new Intent(getActivity(), NotificationEditActivity.class);
+			startActivityForResult(i, MainActivity.NOTIFICATION_REQUEST);
+		}
+
+		return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+		Log.i(TAG, "result");
+		if (requestCode == MainActivity.NOTIFICATION_REQUEST && resultCode == MainActivity.RESULT_OK) {
+			ArrayList<String> fileList = data
+					.getStringArrayListExtra(SyncHandler.EXTRA_FILE_LIST);
+			ArrayList<String> fileListDelete = data.getStringArrayListExtra(SyncHandler.EXTRA_FILE_LIST_DELETE);
+			ArrayList<String> titleList = data.getStringArrayListExtra(SyncHandler.EXTRA_TITLE_LIST);
+			if (fileList != null) {
+				SyncHandler.uploadFiles(getActivity(), getActivity(), fileList);
+			} else {
+				Log.w(TAG,
+						"error! saved notification did not return a filelist!");
+			}
+			if (fileListDelete != null) {
+				SyncHandler.deleteFiles(getActivity(), getActivity(), fileListDelete);
+
+			}
+			if (titleList != null) {
+				Log.w(TAG, "title: " + titleList.get(0));
+				update(mView);
+				deleteNotifications(titleList);
+			} else {
+				update(mView);
+				Log.w(TAG, "title: null");
+			}
+			//update(mView);
+		}
+	}
+
+	/**
+	 * This method is used to instantly remove a list of notifications from the
+	 * fragment. (While background threads still take place, for example)
+	 * 
+	 * @param _titles
+	 *            the titles of the notifications you want to delete
+	 */
+	private void deleteNotifications(ArrayList<String> _titles) {
+
+		ArrayList<String> titleList = new ArrayList<String>();
+		ArrayList<String> messageList = new ArrayList<String>();
+		ArrayList<Notification> notiList = null;
+
+		if (mNotiStatus) {
+			notiList = mTriggeredNotifications;
+		} else {
+			notiList = mFutureNotifications;
+		}
+
+		// create the two lists needed for the arraylistadapter
+		for (int i = 0; i < notiList.size(); i++) {
+			titleList.add(notiList.get(i).getTitle());
+			messageList.add(notiList.get(i).getMessage());
+		}
+
+		// delete all items with matching title from the lists
+		for (int i = 0; i < _titles.size(); i++) {
+
+			int index = titleList.indexOf(_titles.get(i));
+
+			if (index >= 0 && index < titleList.size()) {
+				Log.i(TAG, "found item in list! @index: " + index);
+				titleList.remove(index);
+				messageList.remove(index);
+				notiList.remove(index);
+			}
+		}
+
+		showLists(titleList, messageList);
 	}
 
 	private void update(View _v) {
@@ -82,15 +196,24 @@ public class NotificationFragment extends Fragment implements
 			messageList.add(notiList.get(i).getMessage());
 		}
 
-		ListView v = (ListView) _v.findViewById(R.id.cardListView);
+		showLists(titleList, messageList);
+	}
+
+	private void showLists(ArrayList<String> _titleList,
+			ArrayList<String> _messageList) {
+
+		Log.i(TAG, "show lists called!");
+
+		ListView v = (ListView) mView.findViewById(R.id.cardListView);
 		listAdapter = new ArrayListAdapter(getActivity(),
-				R.layout.fragment_list_item, R.id.item_title, titleList,
-				messageList);
+				R.layout.fragment_list_item, R.id.item_title, _titleList,
+				_messageList);
 
 		v.setAdapter(listAdapter);
 		v.setOnItemClickListener(this);
 		v.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
 		v.setMultiChoiceModeListener(this);
+		listAdapter.notifyDataSetChanged();
 	}
 
 	/**
@@ -177,27 +300,31 @@ public class NotificationFragment extends Fragment implements
 	/**
 	 * Reloads the notification list of the service.
 	 */
-	private void reload() {
+	public void reload() {
 		mNotifications = new ArrayList<Notification>();
-//		String[] xmlList = getActivity().getFilesDir().list();
-//		java.io.File fileFolder = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + SyncHandler.NOTIFICATION_FOLDER);
-//		boolean returnV = fileFolder.mkdirs();
-		
-		java.io.File rootFolder = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER); 
+		// String[] xmlList = getActivity().getFilesDir().list();
+		// java.io.File fileFolder = new
+		// java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" +
+		// SyncHandler.NOTIFICATION_FOLDER);
+		// boolean returnV = fileFolder.mkdirs();
+
+		java.io.File rootFolder = new java.io.File(
+				SyncHandler.ROOT_NOTIFICATION_FOLDER);
 		rootFolder.mkdirs();
-		
-		//create directory
-		java.io.File fileFolder = new java.io.File(rootFolder,SyncHandler.NOTIFICATION_FOLDER);
+
+		// create directory
+		java.io.File fileFolder = new java.io.File(rootFolder,
+				SyncHandler.NOTIFICATION_FOLDER);
 		fileFolder.mkdirs();
 
 		String[] xmlList = fileFolder.list();
 		XmlParser parser = new XmlParser(getActivity().getApplicationContext());
 		Notification noti;
-		
-		if(xmlList == null) {
+
+		if (xmlList == null) {
 			Log.i(TAG, "null");
 		}
-		
+
 		try {
 			for (String file : xmlList) {
 				noti = parser.readXml(file);
@@ -236,7 +363,7 @@ public class NotificationFragment extends Fragment implements
 		b.putInt(Notification.KEY_END_HOURS, n.getEndHours());
 		b.putInt(Notification.KEY_END_MINUTES, n.getEndMinutes());
 		i.putExtra(Notification.KEY_ROOT, b);
-		startActivity(i);
+		startActivityForResult(i, MainActivity.NOTIFICATION_REQUEST);
 	}
 
 	@Override
@@ -256,13 +383,17 @@ public class NotificationFragment extends Fragment implements
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		SharedPreferences triggeredNotifications = getActivity().getSharedPreferences(NotificationService.TRIGGERED_NOTIFICATIONS, 0);
-		
-		
+		SharedPreferences triggeredNotifications = getActivity()
+				.getSharedPreferences(
+						NotificationService.TRIGGERED_NOTIFICATIONS, 0);
+
 		switch (item.getItemId()) {
 		case R.id.menu_delete:
 			// retrieve selected items and delete them out
 			boolean[] selected = listAdapter.getSelectedIds();
+			ArrayList<String> titles = new ArrayList<String>();
+			ArrayList<String> fileList = new ArrayList<String>();
+
 			for (int i = 0; i < selected.length; i++) {
 				if (selected[i]) {
 					Notification noti;
@@ -271,32 +402,33 @@ public class NotificationFragment extends Fragment implements
 					} else {
 						noti = mFutureNotifications.get(i);
 					}
-					
-//					int notificationID = triggeredNotifications.getInt(noti.getUniqueIDString(), -1);
 
-//					Intent action = new Intent(getActivity(),
-//							NotificationService.class);
-//					action.setAction(Notification.ACTION_DELETE);
-//					action.putExtra(Notification.EXTRA_UNIQUE_ID,
-//							noti.getUniqueID());
-//					action.putExtra(Notification.EXTRA_VERSION,
-//							noti.getVersion());
-//					action.putExtra(Notification.EXTRA_NOTIFICATION_ID,
-//							notificationID);
-//					getActivity().startService(action);
-					
-					
-					ArrayList<String> fileList = new ArrayList<String>();
+					// int notificationID =
+					// triggeredNotifications.getInt(noti.getUniqueIDString(),
+					// -1);
+
+					// Intent action = new Intent(getActivity(),
+					// NotificationService.class);
+					// action.setAction(Notification.ACTION_DELETE);
+					// action.putExtra(Notification.EXTRA_UNIQUE_ID,
+					// noti.getUniqueID());
+					// action.putExtra(Notification.EXTRA_VERSION,
+					// noti.getVersion());
+					// action.putExtra(Notification.EXTRA_NOTIFICATION_ID,
+					// notificationID);
+					// getActivity().startService(action);
+					titles.add(noti.getTitle());
 					fileList.add(noti.getFileName());
-					SyncHandler.deleteFiles(getActivity(), getActivity(), fileList);
-					
-//					mTriggeredNotifications.remove(i);
+					// mTriggeredNotifications.remove(i);
 				}
 			}
-			
-//			listAdapter.notifyDataSetChanged();
-//			listAdapter = null;
-			update(mView);
+
+			deleteNotifications(titles);
+			SyncHandler.deleteFiles(getActivity(), getActivity(), fileList);
+
+			// listAdapter.notifyDataSetChanged();
+			// listAdapter = null;
+			// update(mView);
 			mode.finish();
 			return true;
 		default:

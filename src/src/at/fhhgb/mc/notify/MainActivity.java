@@ -1,12 +1,15 @@
 package at.fhhgb.mc.notify;
 
-
 import java.util.ArrayList;
+
+import org.jboss.aerogear.android.unifiedpush.MessageHandler;
+import org.jboss.aerogear.android.unifiedpush.Registrations;
 
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -28,8 +31,8 @@ import at.fhhgb.mc.notify.ui.NotificationFragment;
 import at.fhhgb.mc.notify.ui.SettingsFragment;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
-public class MainActivity extends Activity implements OnClickListener{
-	
+public class MainActivity extends Activity implements OnClickListener,MessageHandler {
+
 	private static final String TAG = "MainActivity";
 	private String[] mDrawerTitles;
 	private ActionBarDrawerToggle mDrawerToggle;
@@ -37,8 +40,13 @@ public class MainActivity extends Activity implements OnClickListener{
 	private ListView mDrawerList;
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
+
+	public final static int NOTIFICATION_REQUEST = 42;
 	
-	final static int NOTIFICATION_REQUEST = 42;
+	//defines the positions inside the side menu
+	private static final int MENU_CURRENT_NOTIFICATIONS = 0;
+	private static final int MENU_FUTURE_NOTIFICATIONS = 1;
+	private static final int MENU_SETTINGS = 2;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,19 +95,19 @@ public class MainActivity extends Activity implements OnClickListener{
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
 
-		 if (savedInstanceState == null) {
-		 selectItem(0);
-		 }
+		if (savedInstanceState == null) {
+			selectItem(0);
+		}
 
-		//TODO register push on system start-up
-		
-//		DriveHandler.setup(this);
-//		Intent intent = new Intent(this, PushRegisterReceiver.class);
-//		sendBroadcast(intent);
-		//SyncHandler.updateFiles(this,this);
+		// TODO register push on system start-up
+
+		// DriveHandler.setup(this);
+		// Intent intent = new Intent(this, PushRegisterReceiver.class);
+		// sendBroadcast(intent);
+		// SyncHandler.updateFiles(this,this);
 	}
 
-@Override
+	@Override
 	protected void onStart() {
 		Intent intent = new Intent(this, NotificationService.class);
 		intent.setAction(Notification.ACTION_START_SERVICE);
@@ -126,7 +134,20 @@ public class MainActivity extends Activity implements OnClickListener{
 		// If the nav drawer is open, hide action items related to the content
 		// view
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-		menu.findItem(R.id.action_add).setVisible(!drawerOpen);
+		
+		FragmentManager fragmentManager = getFragmentManager();
+ 		Fragment fragment = fragmentManager.findFragmentByTag(NotificationFragment.NOTIFICATION_FRAGMENT_TAG);
+ 		
+ 		if (fragment instanceof NotificationFragment) {
+ 			NotificationFragment nFragment = (NotificationFragment) fragment;
+ 			
+ 			if (drawerOpen) {
+ 	 			nFragment.hideAddOption();
+ 	 		} else {
+ 	 			nFragment.showAddOption();
+ 	 		}
+ 		}
+ 		
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -136,26 +157,31 @@ public class MainActivity extends Activity implements OnClickListener{
 		// true, then it has handled the app icon touch event
 		if (mDrawerToggle.onOptionsItemSelected(item)) {
 			return true;
-		} else if (item.getItemId() == R.id.action_add) {
-			Intent i = new Intent(this, NotificationEditActivity.class);
-			startActivityForResult(i, NOTIFICATION_REQUEST);
 		}
-		// Handle your other action bar items...
 
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		ArrayList<String> fileList = data.getStringArrayListExtra("uploadList"); //TODO replace with constant
-		if(fileList != null){
-			SyncHandler.uploadFiles(this, this, fileList);
-		} else {
-			Log.w(TAG, "error! saved notification did not return a filelist!");
-		}
+	
+	public void refreshFragments(){
+		runOnUiThread(new Runnable() {
+		     @Override
+		     public void run() {
+		    	FragmentManager fragmentManager = getFragmentManager();
+		 		Fragment fragment = fragmentManager.findFragmentByTag(NotificationFragment.NOTIFICATION_FRAGMENT_TAG);
+		 		if(fragment != null){
+		 			NotificationFragment notificationFragment = (NotificationFragment) fragment;
+		 			notificationFragment.updateFragment();
+		 			Log.i(TAG, "refreshed notification fragments");
+		 		} else {
+		 			Log.i(TAG, "no notification fragment to refresh!");
+		 		}
+		    }
+		});
+		
 		
 	}
-	
+
 	@Override
 	public void setTitle(CharSequence title) {
 		mTitle = title;
@@ -165,14 +191,14 @@ public class MainActivity extends Activity implements OnClickListener{
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+//		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
 	@Override
 	public void onClick(View v) {
-//		EditText text = (EditText) findViewById(R.id.alias_text);
-//		PushSender.sendPushToAlias(text.getText().toString());
+		// EditText text = (EditText) findViewById(R.id.alias_text);
+		// PushSender.sendPushToAlias(text.getText().toString());
 	}
 
 	private void selectItem(int _position) {
@@ -182,20 +208,20 @@ public class MainActivity extends Activity implements OnClickListener{
 		Bundle args = null;
 
 		switch (_position) {
-		case 0:
+		case MENU_CURRENT_NOTIFICATIONS:
 			fragment = new NotificationFragment();
 			args = new Bundle();
 			args.putBoolean(NotificationFragment.ARG_NOTI_STATUS, true);
 			fragment.setArguments(args);
 			Log.i(TAG, "case 0");
 			break;
-		case 1:
+		case MENU_FUTURE_NOTIFICATIONS:
 			fragment = new NotificationFragment();
 			args = new Bundle();
 			args.putBoolean(NotificationFragment.ARG_NOTI_STATUS, false);
 			fragment.setArguments(args);
 			break;
-		case 2:
+		case MENU_SETTINGS:
 			fragment = new SettingsFragment();
 			break;
 		default:
@@ -207,8 +233,15 @@ public class MainActivity extends Activity implements OnClickListener{
 		}
 
 		FragmentManager fragmentManager = getFragmentManager();
-		fragmentManager.beginTransaction()
-				.replace(R.id.content_frame, fragment).commit();
+		
+		if(_position == MENU_SETTINGS){
+			fragmentManager.beginTransaction()
+			.replace(R.id.content_frame, fragment).commit();
+		} else {
+			fragmentManager.beginTransaction()
+			.replace(R.id.content_frame, fragment,NotificationFragment.NOTIFICATION_FRAGMENT_TAG).commit();
+		}
+
 
 		mDrawerList.setItemChecked(_position, true);
 		setTitle(mDrawerTitles[_position]);
@@ -225,6 +258,38 @@ public class MainActivity extends Activity implements OnClickListener{
 
 		}
 
+	}
+
+	@Override
+	public void onDeleteMessage(Context context, Bundle message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onMessage(Context context, Bundle message) {
+		Log.i(TAG, "received push in MainActivity!");
+        SyncHandler.updateFiles(context.getApplicationContext(),this);
+	}
+
+	@Override
+	public void onError() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Registrations.registerMainThreadHandler(this);
+		Log.i(TAG, "registered MainActivity to handle pushes");
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		Registrations.unregisterMainThreadHandler(this);
+		Log.i(TAG, "unregistered MainActivity from handling pushes");
 	}
 
 }

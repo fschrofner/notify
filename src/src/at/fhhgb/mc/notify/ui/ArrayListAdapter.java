@@ -49,14 +49,17 @@ public class ArrayListAdapter extends ArrayAdapter<String> {
 		if (_convertView != null) {
 			TextView message = (TextView) _convertView
 					.findViewById(R.id.item_message);
-			if (mMessageList.get(_position).equals("")) {
-				message.setText(R.string.no_message);
-				message.setTextColor(Color.GRAY);
-				message.setTypeface(message.getTypeface(), Typeface.ITALIC);
-			} else {
-				message.setTextColor(Color.DKGRAY);
-				message.setText(mMessageList.get(_position));
+			if(mMessageList != null && mMessageList.get(_position) != null){
+				if (mMessageList.get(_position).equals("")) {
+					message.setText(R.string.no_message);
+					message.setTextColor(Color.GRAY);
+					message.setTypeface(message.getTypeface(), Typeface.ITALIC);
+				} else {
+					message.setTextColor(Color.DKGRAY);
+					message.setText(mMessageList.get(_position));
+				}
 			}
+
 		}
 
 		_convertView
