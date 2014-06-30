@@ -48,6 +48,8 @@ public class DeleteThread implements Runnable {
 			//TODO check if activity is castable to MainActivity
 			((MainActivity)mActivity).refreshFragments();
 		}
+		
+		SyncHandler.sendPush(mContext);
 	}
 	
 	private void deleteFile(String _fileName){

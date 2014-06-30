@@ -133,6 +133,7 @@ public class NotificationFragment extends Fragment implements
 				update(mView);
 				Log.w(TAG, "title: null");
 			}
+			
 			//update(mView);
 		}
 	}

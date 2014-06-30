@@ -1,5 +1,6 @@
 package at.fhhgb.mc.notify.sync.drive;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +13,7 @@ import android.app.Activity;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -170,12 +172,18 @@ public class UploadThread implements Runnable {
 			Log.i(TAG, "upload complete, file id: " + resultFile.getId());
 		} catch (UserRecoverableAuthIOException e) {
 			if(mActivity != null){
-				mActivity.startActivityForResult(e.getIntent(), at.fhhgb.mc.notify.sync.drive.AuthenticationActivity.REQUEST_AUTHENTICATION);
+//				mActivity.startActivityForResult(e.getIntent(), at.fhhgb.mc.notify.sync.drive.AuthenticationActivity.REQUEST_AUTHENTICATION);
+				Intent intent = new Intent(mContext, AuthenticationActivity.class);
+				mActivity.startActivity(intent);
 			} else {
 				Log.w(TAG, "upload thread not started from activity and authentication error occurred!");
 			}
 	          
-	        } catch (IOException e) {
+	        } catch (FileNotFoundException e){
+	        	//simply forget the file now
+	        	mFinishedUpload = true;
+	        	Log.w(TAG, "file " + _fileName + " not found. stopping upload..");
+			}catch (IOException e) {
 	        	//TODO schedule a re-upload, if network error. save files to upload, if internet connectivity is deactivated.	
 	        	Log.w(TAG, "network error!");
 	        	boolean isConnected = SyncHandler.networkConnected(mContext);

@@ -25,6 +25,8 @@ public class DriveFolder {
 	 * @return the id of the online folder
 	 */
 	public static String checkFolder(Context _context, Activity _activity){
+		
+		//TODO check for service, setup if null
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_context);
 		if(SyncHandler.networkConnected(_context)){
 			//TODO change the folder from public folder to appdata folder

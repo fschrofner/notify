@@ -151,10 +151,10 @@ public class NotificationService extends IntentService {
 			
 			Log.i(TAG, "show: " + mTriggeredNotifications.get(i).getTitle());
 			
-			if (!triggeredNotifications.contains(mNotifications.get(i).getUniqueIDString())) {
-				Log.i(TAG, "notification showed: " + mTriggeredNotifications.get(i));
-				mNotifications.get(i).showNotification(getApplicationContext());
-				triggeredNotifications.edit().putInt(mNotifications.get(i).getUniqueIDString(), Notification.mNotificationID).commit();
+			if (!triggeredNotifications.contains(mTriggeredNotifications.get(i).getUniqueIDString())) {
+				Log.i(TAG, "notification to show: " + mTriggeredNotifications.get(i).getTitle());
+				mTriggeredNotifications.get(i).showNotification(getApplicationContext());
+				triggeredNotifications.edit().putInt(mTriggeredNotifications.get(i).getUniqueIDString(), Notification.mNotificationID).commit();
 				Notification.mNotificationID++;
 			} else {
 				Log.i(TAG, "notification has already been shown");
@@ -240,8 +240,9 @@ public class NotificationService extends IntentService {
 	 */
 	private void deleteNotification(long _uniqueID, int _version, int _notificationID) {
 		String fileName = _uniqueID + "_" + _version + "." + SyncHandler.NOTIFICATION_FILE_EXTENSION;
-		File file = new File(SyncHandler.getFullPath(fileName));
-		file.delete();
+		ArrayList<String> fileNames = new ArrayList<String>();
+		fileNames.add(fileName);
+		SyncHandler.deleteFiles(this, null, fileNames);
 		
 		SharedPreferences triggeredNotifications = getSharedPreferences(TRIGGERED_NOTIFICATIONS, 0);
 		triggeredNotifications.edit().remove(String.valueOf(_uniqueID)).commit();
@@ -259,7 +260,7 @@ public class NotificationService extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent _intent) {
-		
+		Log.i(TAG, "received intent");
 		
 		if(_intent.getAction() != null && _intent.getAction().equals(Notification.ACTION_ALARM)){
 			showNotifications();
@@ -271,6 +272,7 @@ public class NotificationService extends IntentService {
 		}
 		
 		else if(_intent.getAction() != null && _intent.getAction().equals(Notification.ACTION_DELETE)) {
+			Log.i(TAG, "received notification delete intent!");
 			long uniqueID = _intent.getLongExtra(Notification.EXTRA_UNIQUE_ID, 0);
 			int version = _intent.getIntExtra(Notification.EXTRA_VERSION, 0);
 			int notificationID = _intent.getIntExtra(Notification.EXTRA_NOTIFICATION_ID, 0);
