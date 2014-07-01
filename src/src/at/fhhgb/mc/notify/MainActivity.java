@@ -20,9 +20,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.push.*;
@@ -52,6 +57,8 @@ public class MainActivity extends Activity implements OnClickListener,MessageHan
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		setProgressBarVisible(false);
 
 		mTitle = mDrawerTitle = getTitle();
 		mDrawerTitles = getResources().getStringArray(R.array.drawer_array);
@@ -105,6 +112,20 @@ public class MainActivity extends Activity implements OnClickListener,MessageHan
 		Intent intent = new Intent(this, PushRegisterReceiver.class);
 		sendBroadcast(intent);
 		SyncHandler.updateFiles(this,this);
+	}
+	
+	public void setProgressBarVisible(final boolean _enabled) {
+		runOnUiThread(new Runnable() {
+		     @Override
+		     public void run() {
+		    	 ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar);
+		 		if (_enabled) {
+		 			bar.setVisibility(View.VISIBLE);
+		 		} else {
+		 			bar.setVisibility(View.INVISIBLE);
+		 		}
+		    }
+		});
 	}
 
 	@Override

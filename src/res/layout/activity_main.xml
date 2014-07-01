@@ -9,10 +9,11 @@
         android:orientation="vertical" >
 
         <ProgressBar
-            android:id="@+id/progressBar1"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="wrap_content"
+            android:id="@+id/progressBar"
+            style="@android:style/Widget.DeviceDefault.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="-8dp"
             android:indeterminateOnly="true" />
 
         <FrameLayout

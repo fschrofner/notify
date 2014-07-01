@@ -55,6 +55,11 @@ public class DownloadThread implements Runnable {
 	
 	@Override
 	public void run() {
+		
+		if (mActivity instanceof MainActivity) {
+			((MainActivity) mActivity).setProgressBarVisible(true);
+		}
+		
 		Log.i(TAG, "started download thread");
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);		
 		
@@ -98,6 +103,9 @@ public class DownloadThread implements Runnable {
 		intent.setAction(Notification.ACTION_START_SERVICE);
 		mContext.startService(intent);
 		
+		if (mActivity instanceof MainActivity) {
+			((MainActivity) mActivity).setProgressBarVisible(false);
+		}
 	}
 		
 	private ArrayList<File> getMissingFiles(ArrayList<File> _hostFiles,Context _context){
