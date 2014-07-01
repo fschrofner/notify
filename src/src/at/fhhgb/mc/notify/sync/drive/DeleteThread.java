@@ -36,6 +36,11 @@ public class DeleteThread implements Runnable {
 	
 	@Override
 	public void run() {
+		
+		if (mActivity instanceof MainActivity) {
+			((MainActivity) mActivity).setProgressBarVisible(true);
+		}
+		
 		DriveHandler.setup(mContext);
 		updateFileList();
 		
@@ -53,15 +58,19 @@ public class DeleteThread implements Runnable {
 			e.printStackTrace();
 		}
 		
-		if(mActivity != null){
-			Log.i(TAG, "finished deleting, trying to refresh fragments now.");
-			if (mActivity instanceof MainActivity) {
-				((MainActivity)mActivity).refreshFragments();
-			}
 			
+		if (mActivity instanceof MainActivity) {
+			Log.i(TAG, "finished deleting, trying to refresh fragments now.");
+			((MainActivity)mActivity).refreshFragments();
 		}
+			
 		
 		SyncHandler.sendPush(mContext);
+		
+
+		if (mActivity instanceof MainActivity) {
+			((MainActivity) mActivity).setProgressBarVisible(false);
+		}
 	}
 	
 	private void deleteFile(String _fileName){

@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+import at.fhhgb.mc.notify.MainActivity;
 import at.fhhgb.mc.notify.push.PushConstants;
 import at.fhhgb.mc.notify.push.PushSender;
 import at.fhhgb.mc.notify.sync.SyncHandler;
@@ -54,6 +55,10 @@ public class UploadThread implements Runnable {
 	
 	@Override
 	public void run() {
+		if (mActivity instanceof MainActivity) {
+			((MainActivity) mActivity).setProgressBarVisible(true);
+		}
+		
 		Log.i(TAG, "started upload thread");
 		
 		//TODO do not upload files that are already present on the host
@@ -104,6 +109,10 @@ public class UploadThread implements Runnable {
 			
 		} else {
 			Log.i(TAG, "no drive service running!");
+		}
+		
+		if (mActivity instanceof MainActivity) {
+			((MainActivity) mActivity).setProgressBarVisible(false);
 		}
 	}
 	
