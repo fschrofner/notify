@@ -112,7 +112,7 @@ public class MainActivity extends Activity implements OnClickListener,MessageHan
 		Intent intent = new Intent(this.getApplicationContext(), NotificationService.class);
 		intent.setAction(Notification.ACTION_START_SERVICE);
 		startService(intent);
-
+		
 		super.onStart();
 	}
 
@@ -291,6 +291,13 @@ public class MainActivity extends Activity implements OnClickListener,MessageHan
 		super.onPause();
 		Registrations.unregisterMainThreadHandler(this);
 		Log.i(TAG, "unregistered MainActivity from handling pushes");
+	}
+
+	@Override
+	//refreshes the fragments when a new intent signalises an update
+	protected void onNewIntent(Intent intent) {
+		refreshFragments();
+		super.onNewIntent(intent);
 	}
 
 }

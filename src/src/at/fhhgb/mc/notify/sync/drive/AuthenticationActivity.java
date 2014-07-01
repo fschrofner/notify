@@ -16,6 +16,8 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
+import at.fhhgb.mc.notify.MainActivity;
 import at.fhhgb.mc.notify.push.PushConstants;
 import at.fhhgb.mc.notify.push.PushRegisterReceiver;
 import at.fhhgb.mc.notify.sync.NetworkChangeReceiver;
@@ -71,6 +73,11 @@ public class AuthenticationActivity extends Activity {
 		          } else {
 			          SyncHandler.updateFiles(getApplicationContext(),this);
 		          }
+		          
+		          Toast.makeText(this, "changed account\n synchronising..", Toast.LENGTH_SHORT).show();
+		          Intent intent = new Intent(this, MainActivity.class);
+		          startActivity(intent);
+		          
 		        }
 		      }
 			//close the activity after the result has been returned

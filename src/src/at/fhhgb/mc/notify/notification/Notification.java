@@ -119,7 +119,7 @@ public class Notification {
 	 * Shows the notification.
 	 */
 	public void showNotification(Context _context) {
-		Intent i = new Intent(_context, NotificationEditActivity.class);
+		Intent i = new Intent(_context.getApplicationContext(), NotificationEditActivity.class);
 		Bundle b = new Bundle();
 		b.putLong(Notification.KEY_UNIQUE_ID, getUniqueID());
 		b.putInt(Notification.KEY_VERSION, getVersion());
@@ -136,7 +136,7 @@ public class Notification {
 		b.putInt(Notification.KEY_END_HOURS, getEndHours());
 		b.putInt(Notification.KEY_END_MINUTES, getEndMinutes());
 		i.putExtra(Notification.KEY_ROOT, b);
-		PendingIntent pi = PendingIntent.getActivity(_context, mNotificationID,
+		PendingIntent pi = PendingIntent.getActivity(_context.getApplicationContext(), mNotificationID,
 				i, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		Intent action = new Intent(_context.getApplicationContext(), NotificationService.class);
@@ -144,7 +144,7 @@ public class Notification {
 		action.putExtra(EXTRA_UNIQUE_ID, getUniqueID());
 		action.putExtra(EXTRA_VERSION, getVersion());
 		action.putExtra(EXTRA_NOTIFICATION_ID, mNotificationID);
-		PendingIntent pAction = PendingIntent.getService(_context,
+		PendingIntent pAction = PendingIntent.getService(_context.getApplicationContext(),
 				mNotificationID, action, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		NotificationManager notificationManager = (NotificationManager) _context
@@ -171,10 +171,14 @@ public class Notification {
 
 	}
 
-	static public void cancel(Context _context, int _notificationID) {
+	public void cancel(Context _context) {
+		SharedPreferences triggeredNotifications = _context.getSharedPreferences(NotificationService.TRIGGERED_NOTIFICATIONS, 0);
+		int notificationID = triggeredNotifications.getInt(getUniqueIDString(), 0);
+		triggeredNotifications.edit().remove(String.valueOf(mUniqueID)).commit();
+		
 		NotificationManager notificationManager = (NotificationManager) _context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(_notificationID);
+		notificationManager.cancel(notificationID);
 	}
 
 	public ArrayList<DateTime> getDates() {
