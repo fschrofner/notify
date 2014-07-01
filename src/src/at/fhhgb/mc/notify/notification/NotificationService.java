@@ -244,10 +244,12 @@ public class NotificationService extends IntentService {
 		fileNames.add(fileName);
 		SyncHandler.deleteFiles(this, null, fileNames);
 		
-		SharedPreferences triggeredNotifications = getSharedPreferences(TRIGGERED_NOTIFICATIONS, 0);
-		triggeredNotifications.edit().remove(String.valueOf(_uniqueID)).commit();
+//		SharedPreferences triggeredNotifications = getSharedPreferences(TRIGGERED_NOTIFICATIONS, 0);
+//		triggeredNotifications.edit().remove(String.valueOf(_uniqueID)).commit();
 		
-		Notification.cancel(this, _notificationID);
+		Notification n = new Notification();
+		n.setUniqueID(_uniqueID);
+		n.cancel(this);
 		
 		Log.i(TAG, "notification " + _uniqueID + "_" + _version + " dismissed");
 	}
@@ -263,11 +265,13 @@ public class NotificationService extends IntentService {
 		Log.i(TAG, "received intent");
 		
 		if(_intent.getAction() != null && _intent.getAction().equals(Notification.ACTION_ALARM)){
+			Log.i(TAG, "intent: action_alarm");
 			showNotifications();
 		}
 		
 		else if(_intent.getAction() != null && _intent.getAction().equals(Notification.ACTION_START_SERVICE)){
 			registerNotificationAlarms();
+			showNotifications();
 			Log.i(TAG, "notifications registered");
 		}
 		

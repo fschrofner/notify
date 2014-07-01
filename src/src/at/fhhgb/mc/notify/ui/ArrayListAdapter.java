@@ -66,6 +66,7 @@ public class ArrayListAdapter extends ArrayAdapter<String> {
 				.setBackgroundColor(mSelectedItemsIds[_position] ? 0x9934B5E4
 						: Color.TRANSPARENT);
 
+		//TODO null-check super
 		return super.getView(_position, _convertView, _parent);
 	}
 

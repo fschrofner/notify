@@ -29,6 +29,7 @@ public class DriveFolder {
 		//TODO check for service, setup if null
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_context);
 		if(SyncHandler.networkConnected(_context)){
+			DriveHandler.setup(_context);
 			//TODO change the folder from public folder to appdata folder
 			if(preferences.contains(SyncHandler.GOOGLE_DRIVE_FOLDER)){
 				try {

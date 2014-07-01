@@ -1,6 +1,7 @@
 package at.fhhgb.mc.notify.sync;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -16,9 +17,11 @@ import android.net.NetworkInfo;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.push.PushConstants;
 import at.fhhgb.mc.notify.push.PushSender;
 import at.fhhgb.mc.notify.sync.drive.DriveHandler;
+import at.fhhgb.mc.notify.xml.XmlParser;
 
 public class SyncHandler {
 	final static String TAG = "SyncHandler";
@@ -79,7 +82,7 @@ public class SyncHandler {
     	return isConnected;
 	}
 	/**
-	 * Deletes the given giles from the local file system AND from the host.
+	 * Deletes the given files from the local file system AND from the host.
 	 * @param _context context needed for some methods
 	 * @param _activity activity needed to show authentication activity, when there is an authentication error
 	 * @param _fileNames the names of the files you want to delete
@@ -89,13 +92,13 @@ public class SyncHandler {
 		DriveHandler.deleteFiles(_context, _activity, _fileNames);
 	}
 	
-	static private ArrayList<String> removeRevisions(ArrayList<String> _files){
-		ArrayList<String> result = new ArrayList<String>();
-		for(int i=0;i<_files.size();i++){
-			result.add(_files.get(i).substring(_files.get(i).lastIndexOf("_")));
-		}
-		return result;
-	}
+//	static private ArrayList<String> removeRevisions(ArrayList<String> _files){
+//		ArrayList<String> result = new ArrayList<String>();
+//		for(int i=0;i<_files.size();i++){
+//			result.add(_files.get(i).substring(_files.get(i).lastIndexOf("_")));
+//		}
+//		return result;
+//	}
 	
 	public static String getFullPath(String _fileName){
 		String fullPath;

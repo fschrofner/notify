@@ -87,8 +87,10 @@ public class DownloadThread implements Runnable {
 		//refresh the notification fragment afterwards
 		if(mActivity != null){
 			Log.i(TAG, "finished deleting, trying to refresh fragments now.");
-			//TODO check if activity is castable to MainActivity
-			((MainActivity)mActivity).refreshFragments();
+			//only refreshes fragments, when called from MainActivity
+			if (mActivity instanceof MainActivity) {
+				((MainActivity)mActivity).refreshFragments();
+			}
 		}
 		
 		//comparing and displaying the notifications
@@ -170,13 +172,13 @@ public class DownloadThread implements Runnable {
 					SharedPreferences outstanding = mContext.getSharedPreferences(SyncHandler.OUTSTANDING_TASKS, Context.MODE_PRIVATE); 
 					HashSet<String> redoFileList = (HashSet<String>) outstanding.getStringSet(SyncHandler.OUTSTANDING_UPLOAD, null);
 					ArrayList<String> fileList = null;
-					if(redoFileList != null){
+					if(redoFileList != null) {
 						 fileList = new ArrayList<String>(redoFileList);
 					}
         			
         			
         			
-					if((dates.get(1) != null && dates.get(1).isBeforeNow()) || (fileList == null || !fileList.contains(_fileName))){
+					if ((dates.get(1) != null && dates.get(1).isBeforeNow()) || (fileList == null || !fileList.contains(_fileName))){
 						Log.w(TAG, "found outdated notification " + notification.getTitle() + ". deleting now..");
 						ArrayList<String> files = notification.getFiles();
 						
@@ -188,6 +190,7 @@ public class DownloadThread implements Runnable {
 							}
 						}
 						oldFile = new java.io.File(SyncHandler.getFullPath(_fileName));
+						notification.cancel(mContext);
 						oldFile.delete();
 						Log.i(TAG, "file " + _fileName + " is outdated and was deleted");
 					} else {
@@ -196,8 +199,6 @@ public class DownloadThread implements Runnable {
 //						SyncHandler.uploadFiles(mContext, mActivity, files);
 					}
 				}
-				
-				
 								
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

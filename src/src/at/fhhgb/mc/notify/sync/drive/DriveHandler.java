@@ -34,6 +34,7 @@ public class DriveHandler {
 			createCredentials(_context);
 		}		 
 		Intent intent = new Intent(_context,at.fhhgb.mc.notify.sync.drive.AuthenticationActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		_context.startActivity(intent);
 	}
 	
@@ -73,10 +74,8 @@ public class DriveHandler {
 			Log.i(TAG, "account found in preferences. setting up the saved account..");
 			createCredentials(_context);
 			credential.setSelectedAccountName(accountName);
-			Drive.Builder builder = new Drive.Builder(AndroidHttp.newCompatibleTransport(), 
-			    new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential);
-			builder.setApplicationName(SyncHandler.APPLICATION_NAME);
-			service = builder.build();
+			
+			buildService();
 		}
 	}
 	
@@ -87,10 +86,16 @@ public class DriveHandler {
 	}
 	
 	static public void buildService(){
-		Drive.Builder builder = new Drive.Builder(AndroidHttp.newCompatibleTransport(),
-				new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential);
-		builder.setApplicationName(SyncHandler.APPLICATION_NAME);
-		at.fhhgb.mc.notify.sync.drive.DriveHandler.service = builder.build();
+		if (at.fhhgb.mc.notify.sync.drive.DriveHandler.service == null) {
+			Log.d(TAG, "New service built");
+			Drive.Builder builder = new Drive.Builder(AndroidHttp.newCompatibleTransport(),
+					new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential);
+			builder.setApplicationName(SyncHandler.APPLICATION_NAME);
+			at.fhhgb.mc.notify.sync.drive.DriveHandler.service = builder.build();
+		} else {
+			Log.d(TAG, "Service already built");
+		}
+		
 	}
 	
 	static public ArrayList<File> getFileList(String _folderId) throws IOException{	

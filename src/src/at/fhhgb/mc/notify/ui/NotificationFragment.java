@@ -394,6 +394,7 @@ public class NotificationFragment extends Fragment implements
 			boolean[] selected = listAdapter.getSelectedIds();
 			ArrayList<String> titles = new ArrayList<String>();
 			ArrayList<String> fileList = new ArrayList<String>();
+			ArrayList<Notification> notiList = new ArrayList<Notification>();
 
 			for (int i = 0; i < selected.length; i++) {
 				if (selected[i]) {
@@ -418,14 +419,20 @@ public class NotificationFragment extends Fragment implements
 					// action.putExtra(Notification.EXTRA_NOTIFICATION_ID,
 					// notificationID);
 					// getActivity().startService(action);
+					notiList.add(noti);
 					titles.add(noti.getTitle());
 					fileList.add(noti.getFileName());
 					// mTriggeredNotifications.remove(i);
 				}
 			}
-
+			
 			deleteNotifications(titles);
 			SyncHandler.deleteFiles(getActivity(), getActivity(), fileList);
+			
+			//dismissing all notifications now
+			for(Notification noti : notiList){
+				noti.cancel(getActivity());
+			}
 
 			// listAdapter.notifyDataSetChanged();
 			// listAdapter = null;

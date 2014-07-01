@@ -39,14 +39,26 @@ public class DeleteThread implements Runnable {
 		DriveHandler.setup(mContext);
 		updateFileList();
 		
-		for(int i=0; i<mFileList.size(); i++){
-			deleteFile(mFileList.get(i));
+		try{
+			for(int i=0; i<mFileList.size(); i++){
+				XmlParser parser = new XmlParser(mContext.getApplicationContext());
+				Notification noti = parser.readXml(mFileList.get(i));
+				deleteFile(mFileList.get(i));		
+				if (noti != null) {
+					noti.cancel(mContext.getApplicationContext());
+				}
+			} 
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 		if(mActivity != null){
 			Log.i(TAG, "finished deleting, trying to refresh fragments now.");
-			//TODO check if activity is castable to MainActivity
-			((MainActivity)mActivity).refreshFragments();
+			if (mActivity instanceof MainActivity) {
+				((MainActivity)mActivity).refreshFragments();
+			}
+			
 		}
 		
 		SyncHandler.sendPush(mContext);

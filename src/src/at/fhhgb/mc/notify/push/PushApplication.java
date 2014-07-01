@@ -11,6 +11,8 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import at.fhhgb.mc.notify.sync.SyncHandler;
+import at.fhhgb.mc.notify.sync.drive.DriveHandler;
 
 public class PushApplication extends Application {
 	
@@ -23,9 +25,12 @@ public class PushApplication extends Application {
 
     @Override
     public void onCreate() {
+    	
+    	Log.d(TAG, "ON_CREATE");
         super.onCreate();
 
         Registrations registrations = new Registrations();
+        DriveHandler.setup(getApplicationContext());
 
         try {
         	
@@ -55,4 +60,12 @@ public class PushApplication extends Application {
     public PushRegistrar getRegistration() {
         return registration;
     }
+
+	@Override
+	public void onTerminate() {
+		Log.d(TAG, "ON_Terminate");
+		super.onTerminate();
+	}
+    
+    
 }
