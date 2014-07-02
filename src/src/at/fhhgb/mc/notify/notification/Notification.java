@@ -152,7 +152,7 @@ public class Notification {
 		
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
 				_context)
-				.setSmallIcon(R.drawable.ic_launcher)
+				.setSmallIcon(R.drawable.logo_notification)
 				.setContentTitle(this.getTitle())
 				.setStyle(
 						new NotificationCompat.BigTextStyle().bigText(this
