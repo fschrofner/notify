@@ -381,6 +381,7 @@ public class NotificationFragment extends Fragment implements
 		b.putInt(Notification.KEY_END_DAY, n.getEndDay());
 		b.putInt(Notification.KEY_END_HOURS, n.getEndHours());
 		b.putInt(Notification.KEY_END_MINUTES, n.getEndMinutes());
+		b.putStringArrayList(Notification.KEY_FILE, n.getFiles());
 		i.putExtra(Notification.KEY_ROOT, b);
 		startActivityForResult(i, MainActivity.NOTIFICATION_REQUEST);
 	}

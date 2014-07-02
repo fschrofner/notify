@@ -171,12 +171,12 @@ public class XmlParser {
 			files.add(_parser.getAttributeValue(null,Notification.ATTRIBUTE_PATH));
 			mNotification.setFiles(files);
 			Log.i(TAG, "created new filelist");
-			Log.i(TAG, "added file: " + mNotification.getFiles().get(mNotification.getFiles().size()));
+			Log.i(TAG, "added file: " + mNotification.getFiles().get(mNotification.getFiles().size() - 1));
 		} else {
 			ArrayList<String> files = mNotification.getFiles();
 			files.add(_parser.getAttributeValue(null,Notification.ATTRIBUTE_PATH));
 			mNotification.setFiles(files);
-			Log.i(TAG, "added file: " + mNotification.getFiles().get(mNotification.getFiles().size()));
+			Log.i(TAG, "added file: " + mNotification.getFiles().get(mNotification.getFiles().size() - 1));
 		}
 	}
 	

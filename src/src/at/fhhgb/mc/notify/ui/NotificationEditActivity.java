@@ -106,11 +106,16 @@ public class NotificationEditActivity extends Activity implements
 	private ArrayList<String> mFileList;
 	private ArrayList<String> mFileListDelete;
 	private ArrayList<String> mTitleList;
+	private ArrayList<String> mFilePaths;
+	private ArrayList<String> mFileNames;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_notification_edit);
+		
+		mFilePaths = new ArrayList<String>();
+		mFileNames = new ArrayList<String>();
 
 		Bundle b = getIntent().getBundleExtra(Notification.KEY_ROOT);
 
@@ -129,6 +134,7 @@ public class NotificationEditActivity extends Activity implements
 			mEndDay = b.getInt(Notification.KEY_END_DAY);
 			mEndHours = b.getInt(Notification.KEY_END_HOURS);
 			mEndMinutes = b.getInt(Notification.KEY_END_MINUTES);
+			mFileNames = b.getStringArrayList(Notification.KEY_FILE);
 		}
 
 		mStartDate = (TextView) findViewById(R.id.editStartDate);
@@ -188,6 +194,10 @@ public class NotificationEditActivity extends Activity implements
 			format = "kk:mm";
 			sdf = new SimpleDateFormat(format, Locale.US);
 			mEndTime.setText(Html.fromHtml("<u>" + sdf.format(mCalendar.getTime()) + "</u>"));
+		}
+		
+		if (mFileNames.size() > 0) {
+			showFiles(mFileNames);
 		}
 	}
 
@@ -255,6 +265,7 @@ public class NotificationEditActivity extends Activity implements
 			n.setEndDate(mEndYear, mEndMonth, mEndDay);
 			n.setStartTime(mStartHours, mStartMinutes);
 			n.setEndTime(mEndHours, mEndMinutes);
+			n.setFiles(mFileNames);
 			if (mUniqueID < 0) {
 				n.setUniqueID(Notification.generateUniqueID());
 			} else {
@@ -275,6 +286,16 @@ public class NotificationEditActivity extends Activity implements
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		
+		for (int i = 0; i < mFilePaths.size(); i++) {
+			File src = new File(mFilePaths.get(i));
+	        File dst = new File(SyncHandler.getFullPath(mFileNames.get(i)));
+	        try {
+				copy(src, dst);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		creator.create(n, this);
@@ -639,11 +660,10 @@ public class NotificationEditActivity extends Activity implements
 	            cursor.moveToFirst();
 	            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
 	            String filePath = cursor.getString(columnIndex);
+	            String fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
 	            
-	            
-	            
-				TextView tv = (TextView) findViewById(R.id.textFile);
-				tv.setText(filePath);
+	            mFilePaths.add(filePath);
+	            mFileNames.add(fileName);
 				
 				LayoutInflater li = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				View v = li.inflate(R.layout.image_view_layout, null);
@@ -655,6 +675,25 @@ public class NotificationEditActivity extends Activity implements
 				((ViewGroup) insertPoint).addView(v, addedFiles, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 				addedFiles++;
 			}
+		}
+	}
+	/**
+	 * Shows the attached images
+	 * @param fileNames The file names of the attached images
+	 */
+	private void showFiles(ArrayList<String> fileNames) {
+		for (String file : fileNames) {
+			String filePath = SyncHandler.getFullPath(file);
+			
+			LayoutInflater li = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View v = li.inflate(R.layout.image_view_layout, null);
+			
+			ImageView iv = (ImageView) v.findViewById(R.id.image_view_file);
+			iv.setImageURI(Uri.parse(filePath));
+			
+			View insertPoint = findViewById(R.id.linear_layout_files);
+			((ViewGroup) insertPoint).addView(v, addedFiles, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+			addedFiles++;
 		}
 	}
 	
