@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
@@ -147,6 +148,7 @@ public class Notification {
 		b.putInt(Notification.KEY_END_DAY, getEndDay());
 		b.putInt(Notification.KEY_END_HOURS, getEndHours());
 		b.putInt(Notification.KEY_END_MINUTES, getEndMinutes());
+		b.putStringArrayList(Notification.KEY_FILE, getFiles());
 		i.putExtra(Notification.KEY_ROOT, b);
 		PendingIntent pi = PendingIntent.getActivity(_context.getApplicationContext(), mNotificationID,
 				i, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -170,6 +172,7 @@ public class Notification {
 						new NotificationCompat.BigTextStyle().bigText(this
 								.getMessage()))
 				.setContentText(this.getMessage())
+				.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
 				.setTicker(this.getTitle())
 				.setVibrate(new long[] { 200, 200, 200, 200 })
 				.setLights(Color.WHITE, 1000, 10000)
