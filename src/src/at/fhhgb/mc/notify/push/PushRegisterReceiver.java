@@ -1,9 +1,7 @@
 package at.fhhgb.mc.notify.push;
 
 import org.jboss.aerogear.android.Callback;
-import org.jboss.aerogear.android.unifiedpush.PushConfig;
 import org.jboss.aerogear.android.unifiedpush.PushRegistrar;
-import org.jboss.aerogear.android.unifiedpush.Registrations;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,14 +9,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
+/**
+ * BroadcastReceiver that registers for pushes when a broadcast is received.
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class PushRegisterReceiver extends BroadcastReceiver {
 
 	final static String TAG = "PushRegisterReceiver";
+	
+	
 	@Override
 	public void onReceive(Context _context, Intent _intent) {
 		
@@ -37,6 +41,11 @@ public class PushRegisterReceiver extends BroadcastReceiver {
 		}
 	}
 	
+	/**
+	 * Get the alias from shared preferences and registers the application for pushes to
+	 * the specified alias.
+	 * @param _context context needed for certain operations.
+	 */
 	private void registerForPushes(Context _context){
 		//schedules the push registration if there's currently no internet connection
     	if(SyncHandler.networkConnected(_context)){

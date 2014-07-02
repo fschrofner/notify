@@ -26,6 +26,11 @@ import android.util.Log;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
+/**
+ * Class used to build a xml file out of a notification object.
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class XmlCreator {
 	
 	final static String TAG = "XmlCreator";
@@ -42,11 +47,15 @@ public class XmlCreator {
 		try {
 			mBuilder = mBuildFactory.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
+	/**
+	 * Creates a xml file out of the specified notification object.
+	 * @param _notification the notification object out of which to create the xml file.
+	 * @param _context context needed for some methods
+	 */
 	public void create(Notification _notification, Context _context){
 		mDocument = mBuilder.newDocument();
 		
@@ -57,7 +66,6 @@ public class XmlCreator {
 		try {
 			ArrayList<String> attributes = new ArrayList<String>();
 			ArrayList<String> values = new ArrayList<String>();
-			Element element;
 			
 			//set title
 			createElement(rootElement,Notification.KEY_TITLE,Notification.ATTRIBUTE_CONTENT,_notification.getTitle());
@@ -108,12 +116,16 @@ public class XmlCreator {
 			writeToFile(_notification.getUniqueIDString() + "_" + _notification.getVersion() + "." + SyncHandler.NOTIFICATION_FILE_EXTENSION, generateString(mDocument), _context);
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 	}
 	
+	/**
+	 * Creates a string out of the given document.
+	 * @param _notification the document out of which to create a string
+	 * @return a string defining the given document
+	 */
 	private String generateString(Document _notification){	
 		// specifies the final output
 		Properties outputProperties = new Properties();
@@ -134,10 +146,8 @@ public class XmlCreator {
 			mTransformer.transform(domSource, result);
 			xmlString = output.toString();
 		} catch (TransformerConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (TransformerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -145,6 +155,12 @@ public class XmlCreator {
 
 	}
 	
+	/**
+	 * Writes the given string into a file with the given filename.
+	 * @param _fileName the filename the created file should have
+	 * @param _xml the content the file should have
+	 * @param _context context needed for some methods
+	 */
 	private void writeToFile(String _fileName,String _xml,Context _context){
 		try {
 			java.io.File directory = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + SyncHandler.NOTIFICATION_FOLDER);
@@ -156,16 +172,22 @@ public class XmlCreator {
 			outputFile.createNewFile();
 			FileOutputStream output = new FileOutputStream(outputFile);
 			
-//			FileOutputStream output = _context.openFileOutput(_fileName, Context.MODE_PRIVATE);
 			output.write(_xml.getBytes());
 			output.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 	}
 	
+	/**
+	 * Creates a new element below the given root element with the given key, values and attributes
+	 * @param _rootElement the root element 
+	 * @param _key the key the new element should have
+	 * @param _attribute a list of attributes for the new element
+	 * @param _value the value of the element
+	 * @throws Exception
+	 */
 	private void createElement(Element _rootElement, String _key, ArrayList<String> _attribute,ArrayList<String> _value) throws Exception{
 		if(_attribute.size() != _value.size()){
 			Log.e(TAG, "number of attributes does not match number of values!");
@@ -180,6 +202,14 @@ public class XmlCreator {
 		}
 	}
 	
+	/**
+	 * Creates a new element below the given root element with the given key, values and attribute
+	 * @param _rootElement the root element 
+	 * @param _key the key the new element should have
+	 * @param _attribute an attribute for the element
+	 * @param _value the value of the element
+	 * @throws Exception
+	 */
 	private void createElement(Element _rootElement, String _key, String _attribute,String _value) throws Exception{
 		Element element = mDocument.createElement(_key);
 		element.setAttribute(_attribute, _value);

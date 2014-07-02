@@ -1,11 +1,7 @@
 package at.fhhgb.mc.notify.sync;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
 
 import org.joda.time.DateTime;
 
@@ -17,25 +13,36 @@ import android.net.NetworkInfo;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.push.PushConstants;
 import at.fhhgb.mc.notify.push.PushSender;
 import at.fhhgb.mc.notify.sync.drive.DriveHandler;
-import at.fhhgb.mc.notify.xml.XmlParser;
 
+/**
+ * General class used to provide static methods to interchange data
+ * between all linked devices using the specified host.
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class SyncHandler {
 	final static String TAG = "SyncHandler";
+	
+	//constants used for the local file system
 	final static public String NOTIFICATION_FOLDER = "notifications";
 	final static public String FILE_FOLDER = "notification_files";
+	final static public String ROOT_NOTIFICATION_FOLDER = Environment.getExternalStorageDirectory().toString() + "/Notify";
+	final static public String NOTIFICATION_FILE_EXTENSION = "noti";
+	
+	final static public String UPLOAD_FILE_LIST = "filelist";
+
+	
+	//constants used for google drive
+	final static public String APPLICATION_NAME = "Notify";
 	final static public String HOST_FOLDER = "Notify";
 	final static public String HOST_DESCRIPTION = "A folder used for notify syncing";
 	final static public String GOOGLE_DRIVE = "google_drive";
 	final static public String GOOGLE_DRIVE_FOLDER = "google_drive_folder_id";
-	final static public String ROOT_NOTIFICATION_FOLDER = Environment.getExternalStorageDirectory().toString() + "/Notify";
-	final static public String NOTIFICATION_FILE_EXTENSION = "noti";
-	final static public String UPLOAD_FILE_LIST = "filelist";
-	final static public String APPLICATION_NAME = "Notify";
 	
+	//extras that can be specified inside intent extras
 	final static public String EXTRA_FILE_LIST = "at.fhhgb.mc.notify.sync.SyncHandler.FILE_LIST";
 	final static public String EXTRA_FILE_LIST_DELETE = "at.fhhgb.mc.notify.sync.SyncHandler.FILE_LIST_DELETE";
 	final static public String EXTRA_TITLE_LIST = "at.fhhgb.mc.notify.sync.SyncHandler.TITLE_LIST";
@@ -50,19 +57,34 @@ public class SyncHandler {
 	final static public String OUTSTANDING_DELETION = "delete";
 	final static public String OUTSTANDING_PUSH_REGISTRATION = "push_registration";
 	
+
 	/**
-	 * Initiates an update 
+	 * Initiates an update from the host.
+	 * @param _context context needed for certain operations
+	 * @param _activity no need to be specified (can be null), but allows
+	 * the update of the specified activity otherwise
 	 */
 	static public void updateFiles(Context _context, Activity _activity){
 		//TODO  differentiate the different hosts
 		DriveHandler.updateFiles(_context, _activity);
 	}
 	
+	/**
+	 * Uploads the given files to the hosts.
+	 * @param _context context needed for certain operations
+	 * @param _activity no need to be specified (can be null), but allows
+	 * the update of the specified activity otherwise
+	 * @param _fileList the files to be uploaded as filenames inside an arraylist
+	 */
 	static public void uploadFiles(Context _context,Activity _activity, ArrayList<String> _fileList){
 		//TODO differentiate different hosts
 		DriveHandler.uploadFiles(_context, _activity, _fileList);
 	}
 	
+	/**
+	 * Sends a push to the alias specified inside the default shared preferences.
+	 * @param _context context needed for certain operations
+	 */
 	static public void sendPush(Context _context){
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_context);	
 		//TODO set push alias in sharedpreferences before reading
@@ -92,14 +114,12 @@ public class SyncHandler {
 		DriveHandler.deleteFiles(_context, _activity, _fileNames);
 	}
 	
-//	static private ArrayList<String> removeRevisions(ArrayList<String> _files){
-//		ArrayList<String> result = new ArrayList<String>();
-//		for(int i=0;i<_files.size();i++){
-//			result.add(_files.get(i).substring(_files.get(i).lastIndexOf("_")));
-//		}
-//		return result;
-//	}
-	
+	/**
+	 * Returns the full path inside the filesystem for the specified filename.
+	 * (checks file extension and delivers according path inside folder structure)
+	 * @param _fileName the filename of the file of which to get the path
+	 * @return the full path of the file
+	 */
 	public static String getFullPath(String _fileName){
 		String fullPath;
 		String fileExtension = getFileExtension(_fileName);
@@ -113,6 +133,11 @@ public class SyncHandler {
 		return fullPath;
 	}
 	
+	/**
+	 * Cuts of the extension of the specified filename.
+	 * @param _fileName the filename of which to cut the extension
+	 * @return the filename without the extension
+	 */
 	public static String getFileNameWithoutExtension(String _fileName){
 		int lastIndex = _fileName.lastIndexOf(".") + 1;
 		if(lastIndex < 0){
@@ -122,6 +147,11 @@ public class SyncHandler {
 		return fileName;
 	}
 	
+	
+	/**
+	 * Returns the current system time as datetime object.
+	 * @return the current system time
+	 */
 	public static DateTime getCurrentSystemTime(){
 		Calendar calendar = Calendar.getInstance(); 
 		int minutes = calendar.get(Calendar.MINUTE);
@@ -134,6 +164,11 @@ public class SyncHandler {
 		return date;
 	}
 	
+	/**
+	 * Returns the file extension of the given filename.
+	 * @param _fileName the file name of which to get the extension
+	 * @return the file extension (not including the dot)
+	 */
 	public static String getFileExtension(String _fileName){
 		int lastIndex = _fileName.lastIndexOf(".") + 1;
 		if(lastIndex < 0){

@@ -16,6 +16,11 @@ import com.google.api.services.drive.model.ChildList;
 import com.google.api.services.drive.model.ChildReference;
 import com.google.api.services.drive.model.File;
 
+/**
+ * Class used to simplify foldermanagement on Google Drive
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class DriveFolder {
 	static final String TAG = "DriveFolder";
 		
@@ -26,7 +31,6 @@ public class DriveFolder {
 	 */
 	public static String checkFolder(Context _context, Activity _activity){
 		
-		//TODO check for service, setup if null
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_context);
 		if(SyncHandler.networkConnected(_context)){
 			DriveHandler.setup(_context);
@@ -62,6 +66,12 @@ public class DriveFolder {
 		}
 	}
 	
+	
+	/**
+	 * Searches a folder with the title of the shared folder on the host and returns the id.
+	 * @param _activity an activity used to handle an auth exception
+	 * @return the id of the folder
+	 */
 	private static String searchFolder(Activity _activity){
 		//TODO when migrating to app data folder this method should become a lot shorter
 		try {
@@ -89,6 +99,7 @@ public class DriveFolder {
 	 * Checks if there's already an application folder inside the Google Drive.
 	 * If so, the id will be saved into the shared preferences. If not, the
 	 * folder will be created and the id will be saved.
+	 * @param context context needed for some methods
 	 */
 	private static String createFolder(Context _context){
 		String folderId = null;
