@@ -5,37 +5,26 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import android.R;
 import android.app.Activity;
-import android.app.Service;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import at.fhhgb.mc.notify.MainActivity;
-import at.fhhgb.mc.notify.push.PushConstants;
-import at.fhhgb.mc.notify.push.PushSender;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
-import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.FileContent;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.Drive.Parents;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.ParentReference;
 
+
+/**
+ * Thread used to upload files from the local file system to the host.
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class UploadThread implements Runnable {
 
 	final static String TAG = "UploadThread";
@@ -45,6 +34,12 @@ public class UploadThread implements Runnable {
 	private boolean mFinishedUpload;
 	private boolean mConnected;
 	
+	/**
+	 * Creates a thread that will upload the specified files when run.
+	 * @param _context context needed for some methods
+	 * @param _activity activity to show authentication dialog 
+	 * @param _fileList files to upload
+	 */
 	public UploadThread(Context _context, Activity _activity, ArrayList<String> _fileList){
 		mContext = _context;
 		mActivity = _activity;
@@ -61,7 +56,6 @@ public class UploadThread implements Runnable {
 		
 		Log.i(TAG, "started upload thread");
 		
-		//TODO do not upload files that are already present on the host
 		
 		//sets up the drive service. filelist is given for callback
 		String[] fileList = mFileList.toArray(new String[mFileList.size()]);
@@ -87,7 +81,6 @@ public class UploadThread implements Runnable {
 								Thread.sleep(10000);
 								Log.i(TAG, "upload failed! waiting for 10 seconds and retry");
 							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						}
@@ -145,6 +138,12 @@ public class UploadThread implements Runnable {
 		outstanding.edit().putStringSet(SyncHandler.OUTSTANDING_UPLOAD, redoFileList).commit();
 	}
 	
+	
+	/**
+	 * Uploads the given file into the specified parent.
+	 * @param _fileName the file to upload
+	 * @param _parentId the intended parent of the file
+	 */
 	private void uploadFile(String _fileName, String _parentId){
 		try{
 			
@@ -181,7 +180,6 @@ public class UploadThread implements Runnable {
 			Log.i(TAG, "upload complete, file id: " + resultFile.getId());
 		} catch (UserRecoverableAuthIOException e) {
 			if(mActivity != null){
-//				mActivity.startActivityForResult(e.getIntent(), at.fhhgb.mc.notify.sync.drive.AuthenticationActivity.REQUEST_AUTHENTICATION);
 				Intent intent = new Intent(mContext, AuthenticationActivity.class);
 				mActivity.startActivity(intent);
 			} else {
@@ -193,17 +191,20 @@ public class UploadThread implements Runnable {
 	        	mFinishedUpload = true;
 	        	Log.w(TAG, "file " + _fileName + " not found. stopping upload..");
 			}catch (IOException e) {
-	        	//TODO schedule a re-upload, if network error. save files to upload, if internet connectivity is deactivated.	
 	        	Log.w(TAG, "network error!");
 	        	boolean isConnected = SyncHandler.networkConnected(mContext);
 	        	if(!isConnected){
-	        		//TODO register broadcast receiver for network connectivity changed and save files to upload in shared preferences
 	        		mConnected = false;
 	        		Log.i(TAG, "no internet connectivity! scheduled upload for connectivity change");
 	        	}
 		}
 	}
 	
+	/**
+	 * Returns the mimetype of the given file.
+	 * @param _file the file of which to determinate the mimetype
+	 * @return the mimetype of the file as string
+	 */
 	private String getMimeType(java.io.File _file){
 		MimeTypeMap mime = MimeTypeMap.getSingleton();
 	    String ext = SyncHandler.getFileExtension(_file.getName());

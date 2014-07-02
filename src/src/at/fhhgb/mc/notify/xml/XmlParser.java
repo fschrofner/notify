@@ -1,6 +1,5 @@
 package at.fhhgb.mc.notify.xml;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,6 +15,11 @@ import android.util.Xml;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
+/**
+ * Parses a xml file and returns a corresponding notification object.
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class XmlParser {
 	
 	private final static String TAG = "XmlParser";
@@ -27,6 +31,12 @@ public class XmlParser {
 		mContext = _context;
 	}
 	
+	/**
+	 * Reads the file with the given file name and returns a notification object out of the information
+	 * @param _fileName the file to read
+	 * @return a notification object representing the file
+	 * @throws IOException
+	 */
 	public Notification readXml(String _fileName) throws IOException{
 		mNotification = new Notification();
 		InputStream input = null;
@@ -38,16 +48,12 @@ public class XmlParser {
 			parser.nextTag();
 			read(parser);
 		} catch (XmlPullParserException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			if(input != null){
@@ -87,6 +93,12 @@ public class XmlParser {
 		return mNotification;
 	}
 	
+	
+	/**
+	 * Reads the information out of the parser and sets the matching values.
+	 * @param _parser the parser of which to read the values
+	 * @throws Exception
+	 */
 	private void read(XmlPullParser _parser) throws Exception{
 		_parser.require(XmlPullParser.START_TAG, null, Notification.KEY_ROOT);
 		

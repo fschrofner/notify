@@ -14,8 +14,6 @@ import org.apache.http.message.BasicNameValuePair;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.util.Log;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
@@ -35,7 +33,6 @@ public final class PushSender {
 	 */
 	public static void sendPushToAlias(String _alias, Context _context){
 		try {
-			//TODO check for internet connectivity first
         	boolean isConnected = SyncHandler.networkConnected(_context);
         	if(isConnected){
     			PushThread pushThread = new PushThread(_alias);
@@ -43,7 +40,6 @@ public final class PushSender {
     			thread.start();
     			Log.i(TAG, "connected to internet, started push thread");
         	} else {
-        		//TODO schedule push when connected
         		Log.i(TAG, "no internet connection! push scheduled on connectivity change");
         		SharedPreferences outstanding = _context.getSharedPreferences(SyncHandler.OUTSTANDING_TASKS, Context.MODE_PRIVATE); 
         		outstanding.edit().putBoolean(SyncHandler.OUTSTANDING_PUSH, true).commit();
@@ -55,7 +51,7 @@ public final class PushSender {
 }
 
 /**
- * Class that is used to run the HTTP Request in a separate thread.
+ * Innerclass that is used to run the HTTP Request in a separate thread.
  * @author Florian Schrofner & Dominik Koeltringer
  *
  */
@@ -63,6 +59,11 @@ class PushThread implements Runnable {
 	private static String TAG = "PushThread";
 	private String alias;
 	
+	/**
+	 * Creates a thread that will send a push to the specified alias, when run.
+	 * @param _alias the alias you want to send a push to
+	 * @throws Exception will be thrown when the alias is null
+	 */
 	public PushThread(String _alias) throws Exception{
 		if(_alias == null){
 			throw new Exception("alias must not be null!");

@@ -11,14 +11,14 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import at.fhhgb.mc.notify.sync.SyncHandler;
 import at.fhhgb.mc.notify.sync.drive.DriveHandler;
 
+/**
+ * Application object used for push registration.
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class PushApplication extends Application {
-	
-	 // used for 'selective send' to target a specific user
-    // it can be any arbitary value (e.g. name, email etc)
-    private final String MY_ALIAS = "devtest";
 
     final static String TAG = "PushApplication";
     private PushRegistrar registration;
@@ -34,6 +34,7 @@ public class PushApplication extends Application {
 
         try {
         	
+        	//gets the saved values from the shared preferences
         	SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         	String alias = preferences.getString(PushConstants.PUSH_ALIAS, null);
         	

@@ -16,18 +16,26 @@ import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.Drive.Files;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.ChildList;
 import com.google.api.services.drive.model.ChildReference;
 import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
 
+/**
+ * Class used to simplify the usage of Google Drive. Starts 
+ * the corresponding threads.
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class DriveHandler {
 	static Drive service;
 	static GoogleAccountCredential credential;
 	final static String TAG = "DriveHandler";
 
+	/**
+	 * Authenticates the Google Drive account
+	 * @param _context context needed for some methods
+	 */
 	static public void authenticate(Context _context) {
 		Log.i(TAG, "authentication called");
 		if(credential == null){
@@ -38,11 +46,21 @@ public class DriveHandler {
 		_context.startActivity(intent);
 	}
 	
+	/**
+	 * Creates the Google Drive credentials
+	 * @param _context context needed for some methods
+	 */
 	static public void createCredentials(Context _context){
 		credential = GoogleAccountCredential.usingOAuth2(_context,
 				Collections.singleton(DriveScopes.DRIVE));
 	}
 	
+	/**
+	 * Sets up the account that was saved in shared preferences
+	 * or sets up a new account. Then uploads the specified files.
+	 * @param _context context needed for some methods
+	 * @param _fileList the files you want to upload at the moment
+	 */
 	static public void setup(Context _context, String[] _fileList){
 		Log.i(TAG, "setup called with filelist!");
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_context);
@@ -62,6 +80,11 @@ public class DriveHandler {
 		}
 	}
 	
+	/**
+	 * Sets up the account that was saved in shared preferences
+	 * or sets up a new account.
+	 * @param _context context needed for some methods
+	 */
 	static public void setup(Context _context){
 		Log.i(TAG, "setup called!");
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(_context);
@@ -79,12 +102,20 @@ public class DriveHandler {
 		}
 	}
 	
+	/**
+	 * Synchronises the local files with the files on the host
+	 * @param _context context needed for some methods
+	 * @param _activity activity that can display the account selection
+	 */
 	static public void updateFiles(Context _context, Activity _activity){
 		DownloadThread downThread = new DownloadThread(_context, _activity);
 		Thread thread = new Thread(downThread);
 		thread.start();	
 	}
 	
+	/**
+	 * Builds the  Drive service if there is none currently active.
+	 */
 	static public void buildService(){
 		if (at.fhhgb.mc.notify.sync.drive.DriveHandler.service == null) {
 			Log.d(TAG, "New service built");
@@ -98,6 +129,12 @@ public class DriveHandler {
 		
 	}
 	
+	/**
+	 * Gets the host filelist of the folder with the specified id.
+	 * @param _folderId the id of which to get the filelist.
+	 * @return a list of files inside the specified folder
+	 * @throws IOException
+	 */
 	static public ArrayList<File> getFileList(String _folderId) throws IOException{	
 		ArrayList<File> fileList = new ArrayList<File>();
 		if(_folderId != null){
@@ -118,12 +155,25 @@ public class DriveHandler {
 		return fileList;
 	}
 	
+	/**
+	 * Uploads the given files to the folder specified in the shared preferences.
+	 * @param _context context needed for some methods
+	 * @param _activity activity that can display the authentication in case of an exception
+	 * @param _fileList the list of files to upload
+	 */
 	static public void uploadFiles(Context _context, Activity _activity, ArrayList<String> _fileList){
 		UploadThread upThread = new UploadThread(_context, _activity, _fileList);
 		Thread thread = new Thread(upThread);
 		thread.start();
 	}
 	
+	
+	/**
+	 * Deletes the specified files locally and on the host.
+	 * @param _context context needed for some methods
+	 * @param _activity activity that can display the authentication in case of an exception
+	 * @param _fileNames the files to delete
+	 */
 	static public void deleteFiles(Context _context, Activity _activity, ArrayList<String> _fileNames){
 		DeleteThread delThread = new DeleteThread(_context, _activity, _fileNames);
 		Thread thread = new Thread(delThread);

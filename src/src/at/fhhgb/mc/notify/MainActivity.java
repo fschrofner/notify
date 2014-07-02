@@ -1,7 +1,5 @@
 package at.fhhgb.mc.notify;
 
-import java.util.ArrayList;
-
 import org.jboss.aerogear.android.unifiedpush.MessageHandler;
 import org.jboss.aerogear.android.unifiedpush.Registrations;
 
@@ -19,24 +17,24 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
-import android.view.ViewTreeObserver;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.notification.NotificationService;
-import at.fhhgb.mc.notify.push.*;
-import at.fhhgb.mc.notify.ui.NotificationEditActivity;
+import at.fhhgb.mc.notify.push.PushRegisterReceiver;
 import at.fhhgb.mc.notify.ui.NotificationFragment;
 import at.fhhgb.mc.notify.ui.SettingsFragment;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
-public class MainActivity extends Activity implements OnClickListener,MessageHandler {
+/**
+ * MainActivity of the application that manages the fragments, handles pushes when in foreground
+ * and handles the option menu on the left.
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
+public class MainActivity extends Activity implements MessageHandler {
 
 	private static final String TAG = "MainActivity";
 	private String[] mDrawerTitles;
@@ -106,9 +104,7 @@ public class MainActivity extends Activity implements OnClickListener,MessageHan
 			selectItem(0);
 		}
 
-		// TODO register push on system start-up
-
-		// DriveHandler.setup(this);
+		//sync with online files on startup
 		Intent intent = new Intent(this, PushRegisterReceiver.class);
 		sendBroadcast(intent);
 		SyncHandler.updateFiles(this,this);
@@ -129,6 +125,9 @@ public class MainActivity extends Activity implements OnClickListener,MessageHan
 	}
 
 	@Override
+	/**
+	 * Compares notifications when started.
+	 */
 	protected void onStart() {
 		Intent intent = new Intent(this.getApplicationContext(), NotificationService.class);
 		intent.setAction(Notification.ACTION_START_SERVICE);
@@ -184,7 +183,10 @@ public class MainActivity extends Activity implements OnClickListener,MessageHan
 		return super.onOptionsItemSelected(item);
 	}
 
-	
+	/**
+	 * Tells the notification fragments to refresh their lists.
+	 * Can be called from another thread, since the code will be run on the main thread.
+	 */
 	public void refreshFragments(){
 		runOnUiThread(new Runnable() {
 		     @Override
@@ -212,17 +214,14 @@ public class MainActivity extends Activity implements OnClickListener,MessageHan
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-//		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
-	@Override
-	public void onClick(View v) {
-		// EditText text = (EditText) findViewById(R.id.alias_text);
-		// PushSender.sendPushToAlias(text.getText().toString());
-	}
-
+	/**
+	 * Will be called when an item at the side menu was pressed.
+	 * Switches fragments accordingly.
+	 * @param _position the position of the selected option inside the side menu
+	 */
 	private void selectItem(int _position) {
 		Log.i(TAG, "onItemClick: " + _position);
 
@@ -284,11 +283,14 @@ public class MainActivity extends Activity implements OnClickListener,MessageHan
 
 	@Override
 	public void onDeleteMessage(Context context, Bundle message) {
-		// TODO Auto-generated method stub
-		
+		//do nothing
 	}
 
 	@Override
+	/**
+	 * This method will be called, when a push arrives and the application currently
+	 * runs in foreground. Handles the push (updates the files).
+	 */
 	public void onMessage(Context context, Bundle message) {
 		Log.i(TAG, "received push in MainActivity!");
         SyncHandler.updateFiles(context.getApplicationContext(),this);
@@ -296,11 +298,13 @@ public class MainActivity extends Activity implements OnClickListener,MessageHan
 
 	@Override
 	public void onError() {
-		// TODO Auto-generated method stub
-		
+		//ain't no error handling here
 	}
 
 	@Override
+	/**
+	 * Reregisters the activity for handling pushes when the application is resumed.
+	 */
 	protected void onResume() {
 		super.onResume();
 		Registrations.registerMainThreadHandler(this);
@@ -308,6 +312,9 @@ public class MainActivity extends Activity implements OnClickListener,MessageHan
 	}
 
 	@Override
+	/**
+	 * Unregisters the activity from handling pushes when the application is put on pause.
+	 */
 	protected void onPause() {
 		super.onPause();
 		Registrations.unregisterMainThreadHandler(this);
@@ -315,7 +322,9 @@ public class MainActivity extends Activity implements OnClickListener,MessageHan
 	}
 
 	@Override
-	//refreshes the fragments when a new intent signalises an update
+	/**
+	 * Refreshes the fragments when a new intent is received.
+	 */
 	protected void onNewIntent(Intent intent) {
 		refreshFragments();
 		super.onNewIntent(intent);

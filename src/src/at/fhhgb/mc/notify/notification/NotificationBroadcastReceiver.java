@@ -3,8 +3,8 @@ package at.fhhgb.mc.notify.notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.sax.StartElementListener;
 import android.util.Log;
+
 
 public class NotificationBroadcastReceiver extends BroadcastReceiver {
 	

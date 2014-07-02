@@ -15,6 +15,12 @@ import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 import at.fhhgb.mc.notify.xml.XmlParser;
 
+
+/**
+ * Thread used to delete the files specified in the constructor in the local and on the host file system.
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class DeleteThread implements Runnable {
 	
 	static final String TAG = "DeleteThread";
@@ -26,6 +32,12 @@ public class DeleteThread implements Runnable {
 	private boolean mFinishedDeletion;
 	private boolean mConnected;
 
+	/**
+	 * Creates a new thread that deletes the file specified in the filelist when run.
+	 * @param _context context needed for some methods
+	 * @param _activity activity needed to update fragments (can be null)
+	 * @param _fileList the files to delete
+	 */
 	public DeleteThread(Context _context, Activity _activity, ArrayList<String> _fileList){
 		mContext = _context;
 		mActivity = _activity;
@@ -54,7 +66,6 @@ public class DeleteThread implements Runnable {
 				}
 			} 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -73,6 +84,10 @@ public class DeleteThread implements Runnable {
 		}
 	}
 	
+	/**
+	 * Deletes the file specified locally and on the host.
+	 * @param _fileName the name of the file to delete
+	 */
 	private void deleteFile(String _fileName){
 		java.io.File oldFile;
 		
@@ -93,7 +108,6 @@ public class DeleteThread implements Runnable {
 				}
 								
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}	
@@ -107,7 +121,6 @@ public class DeleteThread implements Runnable {
 					Thread.sleep(10000);
 					Log.i(TAG, "deletion failed! waiting for 10 seconds and retry");
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -126,6 +139,11 @@ public class DeleteThread implements Runnable {
 		}			
 	}
 	
+	
+	/**
+	 * Schedules the deletion to the next network change.
+	 * @param _fileList a filelist of deletes to schedule
+	 */
 	private void scheduleDeletion(ArrayList<String> _fileList){
 		SharedPreferences outstanding = mContext.getSharedPreferences(SyncHandler.OUTSTANDING_TASKS, Context.MODE_PRIVATE); 
 		HashSet<String> redoFileList;
@@ -151,6 +169,10 @@ public class DeleteThread implements Runnable {
 	}
 	
 	
+	/**
+	 * Deletes the file with the given name on the host
+	 * @param _fileName the name of the file to delete
+	 */
 	private void deleteHostFile(String _fileName){
 		for(int i=0; i<mHostFiles.size(); i++){
 			if(mHostFiles.get(i).getOriginalFilename().equals(_fileName)){
@@ -158,12 +180,10 @@ public class DeleteThread implements Runnable {
 					String id = mHostFiles.get(i).getId();
 					DriveHandler.service.files().delete(id).execute();
 					Log.i(TAG, "file " + _fileName + " deleted on the host filesystem");
-				} catch (IOException e) {
-					//TODO schedule a re-upload, if network error. save files to upload, if internet connectivity is deactivated.	
+				} catch (IOException e) {	
 		        	Log.w(TAG, "network error!");
 		        	boolean isConnected = SyncHandler.networkConnected(mContext);
 		        	if(!isConnected){
-		        		//TODO register broadcast receiver for network connectivity changed and save files to upload in shared preferences
 		        		mConnected = false;
 		        		Log.i(TAG, "no internet connectivity! scheduled upload for connectivity change");
 		        	}
@@ -174,12 +194,14 @@ public class DeleteThread implements Runnable {
 		mFinishedDeletion = true;	
 	}
 	
+	/**
+	 * Gets the current list of files on the server.
+	 */
 	private void updateFileList(){	
 		try {
 			String folderId = DriveFolder.checkFolder(mContext, mActivity);
 			mHostFiles = DriveHandler.getFileList(folderId);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
