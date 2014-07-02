@@ -6,22 +6,26 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import at.fhhgb.mc.notify.R;
 
+/**
+ * ArrayListAdapter used for displaying a list of notifications
+ * inside a fragment
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class ArrayListAdapter extends ArrayAdapter<String> {
 
 	private static final String TAG = "ArrayListAdapter";
 	private List<String> mMessageList;
 	private boolean[] mSelectedItemsIds;
 
+	
 	public ArrayListAdapter(Context _context, int _resource,
 			int textViewResource, List<String> _titleList,
 			List<String> _messageList) {
@@ -66,45 +70,47 @@ public class ArrayListAdapter extends ArrayAdapter<String> {
 				.setBackgroundColor(mSelectedItemsIds[_position] ? 0x9934B5E4
 						: Color.TRANSPARENT);
 
-		//TODO null-check super
 		return super.getView(_position, _convertView, _parent);
 	}
 
+	
+	/**
+	 * Marks the item at the position
+	 * @param position the position of the item
+	 */
 	 public void setNewSelection(int position) {
-	 mSelectedItemsIds[position] = true;
-	 Log.i(TAG, position + " true");
-	 notifyDataSetChanged();
+		 mSelectedItemsIds[position] = true;
+		 Log.i(TAG, position + " true");
+		 notifyDataSetChanged();
 	 }
 	
+	 
+	 /**
+	  * Unmarks the item at the given position
+	  * @param position the position of the item
+	  */
 	 public void removeSelection(int position) {
-	 mSelectedItemsIds[position] = false;
-	 notifyDataSetChanged();
+		 mSelectedItemsIds[position] = false;
+		 notifyDataSetChanged();
 	 }
 
-//	public void selectView(int position, boolean value) {
-//		if (value)
-//			mSelectedItemsIds.put(position, value);
-//		else
-//			mSelectedItemsIds.delete(position);
-//
-//		notifyDataSetChanged();
-//	}
 
-//	public void toggleSelection(int position) {
-//		selectView(position, !mSelectedItemsIds.get(position));
-//	}
-
+	 /**
+	  * Disselects all items.
+	  */
 	public void noSelection() {
 		for (int i = 0; i < mSelectedItemsIds.length; i++) {
 			mSelectedItemsIds[i] = false;
 		}
 		notifyDataSetChanged();
 	}
-//
-//	public int getSelectedCount() {
-//		return mSelectedItemsIds.size();
-//	}
 
+
+	/**
+	 * Returns a boolean array where every selected position is true
+	 * on its according index.
+	 * @return the boolean array
+	 */
 	public boolean[] getSelectedIds() {
 		return mSelectedItemsIds;
 	}

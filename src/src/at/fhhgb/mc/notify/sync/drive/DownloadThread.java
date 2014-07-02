@@ -11,33 +11,26 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
-import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.client.http.FileContent;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpResponse;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.Drive.Files;
-import com.google.api.services.drive.Drive.Files.Get;
-import com.google.api.services.drive.model.ChildList;
-import com.google.api.services.drive.model.ChildReference;
 import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import at.fhhgb.mc.notify.MainActivity;
 import at.fhhgb.mc.notify.notification.Notification;
 import at.fhhgb.mc.notify.notification.NotificationService;
-import at.fhhgb.mc.notify.push.PushConstants;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 import at.fhhgb.mc.notify.xml.XmlParser;
 
+/**
+ * Thread that synchonises the local file directory with the online files.
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class DownloadThread implements Runnable {
 
 	final static String TAG = "DownloadThread";
@@ -46,6 +39,11 @@ public class DownloadThread implements Runnable {
 	private boolean mConnected;
 	private Activity mActivity;
 	
+	/**
+	 * Creates a thread that synchronises the file directory with the online directory when run.
+	 * @param _context context needed for some methods
+	 * @param _activity activity needed to update fragments (can be null)
+	 */
 	public DownloadThread(Context _context, Activity _activity){
 		mContext = _context;
 		mDownloadFinished = false;
@@ -60,17 +58,13 @@ public class DownloadThread implements Runnable {
 			((MainActivity) mActivity).setProgressBarVisible(true);
 		}
 		
-		Log.i(TAG, "started download thread");
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);		
-		
+		Log.i(TAG, "started download thread");		
 		DriveHandler.setup(mContext);
 		
 		if(DriveHandler.service != null){
 			String folderId = DriveFolder.checkFolder(mContext,mActivity);
 			
 			
-			//at.fhhgb.mc.notify.sync.drive.DriveHandler.service = new Drive.Builder(AndroidHttp.newCompatibleTransport(),
-			//		new GsonFactory(), at.fhhgb.mc.notify.sync.drive.DriveHandler.credential).build();
 			if(folderId != null){
 				try {
 					ArrayList<File> hostFiles = DriveHandler.getFileList(folderId);
@@ -108,6 +102,13 @@ public class DownloadThread implements Runnable {
 		}
 	}
 		
+	/**
+	 * Compares the local files and the files on the host and returns a list of files that
+	 * are missing on the local file system.
+	 * @param _hostFiles the files present on the host
+	 * @param _context context needed for some methods
+	 * @return a list of files that are missing locally
+	 */
 	private ArrayList<File> getMissingFiles(ArrayList<File> _hostFiles,Context _context){
 		ArrayList<File> missingFiles = new ArrayList<File>();
 		java.io.File rootFolder = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER); 
@@ -141,8 +142,6 @@ public class DownloadThread implements Runnable {
 				if(!localFiles.contains(hostFileList.get(hostFileList.size()-1))){
 					missingFiles.add(_hostFiles.get(i));
 					Log.i(TAG, "file " + hostFileList.get(hostFileList.size()-1) + " added to missing files");
-					//TODO if there's a new revision of a file (if the filename contains a "_"
-					//and has a newer revision number) an update needs to take place
 				} else {
 					Log.i(TAG, "file " + hostFileList.get(hostFileList.size()-1) + " already exists in filesystem (or is null)");
 				}
@@ -158,13 +157,15 @@ public class DownloadThread implements Runnable {
 		return missingFiles;
 	}
 	
+	
+	/**
+	 * Deletes the specified file locally if it is outdated or currently not in upload queue.
+	 * @param _fileName the file to delete
+	 */
 	private void deleteFile(String _fileName){
 		java.io.File oldFile;
 		
-		//TODO only delete notification files (and their added files)
 		if(SyncHandler.getFileExtension(_fileName).equals(SyncHandler.NOTIFICATION_FILE_EXTENSION)){
-			//TODO get associated files for notification and check if notification is really outdated
-			//upload it otherwise
 			
 			try {
 				XmlParser parser = new XmlParser(mContext);
@@ -172,8 +173,6 @@ public class DownloadThread implements Runnable {
 
 				if(notification != null){
 					
-					//TODO check if notification is still valid
-					//TODO if yes check for revisions
 					
 					ArrayList<DateTime> dates = notification.getDates();
 					
@@ -193,8 +192,6 @@ public class DownloadThread implements Runnable {
 						if(files != null){
 							for(int i=0;i<files.size();i++){
 								SyncHandler.deleteFiles(mContext, null, files);
-//								java.io.File file = new java.io.File(SyncHandler.getFullPath(files.get(i)));
-//								file.delete();
 							}
 						}
 						oldFile = new java.io.File(SyncHandler.getFullPath(_fileName));
@@ -209,7 +206,6 @@ public class DownloadThread implements Runnable {
 				}
 								
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}	
@@ -217,6 +213,11 @@ public class DownloadThread implements Runnable {
 
 	}
 	
+	/**
+	 * Downloads the files in the given list
+	 * @param _files the files to download
+	 * @param _context context needed for some methods
+	 */
 	private void downloadFiles(ArrayList<File> _files, Context _context){
 			java.io.File rootFolder = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER); 
 			
@@ -238,7 +239,6 @@ public class DownloadThread implements Runnable {
 								Log.i(TAG, "download failed! waiting for 10 seconds and retry");
 								Thread.sleep(10000);
 							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						}
@@ -255,6 +255,11 @@ public class DownloadThread implements Runnable {
 			}		
 	}
 	
+	/**
+	 * Downloads the given file.
+	 * @param _file the file to download
+	 * @param _context context needed for some methods
+	 */
 	private void downloadFile(File _file, Context _context){
 		try {
 			InputStream inputStream = null;

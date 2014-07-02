@@ -9,9 +9,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.util.Log;
-import at.fhhgb.mc.notify.push.PushConstants;
 import at.fhhgb.mc.notify.push.PushRegisterReceiver;
 
+
+/**
+ * Broadcastreceiver that receives network changes and 
+ * executes scheduled online tasks if internet connectivity is given.
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class NetworkChangeReceiver extends BroadcastReceiver {
 
 	final static String TAG = "NetworkChangeReceiver";

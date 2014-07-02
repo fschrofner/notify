@@ -19,15 +19,20 @@ import android.util.Log;
 import android.widget.Toast;
 import at.fhhgb.mc.notify.MainActivity;
 import at.fhhgb.mc.notify.push.PushConstants;
-import at.fhhgb.mc.notify.push.PushRegisterReceiver;
-import at.fhhgb.mc.notify.sync.NetworkChangeReceiver;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 
+
+/**
+ * Activity used to choose a google drive account and request authentication.
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class AuthenticationActivity extends Activity {
 	final static String TAG = "AuthenticationActivity";
 	final static int REQUEST_ACCOUNT_PICKER = 1;
 	final static int REQUEST_AUTHENTICATION = 2;
 	
+	//filelist of pending uploads that will be retried after authentication
 	String[] mFileList;
 	
 	@Override
