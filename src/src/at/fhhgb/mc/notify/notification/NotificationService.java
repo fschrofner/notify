@@ -1,6 +1,5 @@
 package at.fhhgb.mc.notify.notification;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,26 +12,36 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.util.Log;
 import at.fhhgb.mc.notify.sync.SyncHandler;
-import at.fhhgb.mc.notify.xml.XmlCreator;
 import at.fhhgb.mc.notify.xml.XmlParser;
 
+/**
+ * Service used to compare and display notifications.
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class NotificationService extends IntentService {
 
-	public NotificationService(String name) {
-		super(name);
+	/**
+	 * Create a new service with the given name.
+	 * @param _name the name of the service
+	 */
+	public NotificationService(String _name) {
+		super(_name);
 		Log.i(TAG, "service started");
-		// TODO Auto-generated constructor stub
 	}
 	
 	public NotificationService() {
 		super("name");
 		Log.i(TAG, "service started");
-		// TODO Auto-generated constructor stub
 	}
 
 	private static final String TAG = "NotificationService";
+	
+	//name of the shared preferences were all previous triggered notifications will be saved
 	public static final String TRIGGERED_NOTIFICATIONS = "triggered_notifications";
 	
+	
+	//member variables that hold the notifications
 	private ArrayList<Notification> mNotifications;
 	public static ArrayList<Notification> mTriggeredNotifications;
 	public static ArrayList<Notification> mFutureNotifications;
@@ -41,11 +50,7 @@ public class NotificationService extends IntentService {
 	 * Reloads the notification list of the service.
 	 */
 	private void reload(){
-		//TODO these are just some test notifications, the real notifications need to be loaded from xml files here
 		mNotifications = new ArrayList<Notification>();
-//		String[] xmlList = getFilesDir().list();
-//		java.io.File fileFolder = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + SyncHandler.NOTIFICATION_FOLDER);
-//		boolean returnV = fileFolder.mkdirs();
 		
 		java.io.File rootFolder = new java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER); 
 		rootFolder.mkdirs();
@@ -64,71 +69,14 @@ public class NotificationService extends IntentService {
 				mNotifications.add(noti);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-//		Notification noti = new Notification("Test Nr. 1", "This is the first notification");
-//		noti.setStartYear(2014);
-//		noti.setStartMonth(5);
-//		noti.setStartDay(8);
-//		noti.setStartHours(8);
-//		noti.setStartMinutes(0);
-//		noti.setUniqueID(11);
-////		mNotifications.add(noti);
-//		XmlCreator creator = new XmlCreator();
-//		creator.create(noti, getApplicationContext());
-//		
-//		noti = new Notification("Test Nr. 2", "This is the second notification");
-//		noti.setStartYear(2014);
-//		noti.setStartMonth(5);
-//		noti.setStartDay(8);
-//		noti.setStartHours(9);
-//		noti.setStartMinutes(20);
-//		noti.setUniqueID(12);
-////		mNotifications.add(noti);
-//		creator = new XmlCreator();
-//		creator.create(noti, getApplicationContext());
-//		
-//		noti = new Notification("Test Nr. 3", "This is the third notification");
-//		noti.setStartYear(-1);
-//		noti.setStartMonth(-1);
-//		noti.setStartDay(-1);
-//		noti.setStartHours(-1);
-//		noti.setStartMinutes(-1);
-//		noti.setUniqueID(13);
-////		mNotifications.add(noti);
-//		creator = new XmlCreator();
-//		creator.create(noti, getApplicationContext());
-//		
-//		noti = new Notification("Test Nr. 4", "This is the fourth notification");
-//		noti.setStartYear(2015);
-//		noti.setStartMonth(5);
-//		noti.setStartDay(8);
-//		noti.setStartHours(9);
-//		noti.setStartMinutes(20);
-//		noti.setUniqueID(14);
-////		mNotifications.add(noti);
-//		creator = new XmlCreator();
-//		creator.create(noti, getApplicationContext());
-//		
-//		noti = new Notification("Test Nr. 5", "This is the fifth notification");
-//		noti.setStartYear(2014);
-//		noti.setStartMonth(5);
-//		noti.setStartDay(8);
-//		noti.setStartHours(9);
-//		noti.setStartMinutes(20);
-//		noti.setEndYear(2014);
-//		noti.setEndMonth(5);
-//		noti.setEndDay(9);
-//		noti.setEndHours(9);
-//		noti.setEndMinutes(20);
-//		noti.setUniqueID(15);
-////		mNotifications.add(noti);
-//		creator = new XmlCreator();
-//		creator.create(noti, getApplicationContext());
 	}
 	
+	/**
+	 * Registers alarms for every notification, so that the notification service
+	 * will be called at the relevant times.
+	 */
 	private void registerNotificationAlarms(){
 		reload();
 		for(int i = 0; i < mNotifications.size(); i++){
@@ -142,7 +90,6 @@ public class NotificationService extends IntentService {
 	 */
 	private void showNotifications() {
 		Log.i(TAG, "comparison called");
-//		DateTime currentDate = new DateTime(mCurrentYear, mCurrentMonth, mCurrentDay, mCurrentHours, mCurrentMinutes);
 		SharedPreferences triggeredNotifications = getSharedPreferences(TRIGGERED_NOTIFICATIONS, 0);
 		
 		compareNotifications();
@@ -160,19 +107,6 @@ public class NotificationService extends IntentService {
 				Log.i(TAG, "notification has already been shown");
 			}
 		}
-		
-//		for(int i = 0; i < mNotifications.size(); i++){ 
-//			//checks if the notification should be triggered at the current time and if it hasn't been triggered before
-//			Log.i(TAG, "CHECKING UNIQUE ID: " + mNotifications.get(i).getUniqueIDString());
-//			if(compareDates(currentDate, mNotifications.get(i)) 
-//					&& !triggeredNotifications.contains(mNotifications.get(i).getUniqueIDString())){
-//				Log.i(TAG, "matching notification: " + mNotifications.get(i).getTitle());
-//				mNotifications.get(i).showNotification(getApplicationContext());
-//				triggeredNotifications.edit().putBoolean(mNotifications.get(i).getUniqueIDString(), true).commit();
-//			} else {
-//				Log.i(TAG, "notification does not match or has already been showed");
-//			}
-//		}
 	}
 	
 	/**
@@ -244,9 +178,6 @@ public class NotificationService extends IntentService {
 		fileNames.add(fileName);
 		SyncHandler.deleteFiles(this, null, fileNames);
 		
-//		SharedPreferences triggeredNotifications = getSharedPreferences(TRIGGERED_NOTIFICATIONS, 0);
-//		triggeredNotifications.edit().remove(String.valueOf(_uniqueID)).commit();
-		
 		Notification n = new Notification();
 		n.setUniqueID(_uniqueID);
 		n.cancel(this);
@@ -256,7 +187,6 @@ public class NotificationService extends IntentService {
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

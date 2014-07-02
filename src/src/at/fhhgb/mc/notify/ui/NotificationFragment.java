@@ -8,7 +8,6 @@ import org.joda.time.DateTime;
 
 import android.app.Fragment;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ActionMode;
@@ -25,10 +24,14 @@ import android.widget.ListView;
 import at.fhhgb.mc.notify.MainActivity;
 import at.fhhgb.mc.notify.R;
 import at.fhhgb.mc.notify.notification.Notification;
-import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 import at.fhhgb.mc.notify.xml.XmlParser;
 
+/**
+ * Fragment used to display a list of notifications.
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class NotificationFragment extends Fragment implements
 		OnItemClickListener, MultiChoiceModeListener {
 
@@ -74,14 +77,24 @@ public class NotificationFragment extends Fragment implements
 		super.onStart();
 	}
 
+	/**
+	 * Updates the notifications shown in the fragment.
+	 */
 	public void updateFragment() {
 		update(mView);
 	}
 	
+	
+	/**
+	 * Displays the add option in the upper right corner.
+	 */
 	public void showAddOption() {
 		mMenu.findItem(R.id.action_add).setVisible(true);
 	}
 	
+	/**
+	 * Hides the add option in the upper right corner.
+	 */
 	public void hideAddOption() {
 		mMenu.findItem(R.id.action_add).setVisible(false);
 	}
@@ -133,8 +146,6 @@ public class NotificationFragment extends Fragment implements
 				update(mView);
 				Log.w(TAG, "title: null");
 			}
-			
-			//update(mView);
 		}
 	}
 
@@ -179,6 +190,11 @@ public class NotificationFragment extends Fragment implements
 		showLists(titleList, messageList);
 	}
 
+	
+	/**
+	 * Reloads the notifications and updates the view.
+	 * @param _v the view to update
+	 */
 	private void update(View _v) {
 		compareNotifications();
 
@@ -200,21 +216,28 @@ public class NotificationFragment extends Fragment implements
 		showLists(titleList, messageList);
 	}
 
+	/**
+	 * Shows the specified lists in the view. They need to have the same size!
+	 * @param _titleList a list of titles for every card
+	 * @param _messageList a list of messages for every card
+	 */
 	private void showLists(ArrayList<String> _titleList,
 			ArrayList<String> _messageList) {
-
 		Log.i(TAG, "show lists called!");
+		
+		if(_titleList.size() == _messageList.size()){
+			ListView v = (ListView) mView.findViewById(R.id.cardListView);
+			listAdapter = new ArrayListAdapter(getActivity(),
+					R.layout.fragment_list_item, R.id.item_title, _titleList,
+					_messageList);
 
-		ListView v = (ListView) mView.findViewById(R.id.cardListView);
-		listAdapter = new ArrayListAdapter(getActivity(),
-				R.layout.fragment_list_item, R.id.item_title, _titleList,
-				_messageList);
+			v.setAdapter(listAdapter);
+			v.setOnItemClickListener(this);
+			v.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+			v.setMultiChoiceModeListener(this);
+			listAdapter.notifyDataSetChanged();
+		}
 
-		v.setAdapter(listAdapter);
-		v.setOnItemClickListener(this);
-		v.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-		v.setMultiChoiceModeListener(this);
-		listAdapter.notifyDataSetChanged();
 	}
 
 	/**
@@ -303,11 +326,6 @@ public class NotificationFragment extends Fragment implements
 	 */
 	public void reload() {
 		mNotifications = new ArrayList<Notification>();
-		// String[] xmlList = getActivity().getFilesDir().list();
-		// java.io.File fileFolder = new
-		// java.io.File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" +
-		// SyncHandler.NOTIFICATION_FOLDER);
-		// boolean returnV = fileFolder.mkdirs();
 
 		java.io.File rootFolder = new java.io.File(
 				SyncHandler.ROOT_NOTIFICATION_FOLDER);
@@ -384,9 +402,6 @@ public class NotificationFragment extends Fragment implements
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		SharedPreferences triggeredNotifications = getActivity()
-				.getSharedPreferences(
-						NotificationService.TRIGGERED_NOTIFICATIONS, 0);
 
 		switch (item.getItemId()) {
 		case R.id.menu_delete:
@@ -404,25 +419,9 @@ public class NotificationFragment extends Fragment implements
 					} else {
 						noti = mFutureNotifications.get(i);
 					}
-
-					// int notificationID =
-					// triggeredNotifications.getInt(noti.getUniqueIDString(),
-					// -1);
-
-					// Intent action = new Intent(getActivity(),
-					// NotificationService.class);
-					// action.setAction(Notification.ACTION_DELETE);
-					// action.putExtra(Notification.EXTRA_UNIQUE_ID,
-					// noti.getUniqueID());
-					// action.putExtra(Notification.EXTRA_VERSION,
-					// noti.getVersion());
-					// action.putExtra(Notification.EXTRA_NOTIFICATION_ID,
-					// notificationID);
-					// getActivity().startService(action);
 					notiList.add(noti);
 					titles.add(noti.getTitle());
 					fileList.add(noti.getFileName());
-					// mTriggeredNotifications.remove(i);
 				}
 			}
 			
@@ -434,9 +433,6 @@ public class NotificationFragment extends Fragment implements
 				noti.cancel(getActivity());
 			}
 
-			// listAdapter.notifyDataSetChanged();
-			// listAdapter = null;
-			// update(mView);
 			mode.finish();
 			return true;
 		default:

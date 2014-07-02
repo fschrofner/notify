@@ -13,10 +13,8 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import at.fhhgb.mc.notify.MainActivity;
 import at.fhhgb.mc.notify.R;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 import at.fhhgb.mc.notify.ui.NotificationEditActivity;
@@ -31,6 +29,7 @@ import at.fhhgb.mc.notify.ui.NotificationEditActivity;
 public class Notification {
 	private final static String TAG = "Notification";
 
+	//constants that are used as keys for intent handling
 	public final static String ACTION_ALARM = "at.fhhgb.mc.notify.notification.NOTIFICATION_ALARM";
 	public final static String ACTION_DELETE = "at.fhhgb.mc.notify.notification.NOTIFICATION_DELETE";
 	public final static String ACTION_COMPARE = "at.fhhgb.mc.notify.notification.NOTIFICATION_COMPARE";
@@ -71,6 +70,7 @@ public class Notification {
 	public final static String ATTRIBUTE_END_HOURS = "end_hours";
 	public final static String ATTRIBUTE_END_MINUTES = "end_minutes";
 
+	//member variables that a notification object can hold
 	private String mTitle;
 	private int mStartYear;
 	private int mStartMonth;
@@ -91,17 +91,29 @@ public class Notification {
 	// so that multiple notification don't get concatenated
 	static int mNotificationID = 1000; //start with 1000 here to prevent a bug on Android 4.3+
 
+	
+	/**
+	 * Initialises the notification with default values. (uniqueId = -1, initialDate = -1).
+	 */
 	public Notification() {
 		initialiseDate();
 		mUniqueID = -1;
 	}
 
+	/**
+	 * Initialises the notification with the given values.
+	 * @param _title the tile of the notification
+	 * @param _message the message of the notification
+	 */
 	public Notification(String _title, String _message) {
 		initialiseDate();
 		mTitle = _title;
 		mMessage = _message;
 	}
 
+	/**
+	 * intialises the date values with -1.
+	 */
 	private void initialiseDate() {
 		mStartYear = -1;
 		mStartMonth = -1;
@@ -171,6 +183,10 @@ public class Notification {
 
 	}
 
+	/**
+	 * Dismisses any currently displayed notification corresponding to the notification object.
+	 * @param _context
+	 */
 	public void cancel(Context _context) {
 		SharedPreferences triggeredNotifications = _context.getSharedPreferences(NotificationService.TRIGGERED_NOTIFICATIONS, 0);
 		int notificationID = triggeredNotifications.getInt(getUniqueIDString(), 0);
@@ -181,6 +197,13 @@ public class Notification {
 		notificationManager.cancel(notificationID);
 	}
 
+	/**
+	 * Returns the dates set in the notification object as list.
+	 * @return a list of the dates defined in the notification object.
+	 * first value defines the starting date, second the end date.
+	 * if no date is set inside the notification object, the list contains
+	 * null at the according index.
+	 */
 	public ArrayList<DateTime> getDates() {
 		ArrayList<DateTime> dates = new ArrayList<DateTime>(2);
 		if (mStartYear != -1) {
@@ -198,6 +221,13 @@ public class Notification {
 		return dates;
 	}
 
+	
+	/**
+	 * Registers an alarm which will wake the notification service 
+	 * on the start- and end-time of the notification object.
+	 * Therefore the notification can be shown at the correct time.
+	 * @param _context an context to get the system services
+	 */
 	public void registerAlarm(Context _context) {
 		AlarmManager alarmManager = (AlarmManager) _context
 				.getSystemService(Context.ALARM_SERVICE);
@@ -271,6 +301,11 @@ public class Notification {
 		return mTitle;
 	}
 
+	/**
+	 * Set a title, make sure that the handed over object is not null.
+	 * @param title the title you want to set inside the notification object.
+	 * @throws Exception exception thrown when the handed over object is null.
+	 */
 	public void setTitle(String title) throws Exception {
 		if (title != null) {
 			this.mTitle = title;

@@ -19,15 +19,12 @@ import com.android.datetimepicker.time.TimePickerDialog.OnTimeSetListener;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.Html;
 import android.text.format.DateFormat;
@@ -46,10 +43,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import at.fhhgb.mc.notify.R;
 import at.fhhgb.mc.notify.notification.Notification;
-import at.fhhgb.mc.notify.notification.NotificationService;
 import at.fhhgb.mc.notify.sync.SyncHandler;
 import at.fhhgb.mc.notify.xml.XmlCreator;
 
+/**
+ * Activity used 
+ * @author Dominik Koeltringer & Florian Schrofner
+ *
+ */
 public class NotificationEditActivity extends Activity implements
 		OnClickListener, OnDateSetListener, OnTimeSetListener,
 		OnCheckedChangeListener {
@@ -110,11 +111,6 @@ public class NotificationEditActivity extends Activity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_notification_edit);
-		
-//		mCardContainer = (CardContainer) findViewById(R.id.image_view);
-//		mCardContainer.setOrientation(Orientation.Ordered);
-//		mCardStackAdapter = new SimpleCardStackAdapter(this);
-//		mCardContainer.setAdapter(mCardStackAdapter);
 
 		Bundle b = getIntent().getBundleExtra(Notification.KEY_ROOT);
 
@@ -233,24 +229,24 @@ public class NotificationEditActivity extends Activity implements
 		} else if (id == R.id.action_cancel) {
 			finish();
 		} else if (id == R.id.action_add_file) {
-//			Intent intent = new Intent();
-//			intent.setAction(android.content.Intent.ACTION_PICK);
-//			intent.setType("image/*");
-			Intent intent = new Intent(Intent.ACTION_PICK,
-		               android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+			Intent intent = new Intent();
+			intent.setAction(android.content.Intent.ACTION_PICK);
+			intent.setType("image/*");
 			startActivityForResult(intent, REQUESTCODE_GET_FILE);
 		}
 
 		return super.onOptionsItemSelected(item);
 	}
 
+	/**
+	 * Saves the currently selected specifications into a notification object
+	 * and then writes it to a xml-file.
+	 */
 	private void save() {
 		Notification n = new Notification();
 		XmlCreator creator = new XmlCreator();
 		EditText title = (EditText) findViewById(R.id.editTitle);
 		EditText message = (EditText) findViewById(R.id.editMessage);
-		SharedPreferences triggeredNotifications = getSharedPreferences(
-				NotificationService.TRIGGERED_NOTIFICATIONS, 0);
 
 		try {
 			n.setTitle(title.getText().toString());
@@ -267,17 +263,6 @@ public class NotificationEditActivity extends Activity implements
 			if (mVersion < 0) {
 				n.setVersion(0);
 			} else {
-//				int notificationID = triggeredNotifications.getInt(
-//						String.valueOf(mUniqueID), -1);
-//				Log.i(TAG, "Version: " + mVersion);
-//				Intent action = new Intent(this, NotificationService.class);
-//				action.setAction(Notification.ACTION_DELETE);
-//				action.putExtra(Notification.EXTRA_UNIQUE_ID, mUniqueID);
-//				action.putExtra(Notification.EXTRA_VERSION, mVersion);
-//				action.putExtra(Notification.EXTRA_NOTIFICATION_ID,
-//						notificationID);
-//				this.startService(action);
-				
 				n.setVersion(mVersion);
 				
 				mFileListDelete = new ArrayList<String>();
@@ -546,6 +531,10 @@ public class NotificationEditActivity extends Activity implements
 		}
 	}
 
+	/**
+	 * Checks if both dates are valid.
+	 * @return true = valid values, false = invalid values
+	 */
 	private boolean checkDate() {
 		if (mEndYear < 0) {
 			return true;
@@ -571,6 +560,10 @@ public class NotificationEditActivity extends Activity implements
 		return false;
 	}
 
+	/**
+	 * Shows the alert dialog corresponding to the given status.
+	 * @param _status the status of which to show the alert dialog
+	 */
 	private void showAlertDialog(int _status) {
 		AlertDialog.Builder dialog = new AlertDialog.Builder(this,
 				AlertDialog.THEME_DEVICE_DEFAULT_DARK);
@@ -621,7 +614,6 @@ public class NotificationEditActivity extends Activity implements
 			Log.e(TAG, "Error showing AlertDialog");
 		}
 
-		// dialog.setIcon(R.drawable.alerts_and_states_warning);
 		dialog.setNegativeButton(getResources()
 				.getString(R.string.alert_button),
 				new DialogInterface.OnClickListener() {
@@ -663,39 +655,6 @@ public class NotificationEditActivity extends Activity implements
 				((ViewGroup) insertPoint).addView(v, addedFiles, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 				addedFiles++;
 			}
-
-//			String path = Environment.getExternalStorageDirectory().toString() + "/DCIM/Camera/IMG_20140629_143308.jpg";
-
-//			try {
-//				copy(new File(path), new File(SyncHandler.ROOT_NOTIFICATION_FOLDER + "/" + SyncHandler.FILE_FOLDER));
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-			
-//			ImageView iv = (ImageView) v.findViewById(R.id.image_view_file);
-//			
-//			if(addedFiles == 0) {
-//				iv.setImageDrawable(getResources().getDrawable(R.drawable.test));
-//			} else {
-//				iv.setImageDrawable(getResources().getDrawable(R.drawable.test2));
-//			}
-			
-			
-//			mCardContainer = (CardContainer) findViewById(R.id.image_view);
-//			mCardContainer.setOrientation(Orientation.Ordered);
-//			mCardStackAdapter = new SimpleCardStackAdapter(this);
-//			
-//			CardModel card;
-//			
-//			if (addedFiles == 0) {
-//				card = new CardModel("Title", "Description", getResources().getDrawable(R.drawable.test));
-//				addedFiles++;
-//			} else {
-//				card = new CardModel("Title2", "Description2", getResources().getDrawable(R.drawable.test2));
-//			}
-//			
-//			mCardStackAdapter.add(card);
-//			mCardContainer.setAdapter(mCardStackAdapter);
 		}
 	}
 	
@@ -710,6 +669,12 @@ public class NotificationEditActivity extends Activity implements
 	  super.finish();
 	} 
 	
+	/**
+	 * Copies the file from source to the destination directory
+	 * @param src source file
+	 * @param dst destination file
+	 * @throws IOException
+	 */
 	public void copy(File src, File dst) throws IOException {
 	    InputStream in = new FileInputStream(src);
 	    OutputStream out = new FileOutputStream(dst);
